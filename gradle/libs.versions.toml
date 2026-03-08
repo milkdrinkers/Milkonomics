@@ -1,0 +1,76 @@
+[versions]
+paper-api = "1.21.11-R0.1-SNAPSHOT"
+paper-run = "1.21.11"
+crate = "4.0.0-RC.5"
+commandapi = "11.1.0"
+flyway = "12.0.3"
+jooq = "3.20.11"
+
+[libraries]
+# Core dependencies
+annotations = "org.jetbrains:annotations:26.1.0"
+paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
+morepaperlib = "space.arim.morepaperlib:morepaperlib:0.4.4"
+
+# API dependencies
+javasemver = "io.github.milkdrinkers:javasemver:1.0.2"
+versionwatch = "io.github.milkdrinkers:versionwatch:1.1.0"
+wordweaver = "io.github.milkdrinkers:wordweaver:0.0.7"
+crate-api = { module = "io.github.milkdrinkers:crate-api", version.ref = "crate" }
+crate-yaml = { module = "io.github.milkdrinkers:crate-yaml", version.ref = "crate" }
+colorparser = "io.github.milkdrinkers:colorparser-paper:4.1.0"
+threadutil-bukkit = "io.github.milkdrinkers:threadutil-bukkit:1.4.0"
+commandapi-shade = { module = "dev.jorel:commandapi-paper-shade", version.ref = "commandapi" }
+commandapi-annotations = { module = "dev.jorel:commandapi-paper-annotations", version.ref = "commandapi" }
+triumph-gui = "dev.triumphteam:triumph-gui-paper:3.1.13"
+
+# Plugin dependencies
+bstats = "org.bstats:bstats-bukkit:3.2.1"
+vault = "com.github.MilkBowl:VaultAPI:1.7.1"
+packetevents = "com.github.retrooper:packetevents-spigot:2.11.2"
+placeholderapi = "me.clip:placeholderapi:2.12.2"
+
+# Database dependencies
+hikaricp = "com.zaxxer:HikariCP:7.0.2"
+flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
+flyway-mysql = { module = "org.flywaydb:flyway-mysql", version.ref = "flyway" }
+jooq = { module = "org.jooq:jooq", version.ref = "jooq" }
+jakarta = "jakarta.xml.bind:jakarta.xml.bind-api:4.0.5" # Compiler bug, see: https://github.com/jOOQ/jOOQ/issues/14865#issuecomment-2077182512
+
+# JDBC drivers
+h2 = "com.h2database:h2:2.4.240"
+sqlite = "org.xerial:sqlite-jdbc:3.51.2.0"
+mysql = "com.mysql:mysql-connector-j:9.6.0"
+mariadb = "org.mariadb.jdbc:mariadb-java-client:3.5.7"
+
+# Messaging drivers
+jedis = "redis.clients:jedis:7.3.0"
+nats = "io.nats:jnats:2.25.2"
+rabbitmq = "com.rabbitmq:amqp-client:5.29.0"
+
+# Testing
+junit-bom = "org.junit:junit-bom:6.0.3"
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform = { module = "org.junit.platform:junit-platform-launcher" }
+slf4j = "org.slf4j:slf4j-simple:2.0.17"
+testcontainers-bom = "org.testcontainers:testcontainers-bom:2.0.3"
+testcontainers-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter" }
+testcontainers-mysql = { module = "org.testcontainers:testcontainers-mysql" }
+testcontainers-mariadb = { module = "org.testcontainers:testcontainers-mariadb" }
+testcontainers-redis = { module = "com.redis:testcontainers-redis", version = "2.2.4" }
+testcontainers-rabbitmq = { module = "org.testcontainers:testcontainers-rabbitmq" }
+
+[bundles]
+flyway = ["flyway-core", "flyway-mysql"]
+jdbcdrivers = ["h2", "sqlite", "mysql", "mariadb"]
+messagingclients = ["jedis", "nats", "rabbitmq"]
+junit = ["junit-jupiter", "junit-platform"]
+testcontainers = ["testcontainers-jupiter", "testcontainers-mysql", "testcontainers-mariadb", "testcontainers-redis", "testcontainers-rabbitmq"]
+
+[plugins]
+shadow = "com.gradleup.shadow:9.3.2"
+run-paper = "xyz.jpenilla.run-paper:3.0.2"
+plugin-yml-bukkit = "de.eldoria.plugin-yml.bukkit:0.8.0"
+plugin-yml-paper = "de.eldoria.plugin-yml.paper:0.8.0"
+paperweight = "io.papermc.paperweight.userdev:1.7.7"
+jooq = { id = "org.jooq.jooq-codegen-gradle", version.ref = "jooq" }
