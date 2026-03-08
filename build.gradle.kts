@@ -182,12 +182,7 @@ tasks {
 
         // Automatically install dependencies
         downloadPlugins {
-//            modrinth("carbon", "2.1.0-beta.21")
-//            github("jpenilla", "MiniMOTD", "v2.0.13", "minimotd-bukkit-2.0.13.jar")
-//            hangar("squaremap", "1.2.0")
-//            url("https://download.luckperms.net/1515/bukkit/loader/LuckPerms-Bukkit-5.4.102.jar")
             github("MilkBowl", "Vault", "1.7.3", "Vault.jar")
-            github("retrooper", "packetevents", "v2.10.0", "packetevents-spigot-2.10.0.jar")
             github("PlaceholderAPI", "PlaceholderAPI", "2.11.7", "PlaceholderAPI-2.11.7.jar")
             hangar("ViaVersion", "5.5.1")
             hangar("ViaBackwards", "5.5.1")
@@ -212,7 +207,7 @@ bukkit { // Options: https://docs.eldoria.de/pluginyml/bukkit/
     // Misc properties
     load = net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder.POSTWORLD // STARTUP or POSTWORLD
     depend = listOf()
-    softDepend = listOf("PacketEvents", "Vault", "PlaceholderAPI")
+    softDepend = listOf("Vault", "PlaceholderAPI")
     loadBefore = listOf()
     provides = listOf()
 }
@@ -237,10 +232,6 @@ paper { // Options: https://docs.eldoria.de/pluginyml/paper/
     hasOpenClassloader = true
     bootstrapDependencies {}
     serverDependencies {
-        register("PacketEvents") {
-            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
-            required = false
-        }
         register("Vault") {
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
             required = false
