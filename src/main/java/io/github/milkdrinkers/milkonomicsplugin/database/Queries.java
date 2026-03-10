@@ -2,8 +2,11 @@ package io.github.milkdrinkers.milkonomicsplugin.database;
 
 import io.github.milkdrinkers.milkonomicsplugin.cooldown.CooldownType;
 import io.github.milkdrinkers.milkonomicsplugin.cooldown.Cooldowns;
-import io.github.milkdrinkers.milkonomicsplugin.database.handler.DatabaseType;
+import io.github.milkdrinkers.milkonomicsplugin.database.schema.tables.records.AccountsRecord;
 import io.github.milkdrinkers.milkonomicsplugin.database.schema.tables.records.CooldownsRecord;
+import io.github.milkdrinkers.milkonomicsplugin.economy.account.Account;
+import io.github.milkdrinkers.milkonomicsplugin.economy.account.AccountImpl;
+import io.github.milkdrinkers.milkonomicsplugin.economy.account.AccountSnapshot;
 import io.github.milkdrinkers.milkonomicsplugin.messaging.message.BidirectionalMessage;
 import io.github.milkdrinkers.milkonomicsplugin.messaging.message.IncomingMessage;
 import io.github.milkdrinkers.milkonomicsplugin.messaging.message.OutgoingMessage;
@@ -11,18 +14,14 @@ import io.github.milkdrinkers.milkonomicsplugin.utility.DB;
 import io.github.milkdrinkers.milkonomicsplugin.utility.Logger;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jooq.*;
 
-import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.github.milkdrinkers.milkonomicsplugin.database.QueryUtils.BooleanUtil;
 import static io.github.milkdrinkers.milkonomicsplugin.database.QueryUtils.UUIDUtil;
 import static io.github.milkdrinkers.milkonomicsplugin.database.schema.Tables.*;
 import static org.jooq.impl.DSL.*;
@@ -200,6 +199,63 @@ public final class Queries {
             } catch (SQLException e) {
                 Logger.get().error("SQL Query threw an error!", e);
             }
+        }
+    }
+
+    public static final class Economy {
+        public static void save(Collection<AccountSnapshot> accounts) {
+            try (
+                Connection con = DB.getConnection()
+            ) {
+                DSLContext context = DB.getContext(con);
+
+                context.transaction(config -> {
+                    DSLContext ctx = config.dsl();
+
+                    final List<InsertOnDuplicateSetMoreStep<AccountsRecord>> queries = accounts.stream().map(account -> ctx
+                        .insertInto(
+                            ACCOUNTS,
+                            ACCOUNTS.UUID,
+                            ACCOUNTS.NAME,
+                            ACCOUNTS.BALANCE
+                        )
+                        .values(
+                            UUIDUtil.toBytes(account.uuid()),
+                            account.name(),
+                            account.balance()
+                        )
+                        .onDuplicateKeyUpdate()
+                        .set(ACCOUNTS.NAME, account.name())
+                        .set(ACCOUNTS.BALANCE, account.balance())
+                    )
+                        .toList();
+
+                    ctx.batch(queries)
+                        .execute();
+                });
+            } catch (SQLException e) {
+                Logger.get().error("SQL Query threw an error!", e);
+            }
+        }
+
+        public static List<Account> load() {
+            try (
+                Connection con = DB.getConnection()
+            ) {
+                DSLContext context = DB.getContext(con);
+
+                return context
+                    .selectFrom(ACCOUNTS)
+                    .fetch()
+                    .map(r -> new AccountImpl(
+                        UUIDUtil.fromBytes(r.getUuid()),
+                        r.getName(),
+                        r.getBalance()
+                    ));
+            } catch (SQLException e) {
+                Logger.get().error("SQL Query threw an error!", e);
+            }
+            return Collections.emptyList();
         }
     }
 }

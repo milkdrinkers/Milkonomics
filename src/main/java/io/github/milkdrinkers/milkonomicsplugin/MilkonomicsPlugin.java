@@ -4,6 +4,8 @@ import io.github.milkdrinkers.milkonomicsplugin.command.CommandHandler;
 import io.github.milkdrinkers.milkonomicsplugin.config.ConfigHandler;
 import io.github.milkdrinkers.milkonomicsplugin.cooldown.CooldownHandler;
 import io.github.milkdrinkers.milkonomicsplugin.database.handler.DatabaseHandler;
+import io.github.milkdrinkers.milkonomicsplugin.economy.AccountManager;
+import io.github.milkdrinkers.milkonomicsplugin.economy.AccountSaveHandler;
 import io.github.milkdrinkers.milkonomicsplugin.hook.HookManager;
 import io.github.milkdrinkers.milkonomicsplugin.listener.ListenerHandler;
 import io.github.milkdrinkers.milkonomicsplugin.messaging.MessagingHandler;
@@ -38,6 +40,8 @@ public class MilkonomicsPlugin extends JavaPlugin {
     private UpdateHandler updateHandler;
     private SchedulerHandler schedulerHandler;
     private CooldownHandler cooldownHandler;
+    private AccountSaveHandler accountSaveHandler;
+    private AccountManager accountManager;
 
     // Handlers list (defines order of load/enable/disable)
     private List<? extends Reloadable> handlers;
@@ -72,6 +76,8 @@ public class MilkonomicsPlugin extends JavaPlugin {
         updateHandler = new UpdateHandler(this);
         schedulerHandler = new SchedulerHandler();
         cooldownHandler = new CooldownHandler();
+        accountSaveHandler = new AccountSaveHandler();
+        accountManager = new AccountManager(accountSaveHandler);
 
         handlers = List.of(
             configHandler,
@@ -83,7 +89,9 @@ public class MilkonomicsPlugin extends JavaPlugin {
             listenerHandler,
             updateHandler,
             schedulerHandler,
-            cooldownHandler
+            cooldownHandler,
+            accountSaveHandler,
+            accountManager
         );
 
         DB.init(databaseHandler);
@@ -151,5 +159,24 @@ public class MilkonomicsPlugin extends JavaPlugin {
     @NotNull
     public UpdateHandler getUpdateHandler() {
         return updateHandler;
+    }
+
+    /**
+     * Gets account manager.
+     *
+     * @return the account manager
+     */
+    @NotNull
+    public AccountManager getAccountManager() {
+        return accountManager;
+    }
+
+    /**
+     * Gets account save handler.
+     * @return the account save handler
+      */
+    @NotNull
+    public AccountSaveHandler getAccountSaveHandler() {
+        return accountSaveHandler;
     }
 }

@@ -1,5 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.config;
 
+import io.github.milkdrinkers.crate.internal.settings.ReloadSetting;
 import io.github.milkdrinkers.milkonomicsplugin.MilkonomicsPlugin;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import io.github.milkdrinkers.crate.Config;
@@ -26,10 +27,12 @@ public class ConfigHandler implements Reloadable {
         cfg = Config.builderConfig()
             .path(plugin.getDataFolder().toPath().resolve("config.yml"))
             .defaults(plugin.getResource("config.yml"))
+            .reload(ReloadSetting.MANUALLY)
             .build(); // Create a config file from the template in our resources folder
         databaseCfg = Config.builderConfig()
             .path(plugin.getDataFolder().toPath().resolve("database.yml"))
             .defaults(plugin.getResource("database.yml"))
+            .reload(ReloadSetting.MANUALLY)
             .build();
     }
 

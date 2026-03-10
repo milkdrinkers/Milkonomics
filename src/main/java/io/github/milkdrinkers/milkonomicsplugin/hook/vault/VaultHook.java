@@ -4,7 +4,6 @@ import io.github.milkdrinkers.milkonomicsplugin.MilkonomicsPlugin;
 import io.github.milkdrinkers.milkonomicsplugin.hook.AbstractHook;
 import io.github.milkdrinkers.milkonomicsplugin.hook.Hook;
 import net.milkbowl.vault.chat.Chat;
-import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
  * A hook to interface with the <a href="https://github.com/MilkBowl/VaultAPI">Vault API</a>.
  */
 public class VaultHook extends AbstractHook implements Listener {
-    private @Nullable RegisteredServiceProvider<Economy> rspEconomy;
     private @Nullable RegisteredServiceProvider<Permission> rspPermissions;
     private @Nullable RegisteredServiceProvider<Chat> rspChat;
 
@@ -34,7 +32,6 @@ public class VaultHook extends AbstractHook implements Listener {
     public void onEnable(MilkonomicsPlugin plugin) {
         if (!isHookLoaded()) return;
 
-        setEconomy(getPlugin().getServer().getServicesManager().getRegistration(Economy.class));
         setPermissions(getPlugin().getServer().getServicesManager().getRegistration(Permission.class));
         setChat(getPlugin().getServer().getServicesManager().getRegistration(Chat.class));
     }
@@ -43,7 +40,6 @@ public class VaultHook extends AbstractHook implements Listener {
     public void onDisable(MilkonomicsPlugin plugin) {
         if (!isHookLoaded()) return;
 
-        setEconomy(null);
         setPermissions(null);
         setChat(null);
     }
@@ -56,36 +52,6 @@ public class VaultHook extends AbstractHook implements Listener {
     @Override
     public boolean isHookLoaded() {
         return isPluginEnabled(Hook.Vault.getPluginName());
-    }
-
-    /**
-     * Check if a vault economy plugin is loaded.
-     *
-     * @return boolean
-     */
-    public boolean isEconomyLoaded() {
-        return rspEconomy != null && getEconomy() != null;
-    }
-
-    /**
-     * Gets vault economy instance. Should only be used after {@link #isEconomyLoaded()}.
-     *
-     * @return vault instance
-     */
-    public Economy getEconomy() {
-        if (rspEconomy == null)
-            throw new NullPointerException("The plugin tried to use Vault without it being loaded. Use the VaultHook#isHookLoaded method before using vault methods.");
-        return rspEconomy.getProvider();
-    }
-
-    /**
-     * Sets the vault economy service provider.
-     *
-     * @param rsp The service provider providing {@link Economy}
-     */
-    @ApiStatus.Internal
-    private void setEconomy(@Nullable RegisteredServiceProvider<Economy> rsp) {
-        this.rspEconomy = rsp;
     }
 
     /**
@@ -159,7 +125,6 @@ public class VaultHook extends AbstractHook implements Listener {
         RegisteredServiceProvider<?> rsp = e.getProvider();
         Object rspProvider = rsp.getProvider();
         switch (rspProvider) {
-            case Economy ignored -> setEconomy((RegisteredServiceProvider<Economy>) rsp);
             case Permission ignored -> setPermissions((RegisteredServiceProvider<Permission>) rsp);
             case Chat ignored -> setChat((RegisteredServiceProvider<Chat>) rsp);
             default -> {
