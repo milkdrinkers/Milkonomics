@@ -69,4 +69,8 @@ public class AccountManager implements Reloadable {
         getAccountsReverseLookup().put(account.getName(), account.getUUID());
         saveHandler.queue(account);
     }
+
+    public Economy getEconomy() {
+        return economy;
+    }
 }
