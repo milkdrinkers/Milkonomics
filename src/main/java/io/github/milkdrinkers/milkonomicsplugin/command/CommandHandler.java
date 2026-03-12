@@ -39,6 +39,7 @@ public class CommandHandler implements Reloadable {
         // Register commands here
         new MilkonomicsCommand();
         new BalanceCommand(plugin);
+        new AdminCommand(plugin);
     }
 
     @Override

@@ -3,6 +3,8 @@ package io.github.milkdrinkers.milkonomicsplugin.command;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandAPIPaper;
+import dev.jorel.commandapi.arguments.DoubleArgument;
+import dev.jorel.commandapi.arguments.PlayerProfileArgument;
 import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
@@ -19,18 +21,37 @@ public class AdminCommand {
 
     public AdminCommand(MilkonomicsPlugin plugin) {
         this.plugin = plugin;
+
+        new CommandAPICommand("money")
+            .withAliases("milkonomicsadmin", "ma")
+            .withSubcommands(
+                commandAdd(),
+                commandRemove(),
+                commandReset()
+            )
+            .withPermission("milkonomics.command.admin")
+            .register();
     }
 
     private CommandAPICommand commandAdd() {
-
+        return new CommandAPICommand("add")
+            .withArguments(new PlayerProfileArgument("player"), new DoubleArgument("amount"))
+            .withPermission("milkonomics.command.admin.add")
+            .executes(this::executorAdd);
     }
 
     private CommandAPICommand commandRemove() {
-
+        return new CommandAPICommand("remove")
+            .withArguments(new PlayerProfileArgument("player"), new DoubleArgument("amount"))
+            .withPermission("milkonomics.command.admin.remove")
+            .executes(this::executorRemove);
     }
 
     private CommandAPICommand commandReset() {
-
+        return new CommandAPICommand("reset")
+            .withArguments(new PlayerProfileArgument("player"))
+            .withPermission("milkonomics.command.admin.reset")
+            .executes(this::executorReset);
     }
 
     private void executorAdd(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
