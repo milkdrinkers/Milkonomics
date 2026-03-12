@@ -10,13 +10,13 @@ import static io.github.milkdrinkers.milkonomicsplugin.command.CommandHandler.BA
 /**
  * Class containing the code for the example command.
  */
-class ExampleCommand {
+class MilkonomicsCommand {
     /**
      * Instantiates and registers a new command.
      */
-    protected ExampleCommand() {
-        new CommandAPICommand("example")
-            .withHelp("Example command.", "Example command.")
+    protected MilkonomicsCommand() {
+        new CommandAPICommand("milkonomics")
+            .withHelp("Base command.", "Base command.")
             .withPermission(BASE_PERM)
             .withSubcommands(
                 new TranslationCommand().command(),

@@ -17,6 +17,25 @@
         "not-empty2": "<red>Translation entry for node \"<u><node></u>\" is empty!"
       }
     },
+    "balance": {
+      "not-player": "<red>You must either specify a player or run the command as a player.",
+      "player-not-found": "<red>Player not found!",
+      "balance": "<white>Balance of <u><player></u>: <symbol><green><amount></green>"
+    },
+    "admin": {
+      "add": {
+        "player-not-found": "<red>Player not found!",
+        "success": "<green>Successfully added <symbol><amount> to <player>'s account."
+      },
+      "remove": {
+        "player-not-found": "<red>Player not found!",
+        "success": "<green>Successfully removed <symbol><amount> from <player>'s account."
+      },
+      "reset": {
+        "player-not-found": "<red>Player not found!",
+        "success": "<green>Successfully reset <player>'s account."
+      }
+    },
     "dump": {
       "success": "<green>Successfully uploaded dump to <hover:show_text:'Click to open link'><click:open_url:'<link>'><u><link></u></click></hover>.",
       "failure": "<red>Failed to upload dump: <error>",
