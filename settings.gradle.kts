@@ -12,3 +12,7 @@ plugins {
 rootProject.name = "MilkonomicsPlugin"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+include("api", "paper")
+
+include("common")
