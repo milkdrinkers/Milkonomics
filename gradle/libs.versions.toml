@@ -5,6 +5,7 @@ crate = "4.0.0-RC.5"
 commandapi = "11.1.0"
 flyway = "12.1.0"
 jooq = "3.20.11"
+configurate = "4.2.0-GeyserMC-SNAPSHOT"
 
 [libraries]
 # Core dependencies
@@ -18,6 +19,11 @@ versionwatch = "io.github.milkdrinkers:versionwatch:1.1.0"
 wordweaver = "io.github.milkdrinkers:wordweaver:0.0.7"
 crate-api = { module = "io.github.milkdrinkers:crate-api", version.ref = "crate" }
 crate-yaml = { module = "io.github.milkdrinkers:crate-yaml", version.ref = "crate" }
+yaml = { module = "org.yaml:snakeyaml", version = "2.5" }
+configurate-interface-ap = { module = "org.spongepowered:configurate-extra-interface-ap", version.ref = "configurate" }
+configurate-interface = { module = "org.spongepowered:configurate-extra-interface", version.ref = "configurate" }
+configurate-core = { module = "org.spongepowered:configurate-core", version.ref = "configurate" }
+configurate-yaml = { module = "org.spongepowered:configurate-yaml", version.ref = "configurate" }
 colorparser = "io.github.milkdrinkers:colorparser-paper:4.1.0"
 threadutil-bukkit = "io.github.milkdrinkers:threadutil-bukkit:1.4.0"
 commandapi-shade = { module = "dev.jorel:commandapi-paper-shade", version.ref = "commandapi" }
@@ -72,5 +78,5 @@ shadow = "com.gradleup.shadow:9.3.2"
 run-paper = "xyz.jpenilla.run-paper:3.0.2"
 plugin-yml-bukkit = "de.eldoria.plugin-yml.bukkit:0.8.0"
 plugin-yml-paper = "de.eldoria.plugin-yml.paper:0.8.0"
-paperweight = "io.papermc.paperweight.userdev:1.7.7"
 jooq = { id = "org.jooq.jooq-codegen-gradle", version.ref = "jooq" }
+publisher = "com.vanniktech.maven.publish:0.34.0"
