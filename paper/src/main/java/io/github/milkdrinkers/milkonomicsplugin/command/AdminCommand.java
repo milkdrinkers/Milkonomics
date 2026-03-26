@@ -8,7 +8,7 @@ import dev.jorel.commandapi.arguments.PlayerProfileArgument;
 import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
-import io.github.milkdrinkers.milkonomicsplugin.MilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
 import io.github.milkdrinkers.wordweaver.Translation;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -17,20 +17,20 @@ import java.math.BigDecimal;
 
 public class AdminCommand {
 
-    private MilkonomicsPlugin plugin;
+    private AbstractMilkonomicsPlugin plugin;
 
-    public AdminCommand(MilkonomicsPlugin plugin) {
+    public AdminCommand(AbstractMilkonomicsPlugin plugin) {
         this.plugin = plugin;
+    }
 
-        new CommandAPICommand("money")
-            .withAliases("milkonomicsadmin", "ma")
+    public CommandAPICommand command() {
+        return new CommandAPICommand("admin")
             .withSubcommands(
                 commandAdd(),
                 commandRemove(),
                 commandReset()
             )
-            .withPermission("milkonomics.command.admin")
-            .register();
+            .withPermission("milkonomics.command.admin");
     }
 
     private CommandAPICommand commandAdd() {
@@ -62,7 +62,7 @@ public class AdminCommand {
 
         double amount = args.getByClassOrDefault("amount", Double.class, 0.0);
 
-        plugin.getAccountManager().getEconomy().depositPlayer(Bukkit.getOfflinePlayer(profile.getUniqueId()), amount);
+        plugin.getEconomyProvider().depositPlayer(Bukkit.getOfflinePlayer(profile.getUniqueId()), amount);
     }
 
     private void executorRemove(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
@@ -73,7 +73,7 @@ public class AdminCommand {
 
         double amount = args.getByClassOrDefault("amount", Double.class, 0.0);
 
-        plugin.getAccountManager().getEconomy().withdrawPlayer(Bukkit.getOfflinePlayer(profile.getUniqueId()), amount);
+        plugin.getEconomyProvider().withdrawPlayer(Bukkit.getOfflinePlayer(profile.getUniqueId()), amount);
     }
 
     private void executorReset(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
@@ -85,7 +85,8 @@ public class AdminCommand {
         BigDecimal balance = BigDecimal.valueOf(0); // TODO get default balance from config
 
         // Accessing the account directly rather than through EconomyImpl to make use of the "setBalance" method.
-        plugin.getAccountManager().getAccount(profile.getId()).setBalance(balance);
+        if (plugin.getAccountManager().getAccount(profile.getId()).isPresent())
+            plugin.getAccountManager().getAccount(profile.getId()).get().set(balance);
     }
 
 }

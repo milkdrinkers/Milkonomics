@@ -38,9 +38,7 @@ public class CommandHandler implements Reloadable {
         CommandAPI.onEnable();
 
         // Register commands here
-        new MilkonomicsCommand();
-        new BalanceCommand(plugin);
-        new AdminCommand(plugin);
+        new MilkonomicsCommand(plugin);
     }
 
     @Override

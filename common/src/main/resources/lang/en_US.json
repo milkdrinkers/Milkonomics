@@ -36,6 +36,13 @@
         "success": "<green>Successfully reset <player>'s account."
       }
     },
+    "pay": {
+      "player-not-found": "<red>Player not found!",
+      "success": "<green>Successfully paid <symbol><amount> to <player>'s account.",
+      "success-target": "<green>You were paid <symbol><amount> by <player>.",
+      "insufficient-funds": "<red>Insufficient funds!",
+      "self-payment": "<red>You cannot pay yourself!"
+    },
     "dump": {
       "success": "<green>Successfully uploaded dump to <hover:show_text:'Click to open link'><click:open_url:'<link>'><u><link></u></click></hover>.",
       "failure": "<red>Failed to upload dump: <error>",

@@ -7,43 +7,46 @@ import dev.jorel.commandapi.arguments.PlayerProfileArgument;
 import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
-import io.github.milkdrinkers.milkonomicsplugin.MilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
 import io.github.milkdrinkers.wordweaver.Translation;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Optional;
+
 public class BalanceCommand {
 
-    private MilkonomicsPlugin plugin;
+    private AbstractMilkonomicsPlugin plugin;
 
-    public BalanceCommand(MilkonomicsPlugin plugin) {
+    public BalanceCommand(AbstractMilkonomicsPlugin plugin) {
         this.plugin = plugin;
 
-        new CommandAPICommand("balance")
+        command().register();
+    }
+
+    public CommandAPICommand command() {
+        return new CommandAPICommand("balance")
             .withHelp("Check your own, or someone else's balance.", "Check your own, or someone else's balance.") // TODO translation
             .withPermission("milkonomics.command.balance")
             .withOptionalArguments(new PlayerProfileArgument("player"))
-            .executes(this::executor)
-            .register();
+            .executes(this::executor);
     }
 
     private void executor(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
         double balance;
-        if (args.count() < 1) {
+        Optional<PlayerProfile> profileOptional = args.getOptionalByClass("player", PlayerProfile.class);
+        if (profileOptional.isEmpty()) {
             if (!(sender instanceof Player player)) {
                 throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.of("commands.balance.not-player")).build());
             }
 
-            balance = plugin.getAccountManager().getEconomy().getBalance(player);
+            balance = plugin.getEconomyProvider().getBalance(player);
         } else {
-            PlayerProfile profile = args.getByClassOrDefault("player", PlayerProfile.class, null);
-            if (profile == null) {
-                throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.of("commands.balance.player-not-found")).build());
-            }
-            OfflinePlayer player = Bukkit.getOfflinePlayer(profile.getUniqueId());
-            balance = plugin.getAccountManager().getEconomy().getBalance(player);
+            PlayerProfile profile = profileOptional.get();
+            OfflinePlayer player = Bukkit.getOfflinePlayer(profile.getId());
+            balance = plugin.getEconomyProvider().getBalance(player);
         }
 
         sender.sendMessage(ColorParser.of(Translation.of("commands.balance.balance"))

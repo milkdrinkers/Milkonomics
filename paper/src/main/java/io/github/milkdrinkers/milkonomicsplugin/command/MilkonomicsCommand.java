@@ -3,6 +3,7 @@ package io.github.milkdrinkers.milkonomicsplugin.command;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
+import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
 import org.bukkit.command.CommandSender;
 
 import static io.github.milkdrinkers.milkonomicsplugin.command.CommandHandler.BASE_PERM;
@@ -14,13 +15,16 @@ class MilkonomicsCommand {
     /**
      * Instantiates and registers a new command.
      */
-    protected MilkonomicsCommand() {
+    protected MilkonomicsCommand(AbstractMilkonomicsPlugin plugin) {
         new CommandAPICommand("milkonomics")
             .withHelp("Base command.", "Base command.")
             .withPermission(BASE_PERM)
             .withSubcommands(
                 new TranslationCommand().command(),
-                new DumpCommand().command()
+                new DumpCommand().command(),
+                new AdminCommand(plugin).command(),
+                new BalanceCommand(plugin).command(),
+                new PayCommand(plugin).command()
             )
             .executes(this::executorExample)
             .register();

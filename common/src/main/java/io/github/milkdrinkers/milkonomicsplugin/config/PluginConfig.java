@@ -5,6 +5,7 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 
+import java.util.Map;
 import java.util.function.Function;
 
 @ConfigSerializable
