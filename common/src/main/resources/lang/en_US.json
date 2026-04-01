@@ -41,7 +41,8 @@
       "success": "<green>Successfully paid <symbol><amount> to <player>'s account.",
       "success-target": "<green>You were paid <symbol><amount> by <player>.",
       "insufficient-funds": "<red>Insufficient funds!",
-      "self-payment": "<red>You cannot pay yourself!"
+      "self-payment": "<red>You cannot pay yourself!",
+      "target-not-accepting-payments": "<red><player> isn't accepting payments."
     },
     "dump": {
       "success": "<green>Successfully uploaded dump to <hover:show_text:'Click to open link'><click:open_url:'<link>'><u><link></u></click></hover>.",

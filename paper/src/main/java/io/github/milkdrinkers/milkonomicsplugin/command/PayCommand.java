@@ -9,6 +9,7 @@ import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.player.PlayerDataHolder;
 import io.github.milkdrinkers.wordweaver.Translation;
 import org.bukkit.entity.Player;
 
@@ -38,7 +39,11 @@ public class PayCommand {
         Player target = plugin.getServer().getPlayer(profile.getId());
         double amount = args.getByClassOrDefault("amount", Double.class, 0.0);
 
-        if (target == null) throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.pay.player-not-found")).build());
+        if (target == null)
+            throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.pay.player-not-found")).build());
+
+        if (!PlayerDataHolder.getInstance().getPlayerData(target.getUniqueId()).isAcceptingPayments())
+            throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.pay.target-not-accepting-payments")).with("player", target.displayName()).build());
 
         if (target.getUniqueId() == sender.getUniqueId()) throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.pay.self")).build());
 

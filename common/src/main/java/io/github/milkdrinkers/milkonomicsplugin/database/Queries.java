@@ -258,4 +258,40 @@ public final class Queries {
             return Collections.emptyList();
         }
     }
+
+    public static final class Players {
+        public static boolean loadAcceptingPayments(UUID uuid) {
+            try (
+                Connection con = DB.getConnection()
+            ) {
+                DSLContext context = DB.getContext(con);
+
+                return context
+                    .selectFrom(PLAYERDATA)
+                    .where(PLAYERDATA.UUID.eq(UUIDUtil.toBytes(uuid)))
+                    .fetchOptional(PLAYERDATA.ACCEPTING_PAYMENTS)
+                    .orElse(true);
+            } catch (SQLException e) {
+                Logger.get().error("SQL Query threw an error!", e);
+            }
+            return true;
+        }
+
+        public static void saveAcceptingPayments(UUID uuid, boolean acceptingPayments) {
+            try (
+                Connection con = DB.getConnection()
+            ) {
+                DSLContext context = DB.getContext(con);
+
+                context
+                    .insertInto(PLAYERDATA, PLAYERDATA.UUID, PLAYERDATA.ACCEPTING_PAYMENTS)
+                    .values(UUIDUtil.toBytes(uuid), acceptingPayments)
+                    .onDuplicateKeyUpdate()
+                    .set(PLAYERDATA.ACCEPTING_PAYMENTS, acceptingPayments)
+                    .execute();
+            } catch (SQLException e) {
+                Logger.get().error("SQL Query threw an error!", e);
+            }
+        }
+    }
 }
