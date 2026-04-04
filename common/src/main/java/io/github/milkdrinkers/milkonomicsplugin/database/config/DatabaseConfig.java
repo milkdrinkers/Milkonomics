@@ -1,7 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.database.config;
 
 import io.github.milkdrinkers.milkonomicsplugin.database.handler.DatabaseType;
-import io.github.milkdrinkers.crate.Config;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 
@@ -242,42 +241,23 @@ public class DatabaseConfig {
      * @param cfg the cfg
      * @return the database config from file
      */
-    public static DatabaseConfig fromConfig(Config cfg) {
-        String databaseType = cfg.getString("database.type");
-        String tablePrefix = cfg.getString("database.table-prefix");
-
-        String host = cfg.getString("database.host");
-        Integer port = cfg.getInt("database.port");
-        String database = cfg.getString("database.database");
-        String username = cfg.getString("database.username");
-        String password = cfg.getString("database.password");
-
-        boolean repair = cfg.getBoolean("database.advanced.repair");
-
-        Integer maxPoolSize = cfg.getInt("database.advanced.connection-pool.max-pool-size");
-        Integer minIdle = cfg.getInt("database.advanced.connection-pool.min-idle");
-        Long maxLifeTime = cfg.getLong("database.advanced.connection-pool.max-lifetime");
-        Long keepAliveTime = cfg.getLong("database.advanced.connection-pool.keepalive-time");
-        Long connectionTimeout = cfg.getLong("database.advanced.connection-pool.connection-timeout");
-
-        Map<String, Object> connectionProperties = cfg.getMapParameterized("database.advanced.connection-properties");
-
+    public static DatabaseConfig fromConfig(io.github.milkdrinkers.milkonomicsplugin.config.DatabaseConfig cfg, Path databasePath) {
         return builder()
-            .withDatabaseType(databaseType)
-            .withTablePrefix(tablePrefix)
-            .withPath(Path.of(cfg.getFilePath()).getParent())
-            .withHost(host)
-            .withPort(port)
-            .withDatabase(database)
-            .withUsername(username)
-            .withPassword(password)
-            .withRepair(repair)
-            .withMaxPoolSize(maxPoolSize)
-            .withMinIdle(minIdle)
-            .withMaxLifeTime(maxLifeTime)
-            .withKeepAliveTime(keepAliveTime)
-            .withConnectionTimeout(connectionTimeout)
-            .withConnectionProperties(connectionProperties)
+            .withDatabaseType(cfg.database.type)
+            .withTablePrefix(cfg.database.tablePrefix)
+            .withPath(databasePath)
+            .withHost(cfg.database.host)
+            .withPort(cfg.database.port)
+            .withDatabase(cfg.database.database)
+            .withUsername(cfg.database.username)
+            .withPassword(cfg.database.password)
+            .withRepair(cfg.database.advanced.repair)
+            .withMaxPoolSize(cfg.database.advanced.connectionPool.maxpoolsize)
+            .withMinIdle(cfg.database.advanced.connectionPool.minidle)
+            .withMaxLifeTime(cfg.database.advanced.connectionPool.maxlifetime)
+            .withKeepAliveTime(cfg.database.advanced.connectionPool.keepalivetime)
+            .withConnectionTimeout(cfg.database.advanced.connectionPool.connectiontimeout)
+            .withConnectionProperties(cfg.database.advanced.connectionProperties)
             .build();
     }
 
