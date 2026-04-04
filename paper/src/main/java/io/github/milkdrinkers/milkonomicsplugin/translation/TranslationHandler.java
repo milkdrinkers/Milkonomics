@@ -21,25 +21,16 @@ public class TranslationHandler implements Reloadable {
     }
 
     @Override
-    public void onLoad(AbstractMilkonomicsPlugin plugin) {
-
-    }
-
-    @Override
     public void onEnable(AbstractMilkonomicsPlugin plugin) {
         Translation.initialize(TranslationConfig.builder() // Initialize word-weaver
             .translationDirectory(plugin.getDataPath().resolve("lang"))
             .resourcesDirectory(Path.of("lang"))
             .extractLanguages(true)
             .updateLanguages(true)
-            .language(configHandler.getConfig().get("language", "en_US"))
+            .language(configHandler.getConfig().language)
             .defaultLanguage("en_US")
             .componentConverter(s -> ColorParser.of(s).build()) // Use color parser for components by default
             .build()
         );
-    }
-
-    @Override
-    public void onDisable(AbstractMilkonomicsPlugin plugin) {
     }
 }

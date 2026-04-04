@@ -36,19 +36,11 @@ public class UpdateHandler implements Reloadable {
     }
 
     /**
-     * On plugin load.
-     */
-    @Override
-    public void onLoad(AbstractMilkonomicsPlugin plugin) {
-    }
-
-    /**
      * On plugin enable.
      */
     @Override
     public void onEnable(AbstractMilkonomicsPlugin plugin) {
-        final boolean shouldLog = Cfg.get().updateChecker.enabled
-        final boolean shouldLog = Cfg.get().getOrDefault("update-checker.enable", true) && Cfg.get().getOrDefault("update-checker.console", true);
+        final boolean shouldLog = Cfg.get().updateChecker.enabled && Cfg.get().updateChecker.console;
 
         // Fetch the latest version and send message to console
         watcher.fetchLatestAsync().thenAccept(version -> {
@@ -90,7 +82,7 @@ public class UpdateHandler implements Reloadable {
                 if (watcher.isLatest())
                     return;
 
-                if (!Cfg.get().getOrDefault("update-checker.enable", true) || !Cfg.get().getOrDefault("update-checker.op", true))
+                if (!Cfg.get().updateChecker.enabled || !Cfg.get().updateChecker.op)
                     return;
 
                 if (!p.isOp())
@@ -112,19 +104,11 @@ public class UpdateHandler implements Reloadable {
     }
 
     /**
-     * On plugin disable.
-     */
-    @Override
-    public void onDisable(AbstractMilkonomicsPlugin plugin) {
-    }
-
-    /**
      * Get the current version of the plugin or 0.0.1 if it can't be found.
      *
      * @param plugin the plugin instance
      * @return the current version of the plugin
      */
-    @SuppressWarnings("UnstableApiUsage")
     private Version getCurrentVersion(MilkonomicsPlugin plugin) {
         try {
             return Version.of(plugin.getPluginMeta().getVersion());

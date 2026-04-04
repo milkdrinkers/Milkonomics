@@ -1,6 +1,7 @@
 package io.github.milkdrinkers.milkonomicsplugin.config.loading;
 
 import io.github.milkdrinkers.milkonomicsplugin.config.common.VersionedConfig;
+import io.github.milkdrinkers.milkonomicsplugin.config.typeserializer.StringObjectMapSerializer;
 import io.github.milkdrinkers.milkonomicsplugin.utility.Logger;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
@@ -21,9 +22,11 @@ import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -84,7 +87,7 @@ public class ConfigLoader {
         try {
             return new Loader().loadInternal(configClass);
         } catch (IOException e) {
-            Logger.get().error("Failed to load config file of type: " + configClass.getSimpleName(), e);
+            Logger.get().error("Failed to load config file of type: {}", configClass.getSimpleName(), e);
             return null;
         }
     }
@@ -146,6 +149,28 @@ public class ConfigLoader {
         }
 
         private YamlConfigurationLoader createLoader(File file) {
+            final TypeToken<Map<String, Object>> stringObjectMapToken = new TypeToken<>() { // Used to serialize/deserialize Map<String, Object> objects
+                @Override
+                public Type getType() {
+                    return new ParameterizedType() {
+                        @Override
+                        public Type @NotNull [] getActualTypeArguments() {
+                            return new Type[]{String.class, Object.class};
+                        }
+
+                        @Override
+                        public @NotNull Type getRawType() {
+                            return Map.class;
+                        }
+
+                        @Override
+                        public Type getOwnerType() {
+                            return null;
+                        }
+                    };
+                }
+            };
+
             return YamlConfigurationLoader.builder()
                 .file(file)
                 .indent(2)
@@ -153,7 +178,10 @@ public class ConfigLoader {
                 .defaultOptions(options -> InterfaceDefaultOptions.addTo(options, builder -> {})
                     .shouldCopyDefaults(false) // If we use ConfigurationNode#get(type, default), do not write the default back to the node.
                     .header(header)
-                    .serializers(builder -> builder.register(new LowercaseEnumSerializer()))
+                    .serializers(builder -> {
+                        builder.register(new LowercaseEnumSerializer());
+                        builder.registerExact(stringObjectMapToken, new StringObjectMapSerializer());
+                    })
                 )
                 .build();
         }
@@ -224,49 +252,48 @@ public class ConfigLoader {
          * @author GeyserMC
          * @link <a href="https://github.com/GeyserMC/Geyser">Github</a>
          */
-        private record ConfigurationCommentMover(
-            CommentedConfigurationNode otherRoot) implements ConfigurationVisitor.Stateless<RuntimeException> {
-                    private ConfigurationCommentMover(@NotNull CommentedConfigurationNode otherRoot) {
-                        this.otherRoot = otherRoot;
-                    }
+        private record ConfigurationCommentMover(CommentedConfigurationNode otherRoot) implements ConfigurationVisitor.Stateless<RuntimeException> {
+            private ConfigurationCommentMover(@NotNull CommentedConfigurationNode otherRoot) {
+                this.otherRoot = otherRoot;
+            }
 
-                    @Override
-                    public void enterNode(final ConfigurationNode node) {
-                        if (!(node instanceof CommentedConfigurationNode destination)) {
-                            throw new IllegalStateException(node.path() + " is not a CommentedConfigurationNode"); // Should not occur because all nodes in a tree are the same type, and our static method below ensures this visitor is only used on CommentedConfigurationNodes
-                        }
-
-                        final CommentedConfigurationNode source = otherRoot.node(node.path()); // Node with the same path
-
-                        moveSingle(source, destination);
-                    }
-
-                    private static void moveSingle(@NotNull CommentedConfigurationNode source, @NotNull CommentedConfigurationNode destination) {
-                        final String comment = source.comment();
-                        if (comment != null) {
-                            destination.comment(comment);
-                        }
-                    }
-
-                    /**
-                     * Moves comments from a source node and its children to a destination node and its children (of a different tree), overriding if necessary.
-                     * Comments are only moved to the destination node and its children which exist.
-                     * Comments are only moved to and from nodes with the exact same path.
-                     *
-                     * @param source the source of the comments, which must be the topmost parent of a tree.
-                     * @param destination the destination of the comments, any node in a different tree.
-                     */
-                    public static void moveComments(@NotNull CommentedConfigurationNode source, @NotNull CommentedConfigurationNode destination) {
-                        if (source.parent() != null) {
-                            throw new IllegalArgumentException("source is not the base of the tree it is within: " + source.path());
-                        }
-
-                        if (source.isNull()) { // It has no value(s), but may still have a comment on it. Don't bother traversing the whole destination tree.
-                            moveSingle(source, destination);
-                        } else {
-                            destination.visit(new ConfigurationCommentMover(source));
-                        }
-                    }
+            @Override
+            public void enterNode(final ConfigurationNode node) {
+                if (!(node instanceof CommentedConfigurationNode destination)) {
+                    throw new IllegalStateException(node.path() + " is not a CommentedConfigurationNode"); // Should not occur because all nodes in a tree are the same type, and our static method below ensures this visitor is only used on CommentedConfigurationNodes
                 }
+
+                final CommentedConfigurationNode source = otherRoot.node(node.path()); // Node with the same path
+
+                moveSingle(source, destination);
+            }
+
+            private static void moveSingle(@NotNull CommentedConfigurationNode source, @NotNull CommentedConfigurationNode destination) {
+                final String comment = source.comment();
+                if (comment != null) {
+                    destination.comment(comment);
+                }
+            }
+
+            /**
+             * Moves comments from a source node and its children to a destination node and its children (of a different tree), overriding if necessary.
+             * Comments are only moved to the destination node and its children which exist.
+             * Comments are only moved to and from nodes with the exact same path.
+             *
+             * @param source the source of the comments, which must be the topmost parent of a tree.
+             * @param destination the destination of the comments, any node in a different tree.
+             */
+            public static void moveComments(@NotNull CommentedConfigurationNode source, @NotNull CommentedConfigurationNode destination) {
+                if (source.parent() != null) {
+                    throw new IllegalArgumentException("source is not the base of the tree it is within: " + source.path());
+                }
+
+                if (source.isNull()) { // It has no value(s), but may still have a comment on it. Don't bother traversing the whole destination tree.
+                    moveSingle(source, destination);
+                } else {
+                    destination.visit(new ConfigurationCommentMover(source));
+                }
+            }
+        }
     }
 }

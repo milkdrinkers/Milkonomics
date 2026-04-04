@@ -205,9 +205,9 @@ public final class Queries {
     public static final class Economy {
         public static void save(Collection<AccountSnapshot> accounts) {
             try (
-                Connection con = DB.getConnection()
+                final Connection con = DB.getConnection()
             ) {
-                DSLContext context = DB.getContext(con);
+                final DSLContext context = DB.getContext(con);
 
                 context.transaction(config -> {
                     DSLContext ctx = config.dsl();
@@ -240,9 +240,9 @@ public final class Queries {
 
         public static List<Account> load() {
             try (
-                Connection con = DB.getConnection()
+                final Connection con = DB.getConnection()
             ) {
-                DSLContext context = DB.getContext(con);
+                final DSLContext context = DB.getContext(con);
 
                 return context
                     .selectFrom(ACCOUNTS)
