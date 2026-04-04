@@ -15,12 +15,12 @@ public abstract class Account implements AccountBalance, DenominationBalance {
     private final Denomination defaultDenomination;
     private final Map<String, BalanceEntry> balances = new ConcurrentHashMap<>();
 
-    public Account(UUID uuid, String name, Denomination defaultDenomination, Map<Denomination, BigDecimal> initialBalances) {
+    public Account(UUID uuid, String name, Denomination defaultDenomination, Map<String, BigDecimal> initialBalances) {
         this.uuid = uuid;
         this.name = name;
         this.defaultDenomination = defaultDenomination;
-        for (Map.Entry<Denomination, BigDecimal> entry : initialBalances.entrySet()) {
-            this.balances.put(entry.getKey().getId(), new BalanceEntry(entry.getValue()));
+        for (Map.Entry<String, BigDecimal> entry : initialBalances.entrySet()) {
+            this.balances.put(entry.getKey(), new BalanceEntry(entry.getValue()));
         }
     }
 
@@ -28,7 +28,7 @@ public abstract class Account implements AccountBalance, DenominationBalance {
         this.uuid = uuid;
         this.name = name;
         this.defaultDenomination = defaultDenomination;
-        this.balances.put(defaultDenomination.getId(), new BalanceEntry(initialBalance));
+        this.balances.put(defaultDenomination.id(), new BalanceEntry(initialBalance));
     }
 
     public Account(UUID uuid, String name, Denomination defaultDenomination) {
@@ -46,6 +46,12 @@ public abstract class Account implements AccountBalance, DenominationBalance {
     @Override
     public BigDecimal get() {
         return get(defaultDenomination);
+    }
+
+    public Map<String, BigDecimal> getAllBalances() {
+        Map<String, BigDecimal> result = new ConcurrentHashMap<>();
+        balances.forEach((denomId, entry) -> result.put(denomId, entry.read(() -> entry.balance)));
+        return result;
     }
 
     @Override
@@ -71,24 +77,24 @@ public abstract class Account implements AccountBalance, DenominationBalance {
 
     @Override
     public BigDecimal get(Denomination denomination) {
-        return getEntry(denomination).read(() -> balances.get(denomination.getId()).balance);
+        return getEntry(denomination).read(() -> balances.get(denomination.id()).balance);
     }
 
     @Override
     public boolean set(Denomination denomination, BigDecimal amount) {
-        getEntry(denomination).writeWith(() -> balances.get(denomination.getId()).balance = amount);
+        getEntry(denomination).writeWith(() -> balances.get(denomination.id()).balance = amount);
         return true;
     }
 
     @Override
     public boolean has(Denomination denomination, BigDecimal amount) {
-        return getEntry(denomination).read(() -> balances.get(denomination.getId()).balance.compareTo(amount) >= 0);
+        return getEntry(denomination).read(() -> balances.get(denomination.id()).balance.compareTo(amount) >= 0);
     }
 
     @Override
     public boolean withdraw(Denomination denomination, BigDecimal amount) {
         return getEntry(denomination).writeAndGet(() -> {
-            final BalanceEntry entry = balances.get(denomination.getId());
+            final BalanceEntry entry = balances.get(denomination.id());
             if (entry.balance.compareTo(amount) < 0) {
                 return false;
             }
@@ -100,14 +106,14 @@ public abstract class Account implements AccountBalance, DenominationBalance {
     @Override
     public boolean deposit(Denomination denomination, BigDecimal amount) {
         getEntry(denomination).writeWith(() -> {
-            final BalanceEntry entry = balances.get(denomination.getId());
+            final BalanceEntry entry = balances.get(denomination.id());
             entry.balance = entry.balance.add(amount);
         });
         return true;
     }
 
     private BalanceEntry getEntry(Denomination denomination) {
-        return balances.computeIfAbsent(denomination.getId(), id -> new BalanceEntry(BigDecimal.ZERO));
+        return balances.computeIfAbsent(denomination.id(), id -> new BalanceEntry(BigDecimal.ZERO));
     }
 
     private static class BalanceEntry {

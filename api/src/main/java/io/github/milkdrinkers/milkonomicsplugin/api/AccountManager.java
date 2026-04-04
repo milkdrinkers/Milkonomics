@@ -29,7 +29,7 @@ public abstract class AccountManager<A extends Account> {
      * @return A new, unregistered account instance.
      * @apiNote Implementations should not register the account themselves.
      */
-    protected abstract A newAccount(UUID uuid, String name, Denomination defaultDenomination, Map<Denomination, BigDecimal> initialBalances);
+    protected abstract A newAccount(UUID uuid, String name, Denomination defaultDenomination, Map<String, BigDecimal> initialBalances);
 
     /**
      * Looks up an account by UUID.
@@ -83,7 +83,7 @@ public abstract class AccountManager<A extends Account> {
      * @param initialBalances The starting balances.
      * @return The newly created account, or the existing account if one already existed.
      */
-    public A createAccount(UUID uuid, String name, Denomination defaultDenomination, Map<Denomination, BigDecimal> initialBalances) {
+    public A createAccount(UUID uuid, String name, Denomination defaultDenomination, Map<String, BigDecimal> initialBalances) {
         A existing = accounts.get(uuid);
         if (existing != null) {
             return existing;
@@ -111,7 +111,7 @@ public abstract class AccountManager<A extends Account> {
      * @see #createAccount(UUID, String, Denomination, Map)
      */
     public A createAccount(UUID uuid, String name, Denomination defaultDenomination) {
-        return createAccount(uuid, name, defaultDenomination, Map.of(defaultDenomination, BigDecimal.ZERO));
+        return createAccount(uuid, name, defaultDenomination, Map.of(defaultDenomination.id(), BigDecimal.ZERO));
     }
 
     /**

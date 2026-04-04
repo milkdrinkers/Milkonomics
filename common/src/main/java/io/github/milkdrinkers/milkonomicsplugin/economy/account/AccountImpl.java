@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class AccountImpl extends Account {
-    public AccountImpl(UUID uuid, String name, Denomination defaultDenomination, Map<Denomination, BigDecimal> initialBalances) {
+    public AccountImpl(UUID uuid, String name, Denomination defaultDenomination, Map<String, BigDecimal> initialBalances) {
         super(uuid, name, defaultDenomination, initialBalances);
     }
 

@@ -17,6 +17,7 @@ public class ConfigHandler implements Reloadable {
     private final AbstractMilkonomicsPlugin plugin;
     private PluginConfig cfg;
     private DatabaseConfig databaseCfg;
+    private List<DenominationConfig> denominationConfigs;
 
     /**
      * Instantiates a new Config handler.
@@ -52,7 +53,7 @@ public class ConfigHandler implements Reloadable {
             .build(DatabaseConfig.class);
 
 
-
+        denominationConfigs = loadDenominations(plugin);
     }
 
     private List<DenominationConfig> loadDenominations(AbstractMilkonomicsPlugin plugin) {
@@ -90,5 +91,14 @@ public class ConfigHandler implements Reloadable {
      */
     public DatabaseConfig getDatabaseConfig() {
         return databaseCfg;
+    }
+
+    /**
+     * Gets the list of denomination configs.
+     *
+     * @return the list of denomination configs
+     */
+    public List<DenominationConfig> getDenominationConfigs() {
+        return denominationConfigs;
     }
 }

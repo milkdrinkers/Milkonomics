@@ -1,12 +1,15 @@
 package io.github.milkdrinkers.milkonomicsplugin.api.denomination;
 
+import java.math.BigDecimal;
+
 public interface Denomination {
-    String getId();
-    String getDisplayName();
-    String getSymbol();
-    String getPrefix();
-    String getSuffix();
-    String getFormat();
-    String getDecimalPlaces();
-    String isDefault();
+    String id();
+    String displayName();
+    String symbol();
+    String prefix();
+    String suffix();
+    String format();
+    int decimalPlaces();
+    boolean isDefault();
+    BigDecimal defaultBalance();
 }

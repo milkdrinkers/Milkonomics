@@ -5,6 +5,7 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 @ConfigSerializable
@@ -32,6 +33,9 @@ public class DenominationConfig implements VersionedConfig {
 
     @Comment("Whether this denomination is the default denomination used in transactions.")
     public boolean isDefault = true;
+
+    @Comment("The default balance each account starts with.")
+    public BigDecimal defaultBalance = BigDecimal.valueOf(0.0);
 
     @Override
     public int configVersion() {
