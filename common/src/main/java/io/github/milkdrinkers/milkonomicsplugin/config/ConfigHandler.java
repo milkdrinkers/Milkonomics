@@ -6,9 +6,9 @@ import io.github.milkdrinkers.milkonomicsplugin.config.loading.ConfigLoader;
 import io.github.milkdrinkers.milkonomicsplugin.utility.Logger;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A class that generates/loads {@literal &} provides access to a configuration file.
@@ -30,16 +30,6 @@ public class ConfigHandler implements Reloadable {
 
     @Override
     public void onLoad(AbstractMilkonomicsPlugin plugin) {
-//        cfg = Config.builderConfig()
-//            .path(plugin.getDataFolder().toPath().resolve("config.yml"))
-//            .defaults(plugin.getResource("config.yml"))
-//            .reload(ReloadSetting.MANUALLY)
-//            .build(); // Create a config file from the template in our resources folder
-//        databaseCfg = Config.builderConfig()
-//            .path(plugin.getDataFolder().toPath().resolve("database.yml"))
-//            .defaults(plugin.getResource("database.yml"))
-//            .reload(ReloadSetting.MANUALLY)
-//            .build();
         cfg = new ConfigLoader()
             .withDirectory()
             .withPath(plugin.getDataFolder().toPath().resolve("config.yml"))
@@ -52,7 +42,6 @@ public class ConfigHandler implements Reloadable {
             .withHeader("")
             .build(DatabaseConfig.class);
 
-
         denominationConfigs = loadDenominations(plugin);
     }
 
@@ -63,15 +52,29 @@ public class ConfigHandler implements Reloadable {
             return List.of();
         }
 
-        return Arrays.stream(denominationsPath.listFiles())
+        final File[] files = denominationsPath.listFiles();
+        if (files == null) {
+            Logger.get().error("Failed to get files in denominations directory at {}", denominationsPath.getAbsolutePath());
+            return List.of();
+        }
+
+        if (files.length == 0) {
+            Logger.get().warn("No denomination config files found in {}, creating default file.", denominationsPath.getAbsolutePath());
+
+            return List.of(Objects.requireNonNull(new ConfigLoader()
+                .withDirectory()
+                .withFile(denominationsPath.toPath().resolve("dollar.yml").toFile())
+                .withHeader("")
+                .build(DenominationConfig.class)));
+        }
+
+        return Arrays.stream(files)
             .filter(file -> file.isFile() && file.getName().endsWith(".yml"))
-            .map(file -> {
-                    return new ConfigLoader()
-                        .withDirectory()
-                        .withFile(file)
-                        .withHeader("")
-                        .build(DenominationConfig.class);
-                })
+            .map(file -> new ConfigLoader()
+                .withDirectory()
+                .withFile(file)
+                .withHeader("")
+                .build(DenominationConfig.class))
             .toList();
     }
 
