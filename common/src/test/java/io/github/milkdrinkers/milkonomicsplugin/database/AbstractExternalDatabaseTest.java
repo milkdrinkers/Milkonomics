@@ -1,8 +1,8 @@
-package io.github.milkdrinkers.milkonomicsplugin.database;
+package io.github.milkdrinkers.milkonomics.database;
 
-import io.github.milkdrinkers.milkonomicsplugin.database.config.DatabaseConfig;
-import io.github.milkdrinkers.milkonomicsplugin.database.handler.DatabaseHandler;
-import io.github.milkdrinkers.milkonomicsplugin.utility.DB;
+import io.github.milkdrinkers.milkonomics.database.config.DatabaseConfig;
+import io.github.milkdrinkers.milkonomics.database.handler.DatabaseHandler;
+import io.github.milkdrinkers.milkonomics.utility.DB;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;

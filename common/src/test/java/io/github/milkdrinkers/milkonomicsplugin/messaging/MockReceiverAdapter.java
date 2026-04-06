@@ -1,8 +1,8 @@
-package io.github.milkdrinkers.milkonomicsplugin.messaging;
+package io.github.milkdrinkers.milkonomics.messaging;
 
-import io.github.milkdrinkers.milkonomicsplugin.event.MockEventSystem;
-import io.github.milkdrinkers.milkonomicsplugin.messaging.adapter.receiver.ReceiverAdapter;
-import io.github.milkdrinkers.milkonomicsplugin.messaging.message.IncomingMessage;
+import io.github.milkdrinkers.milkonomics.event.MockEventSystem;
+import io.github.milkdrinkers.milkonomics.messaging.adapter.receiver.ReceiverAdapter;
+import io.github.milkdrinkers.milkonomics.messaging.message.IncomingMessage;
 
 public class MockReceiverAdapter extends ReceiverAdapter {
     @Override

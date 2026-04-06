@@ -1,4 +1,4 @@
-package io.github.milkdrinkers.milkonomicsplugin.messaging;
+package io.github.milkdrinkers.milkonomics.messaging;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

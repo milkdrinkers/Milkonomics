@@ -1,4 +1,4 @@
-package io.github.milkdrinkers.milkonomicsplugin.messaging;
+package io.github.milkdrinkers.milkonomics.messaging;
 
 @SuppressWarnings("unused")
 public record MessengerTestParams(String type) {

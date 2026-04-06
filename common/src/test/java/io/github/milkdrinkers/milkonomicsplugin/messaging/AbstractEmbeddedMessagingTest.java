@@ -1,12 +1,12 @@
-package io.github.milkdrinkers.milkonomicsplugin.messaging;
+package io.github.milkdrinkers.milkonomics.messaging;
 
-import io.github.milkdrinkers.milkonomicsplugin.database.DatabaseTestParams;
-import io.github.milkdrinkers.milkonomicsplugin.database.DatabaseTestUtils;
-import io.github.milkdrinkers.milkonomicsplugin.database.config.DatabaseConfig;
-import io.github.milkdrinkers.milkonomicsplugin.database.handler.DatabaseHandler;
-import io.github.milkdrinkers.milkonomicsplugin.messaging.config.MessagingConfig;
-import io.github.milkdrinkers.milkonomicsplugin.utility.DB;
-import io.github.milkdrinkers.milkonomicsplugin.utility.Messaging;
+import io.github.milkdrinkers.milkonomics.database.DatabaseTestParams;
+import io.github.milkdrinkers.milkonomics.database.DatabaseTestUtils;
+import io.github.milkdrinkers.milkonomics.database.config.DatabaseConfig;
+import io.github.milkdrinkers.milkonomics.database.handler.DatabaseHandler;
+import io.github.milkdrinkers.milkonomics.messaging.config.MessagingConfig;
+import io.github.milkdrinkers.milkonomics.utility.DB;
+import io.github.milkdrinkers.milkonomics.utility.Messaging;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 

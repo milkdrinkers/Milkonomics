@@ -1,6 +1,6 @@
-package io.github.milkdrinkers.milkonomicsplugin.database;
+package io.github.milkdrinkers.milkonomics.database;
 
-import io.github.milkdrinkers.milkonomicsplugin.database.handler.DatabaseType;
+import io.github.milkdrinkers.milkonomics.database.handler.DatabaseType;
 
 @SuppressWarnings("unused")
 public record DatabaseTestParams(String jdbcPrefix, DatabaseType requiredDatabaseType, String tablePrefix) {

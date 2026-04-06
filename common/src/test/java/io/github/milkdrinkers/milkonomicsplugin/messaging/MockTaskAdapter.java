@@ -1,6 +1,6 @@
-package io.github.milkdrinkers.milkonomicsplugin.messaging;
+package io.github.milkdrinkers.milkonomics.messaging;
 
-import io.github.milkdrinkers.milkonomicsplugin.messaging.adapter.task.TaskAdapter;
+import io.github.milkdrinkers.milkonomics.messaging.adapter.task.TaskAdapter;
 
 import java.util.Map;
 import java.util.concurrent.*;

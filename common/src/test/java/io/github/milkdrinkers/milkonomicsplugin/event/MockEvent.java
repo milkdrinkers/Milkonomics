@@ -1,4 +1,4 @@
-package io.github.milkdrinkers.milkonomicsplugin.event;
+package io.github.milkdrinkers.milkonomics.event;
 
 public abstract class MockEvent {
 }

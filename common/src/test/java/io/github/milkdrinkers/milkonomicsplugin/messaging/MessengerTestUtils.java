@@ -1,4 +1,4 @@
-package io.github.milkdrinkers.milkonomicsplugin.messaging;
+package io.github.milkdrinkers.milkonomics.messaging;
 
 import com.redis.testcontainers.RedisContainer;
 import org.jetbrains.annotations.TestOnly;
