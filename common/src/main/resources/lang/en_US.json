@@ -25,11 +25,11 @@
     "admin": {
       "add": {
         "player-not-found": "<red>Player not found!",
-        "success": "<green>Successfully added <symbol><amount> to <player>'s account."
+        "success": "<green>Successfully added <prefix><amount><suffix> to <player>'s account."
       },
       "remove": {
         "player-not-found": "<red>Player not found!",
-        "success": "<green>Successfully removed <symbol><amount> from <player>'s account."
+        "success": "<green>Successfully removed <prefix><amount><suffix> from <player>'s account."
       },
       "reset": {
         "player-not-found": "<red>Player not found!",
@@ -38,11 +38,16 @@
     },
     "pay": {
       "player-not-found": "<red>Player not found!",
-      "success": "<green>Successfully paid <symbol><amount> to <player>'s account.",
-      "success-target": "<green>You were paid <symbol><amount> by <player>.",
+      "success": "<green>Successfully paid <prefix><amount><suffix> to <player>'s account.",
+      "success-target": "<green>You were paid <prefix><amount><suffix> by <player>.",
       "insufficient-funds": "<red>Insufficient funds!",
       "self-payment": "<red>You cannot pay yourself!",
       "target-not-accepting-payments": "<red><player> isn't accepting payments."
+    },
+    "baltop": {
+      "no-balances": "<red>There are no balances to display.",
+      "page": "Page <u><page></u>.",
+      "format": "<rank> | <account>: <prefix><balance><suffix>"
     },
     "dump": {
       "success": "<green>Successfully uploaded dump to <hover:show_text:'Click to open link'><click:open_url:'<link>'><u><link></u></click></hover>.",

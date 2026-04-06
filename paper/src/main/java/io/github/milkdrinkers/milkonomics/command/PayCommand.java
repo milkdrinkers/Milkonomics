@@ -1,4 +1,4 @@
-package io.github.milkdrinkers.milkonomicsplugin.command;
+package io.github.milkdrinkers.milkonomics.command;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import dev.jorel.commandapi.CommandAPICommand;
@@ -8,16 +8,17 @@ import dev.jorel.commandapi.arguments.PlayerProfileArgument;
 import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
+import io.github.milkdrinkers.milkonomics.utility.Cfg;
 import io.github.milkdrinkers.milkonomics.player.PlayerDataHolder;
 import io.github.milkdrinkers.wordweaver.Translation;
 import org.bukkit.entity.Player;
 
 public class PayCommand {
 
-    AbstractMilkonomicsPlugin plugin;
+    AbstractMilkonomics plugin;
 
-    public PayCommand(AbstractMilkonomicsPlugin plugin) {
+    public PayCommand(AbstractMilkonomics plugin) {
         this.plugin = plugin;
 
         command().register();
@@ -53,15 +54,17 @@ public class PayCommand {
         plugin.getEconomyProvider().depositPlayer(plugin.getServer().getPlayer(target.getUniqueId()), amount);
 
         sender.sendMessage(ColorParser.of(Translation.as("commands.pay.success"))
+            .with("prefix", Cfg.getDefaultDenominationCfg().prefix)
             .with("amount", String.valueOf(amount))
+            .with("suffix", Cfg.getDefaultDenominationCfg().suffix)
             .with("player", target.displayName())
-            .with("symbol", "$") // TODO config
             .build());
 
         target.sendMessage(ColorParser.of(Translation.as("commands.pay.success-target"))
+            .with("prefix", Cfg.getDefaultDenominationCfg().prefix)
             .with("amount", String.valueOf(amount))
+            .with("suffix", Cfg.getDefaultDenominationCfg().suffix) // TODO
             .with("player", sender.displayName())
-            .with("symbol", "$") // TODO config
             .build());
     }
 }

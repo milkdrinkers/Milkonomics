@@ -1,4 +1,4 @@
-package io.github.milkdrinkers.milkonomicsplugin.command;
+package io.github.milkdrinkers.milkonomics.command;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import dev.jorel.commandapi.CommandAPICommand;
@@ -8,7 +8,8 @@ import dev.jorel.commandapi.arguments.PlayerProfileArgument;
 import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
+import io.github.milkdrinkers.milkonomics.utility.Cfg;
 import io.github.milkdrinkers.wordweaver.Translation;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -17,9 +18,9 @@ import java.math.BigDecimal;
 
 public class AdminCommand {
 
-    private AbstractMilkonomicsPlugin plugin;
+    private AbstractMilkonomics plugin;
 
-    public AdminCommand(AbstractMilkonomicsPlugin plugin) {
+    public AdminCommand(AbstractMilkonomics plugin) {
         this.plugin = plugin;
     }
 
@@ -82,7 +83,7 @@ public class AdminCommand {
             throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.of("commands.admin.reset.player-not-found")).build());
         }
 
-        BigDecimal balance = BigDecimal.valueOf(0); // TODO get default balance from config
+        BigDecimal balance = Cfg.getDefaultDenominationCfg().defaultBalance; // TODO get default balance from config
 
         // Accessing the account directly rather than through EconomyImpl to make use of the "setBalance" method.
         if (plugin.getAccountManager().getAccount(profile.getId()).isPresent())

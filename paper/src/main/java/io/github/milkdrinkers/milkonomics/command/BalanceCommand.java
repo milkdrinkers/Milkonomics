@@ -1,4 +1,4 @@
-package io.github.milkdrinkers.milkonomicsplugin.command;
+package io.github.milkdrinkers.milkonomics.command;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import dev.jorel.commandapi.CommandAPICommand;
@@ -7,7 +7,8 @@ import dev.jorel.commandapi.arguments.PlayerProfileArgument;
 import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
+import io.github.milkdrinkers.milkonomics.utility.Cfg;
 import io.github.milkdrinkers.wordweaver.Translation;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -18,9 +19,9 @@ import java.util.Optional;
 
 public class BalanceCommand {
 
-    private AbstractMilkonomicsPlugin plugin;
+    private AbstractMilkonomics plugin;
 
-    public BalanceCommand(AbstractMilkonomicsPlugin plugin) {
+    public BalanceCommand(AbstractMilkonomics plugin) {
         this.plugin = plugin;
 
         command().register();
@@ -50,8 +51,9 @@ public class BalanceCommand {
         }
 
         sender.sendMessage(ColorParser.of(Translation.of("commands.balance.balance"))
+            .with("prefix", Cfg.getDefaultDenominationCfg().prefix)
             .with("amount", String.valueOf(balance))
-            .with("symbol", "$") // TODO make configurable
+            .with("suffix", Cfg.getDefaultDenominationCfg().suffix)
             .build());
     }
 

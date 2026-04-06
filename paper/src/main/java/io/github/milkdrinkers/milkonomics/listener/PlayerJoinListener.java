@@ -1,7 +1,7 @@
-package io.github.milkdrinkers.milkonomicsplugin.listener;
+package io.github.milkdrinkers.milkonomics.listener;
 
-import io.github.milkdrinkers.milkonomicsplugin.cooldown.Cooldowns;
-import io.github.milkdrinkers.milkonomicsplugin.database.Queries;
+import io.github.milkdrinkers.milkonomics.cooldown.Cooldowns;
+import io.github.milkdrinkers.milkonomics.database.Queries;
 import io.github.milkdrinkers.milkonomics.event.PlayerDataLoadedEvent;
 import io.github.milkdrinkers.milkonomics.player.PlayerData;
 import io.github.milkdrinkers.milkonomics.player.PlayerDataBuilder;
