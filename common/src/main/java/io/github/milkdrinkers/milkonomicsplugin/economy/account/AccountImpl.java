@@ -13,14 +13,6 @@ public class AccountImpl extends Account {
         super(uuid, name, defaultDenomination, initialBalances);
     }
 
-    public AccountImpl(UUID uuid, String name, Denomination defaultDenomination, BigDecimal initialBalance) {
-        super(uuid, name, defaultDenomination, initialBalance);
-    }
-
-    public AccountImpl(UUID uuid, String name, Denomination defaultDenomination) {
-        super(uuid, name, defaultDenomination);
-    }
-
     @Override
     public AccountSnapshot getSnapshot() {
         return null;
