@@ -1,15 +1,15 @@
 package io.github.milkdrinkers.milkonomics.hook;
 
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
-import io.github.milkdrinkers.milkonomics.MilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomics.Milkonomics;
 import io.github.milkdrinkers.milkonomics.Reloadable;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractHook implements Reloadable {
-    private final MilkonomicsPlugin plugin;
+    private final Milkonomics plugin;
 
-    protected AbstractHook(MilkonomicsPlugin plugin) {
+    protected AbstractHook(Milkonomics plugin) {
         this.plugin = plugin;
     }
 
@@ -18,7 +18,7 @@ public abstract class AbstractHook implements Reloadable {
      *
      * @return plugin instance
      */
-    protected MilkonomicsPlugin getPlugin() {
+    protected Milkonomics getPlugin() {
         return plugin;
     }
 

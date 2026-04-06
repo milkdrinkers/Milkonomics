@@ -1,7 +1,7 @@
 package io.github.milkdrinkers.milkonomics.hook.placeholderapi;
 
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
-import io.github.milkdrinkers.milkonomics.MilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomics.Milkonomics;
 import io.github.milkdrinkers.milkonomics.hook.AbstractHook;
 import io.github.milkdrinkers.milkonomics.hook.Hook;
 
@@ -16,7 +16,7 @@ public class PAPIHook extends AbstractHook {
      *
      * @param plugin the plugin instance
      */
-    public PAPIHook(MilkonomicsPlugin plugin) {
+    public PAPIHook(Milkonomics plugin) {
         super(plugin);
     }
 

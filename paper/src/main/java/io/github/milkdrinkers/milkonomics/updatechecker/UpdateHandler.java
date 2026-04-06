@@ -1,7 +1,7 @@
 package io.github.milkdrinkers.milkonomics.updatechecker;
 
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
-import io.github.milkdrinkers.milkonomics.MilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomics.Milkonomics;
 import io.github.milkdrinkers.milkonomics.Reloadable;
 import io.github.milkdrinkers.milkonomics.utility.Cfg;
 import io.github.milkdrinkers.milkonomics.utility.Logger;
@@ -25,7 +25,7 @@ public class UpdateHandler implements Reloadable {
 
     private final VersionWatcher watcher;
 
-    public UpdateHandler(MilkonomicsPlugin plugin) {
+    public UpdateHandler(Milkonomics plugin) {
         this.watcher = VersionWatcher.builder()
             .withPlatform(Platform.GitHub)
             .withVersion(getCurrentVersion(plugin))
@@ -109,7 +109,7 @@ public class UpdateHandler implements Reloadable {
      * @param plugin the plugin instance
      * @return the current version of the plugin
      */
-    private Version getCurrentVersion(MilkonomicsPlugin plugin) {
+    private Version getCurrentVersion(Milkonomics plugin) {
         try {
             return Version.of(plugin.getPluginMeta().getVersion());
         } catch (VersionParseException e) {

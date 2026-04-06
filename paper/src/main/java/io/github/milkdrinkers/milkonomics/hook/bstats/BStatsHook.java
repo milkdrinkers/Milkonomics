@@ -1,7 +1,7 @@
 package io.github.milkdrinkers.milkonomics.hook.bstats;
 
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
-import io.github.milkdrinkers.milkonomics.MilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomics.Milkonomics;
 import io.github.milkdrinkers.milkonomics.hook.AbstractHook;
 import org.bstats.bukkit.Metrics;
 import org.jetbrains.annotations.ApiStatus;
@@ -19,7 +19,7 @@ public class BStatsHook extends AbstractHook {
      *
      * @param plugin the plugin instance
      */
-    public BStatsHook(MilkonomicsPlugin plugin) {
+    public BStatsHook(Milkonomics plugin) {
         super(plugin);
     }
 

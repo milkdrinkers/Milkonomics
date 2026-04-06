@@ -1,7 +1,7 @@
 package io.github.milkdrinkers.milkonomics.hook.vault;
 
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
-import io.github.milkdrinkers.milkonomics.MilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomics.Milkonomics;
 import io.github.milkdrinkers.milkonomics.hook.AbstractHook;
 import io.github.milkdrinkers.milkonomics.hook.Hook;
 import net.milkbowl.vault.chat.Chat;
@@ -25,7 +25,7 @@ public class VaultHook extends AbstractHook implements Listener {
      *
      * @param plugin the plugin instance
      */
-    public VaultHook(MilkonomicsPlugin plugin) {
+    public VaultHook(Milkonomics plugin) {
         super(plugin);
     }
 

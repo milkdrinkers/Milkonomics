@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 @SuppressWarnings({"unused", "UnstableApiUsage"})
-public class MilkonomicsPluginPluginLoader implements PluginLoader {
+public class MilkonomicsPluginLoader implements PluginLoader {
     @Override
     public void classloader(@NotNull PluginClasspathBuilder classpathBuilder) {
         MavenLibraryResolver resolver = new MavenLibraryResolver();

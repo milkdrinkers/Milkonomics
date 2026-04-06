@@ -3,7 +3,7 @@ package io.github.milkdrinkers.milkonomics.command;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIPaperConfig;
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
-import io.github.milkdrinkers.milkonomics.MilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomics.Milkonomics;
 import io.github.milkdrinkers.milkonomics.Reloadable;
 
 /**
@@ -11,14 +11,14 @@ import io.github.milkdrinkers.milkonomics.Reloadable;
  */
 public class CommandHandler implements Reloadable {
     public static final String BASE_PERM = "milkonomics.command";
-    private final MilkonomicsPlugin plugin;
+    private final Milkonomics plugin;
 
     /**
      * Instantiates the Command handler.
      *
      * @param plugin the plugin
      */
-    public CommandHandler(MilkonomicsPlugin plugin) {
+    public CommandHandler(Milkonomics plugin) {
         this.plugin = plugin;
     }
 

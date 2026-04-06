@@ -1,7 +1,7 @@
 package io.github.milkdrinkers.milkonomics.hook;
 
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
-import io.github.milkdrinkers.milkonomics.MilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomics.Milkonomics;
 import io.github.milkdrinkers.milkonomics.Reloadable;
 import io.github.milkdrinkers.milkonomics.utility.Logger;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
@@ -15,9 +15,9 @@ import java.util.HashMap;
  */
 public class HookManager implements Reloadable {
     private final HashMap<Class<? extends AbstractHook>, AbstractHook> hooks = new HashMap<>();
-    private final MilkonomicsPlugin plugin;
+    private final Milkonomics plugin;
 
-    public HookManager(MilkonomicsPlugin plugin) {
+    public HookManager(Milkonomics plugin) {
         this.plugin = plugin;
     }
 
@@ -43,7 +43,7 @@ public class HookManager implements Reloadable {
                 }
 
                 // Instantiate hook class
-                final AbstractHook hookInstance = hook.getHookClass().getDeclaredConstructor(MilkonomicsPlugin.class).newInstance(plugin);
+                final AbstractHook hookInstance = hook.getHookClass().getDeclaredConstructor(Milkonomics.class).newInstance(plugin);
                 getHooks().put(hook.getHookClass(), hookInstance);
                 hook.setHook(getHooks().get(hook.getHookClass()));
 

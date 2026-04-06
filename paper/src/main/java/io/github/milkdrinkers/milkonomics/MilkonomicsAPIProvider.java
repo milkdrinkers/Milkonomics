@@ -7,9 +7,9 @@ import io.github.milkdrinkers.milkonomics.api.account.Account;
 import net.milkbowl.vault.economy.Economy;
 
 class MilkonomicsAPIProvider extends MilkonomicsAPI implements Reloadable {
-    private final MilkonomicsPlugin plugin;
+    private final Milkonomics plugin;
 
-    MilkonomicsAPIProvider(MilkonomicsPlugin plugin) {
+    MilkonomicsAPIProvider(Milkonomics plugin) {
         super();
         this.plugin = plugin;
         setInstance(this);

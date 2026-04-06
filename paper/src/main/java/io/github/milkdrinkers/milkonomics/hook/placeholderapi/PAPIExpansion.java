@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomics.hook.placeholderapi;
 
-import io.github.milkdrinkers.milkonomics.MilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomics.Milkonomics;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
@@ -10,9 +10,9 @@ import org.jetbrains.annotations.Nullable;
  * A PlaceholderAPI expansion. Read the docs at <a href="https://wiki.placeholderapi.com/developers/creating-a-placeholderexpansion/">here</a> on how to register your custom placeholders.
  */
 public class PAPIExpansion extends PlaceholderExpansion {
-    private final MilkonomicsPlugin plugin;
+    private final Milkonomics plugin;
 
-    public PAPIExpansion(MilkonomicsPlugin plugin) {
+    public PAPIExpansion(Milkonomics plugin) {
         this.plugin = plugin;
     }
 

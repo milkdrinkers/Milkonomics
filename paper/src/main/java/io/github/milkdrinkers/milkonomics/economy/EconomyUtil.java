@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomics.economy;
 
-import io.github.milkdrinkers.milkonomics.MilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomics.Milkonomics;
 import io.github.milkdrinkers.milkonomics.api.account.Account;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
@@ -15,7 +15,7 @@ public final class EconomyUtil {
             // If the accountId is a UUID, get the account using the UUID
             final UUID uuid = UUID.fromString(accountId);
             
-            return MilkonomicsPlugin
+            return Milkonomics
                 .getInstance()
                 .getAccountManager()
                 .getAccount(uuid)
@@ -24,7 +24,7 @@ public final class EconomyUtil {
                 );
         } catch (IllegalArgumentException e) {
             // Try to get the account using the accountId as a name
-            final @Nullable Account acc = MilkonomicsPlugin
+            final @Nullable Account acc = Milkonomics
                 .getInstance()
                 .getAccountManager()
                 .getAccount(accountId)
@@ -42,7 +42,7 @@ public final class EconomyUtil {
     }
 
     public static Account getUUIDFromCache(UUID uuid) {
-        return Objects.requireNonNull(MilkonomicsPlugin
+        return Objects.requireNonNull(Milkonomics
             .getInstance()
             .getAccountManager()
             .getAccount(uuid)

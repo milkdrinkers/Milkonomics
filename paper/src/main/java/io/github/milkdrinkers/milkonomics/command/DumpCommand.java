@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.executors.CommandArguments;
-import io.github.milkdrinkers.milkonomics.MilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomics.Milkonomics;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import io.github.milkdrinkers.threadutil.Scheduler;
 import io.github.milkdrinkers.wordweaver.Translation;
@@ -95,7 +95,7 @@ final class DumpCommand {
      * @return the formatted server dump as a string
      */
     private String log() {
-        final JavaPlugin plugin = MilkonomicsPlugin.getInstance();
+        final JavaPlugin plugin = Milkonomics.getInstance();
         final StringBuilder dump = new StringBuilder();
 
         // Server info
@@ -348,7 +348,7 @@ final class DumpCommand {
      * @throws IOException if an error occurs during upload
      */
     private @Nullable String upload(final String content) throws IOException {
-        final JavaPlugin plugin = MilkonomicsPlugin.getInstance();
+        final JavaPlugin plugin = Milkonomics.getInstance();
         final URL url = URI.create(MCLO_GS_URL).toURL();
 
         final HttpURLConnection con = (HttpURLConnection) url.openConnection();
