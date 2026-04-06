@@ -2,7 +2,7 @@ package io.github.milkdrinkers.milkonomicsplugin.command;
 
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.executors.CommandArguments;
-import io.github.milkdrinkers.milkonomicsplugin.player.PlayerDataHolder;
+import io.github.milkdrinkers.milkonomics.player.PlayerDataHolder;
 import org.bukkit.entity.Player;
 
 public class ToggleCommand {

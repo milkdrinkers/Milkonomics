@@ -2,10 +2,10 @@ package io.github.milkdrinkers.milkonomicsplugin.listener;
 
 import io.github.milkdrinkers.milkonomicsplugin.cooldown.Cooldowns;
 import io.github.milkdrinkers.milkonomicsplugin.database.Queries;
-import io.github.milkdrinkers.milkonomicsplugin.event.PlayerDataLoadedEvent;
-import io.github.milkdrinkers.milkonomicsplugin.player.PlayerData;
-import io.github.milkdrinkers.milkonomicsplugin.player.PlayerDataBuilder;
-import io.github.milkdrinkers.milkonomicsplugin.player.PlayerDataHolder;
+import io.github.milkdrinkers.milkonomics.event.PlayerDataLoadedEvent;
+import io.github.milkdrinkers.milkonomics.player.PlayerData;
+import io.github.milkdrinkers.milkonomics.player.PlayerDataBuilder;
+import io.github.milkdrinkers.milkonomics.player.PlayerDataHolder;
 import io.github.milkdrinkers.threadutil.Scheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

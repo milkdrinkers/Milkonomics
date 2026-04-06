@@ -1,4 +1,4 @@
-package io.github.milkdrinkers.milkonomicsplugin.player;
+package io.github.milkdrinkers.milkonomics.player;
 
 import java.util.UUID;
 

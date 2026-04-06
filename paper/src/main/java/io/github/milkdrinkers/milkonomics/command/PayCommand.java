@@ -9,7 +9,7 @@ import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
-import io.github.milkdrinkers.milkonomicsplugin.player.PlayerDataHolder;
+import io.github.milkdrinkers.milkonomics.player.PlayerDataHolder;
 import io.github.milkdrinkers.wordweaver.Translation;
 import org.bukkit.entity.Player;
 

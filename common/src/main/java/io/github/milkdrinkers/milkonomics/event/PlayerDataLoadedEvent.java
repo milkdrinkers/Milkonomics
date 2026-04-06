@@ -1,6 +1,6 @@
-package io.github.milkdrinkers.milkonomicsplugin.event;
+package io.github.milkdrinkers.milkonomics.event;
 
-import io.github.milkdrinkers.milkonomicsplugin.player.PlayerData;
+import io.github.milkdrinkers.milkonomics.player.PlayerData;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;

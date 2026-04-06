@@ -1,4 +1,4 @@
-package io.github.milkdrinkers.milkonomicsplugin.player;
+package io.github.milkdrinkers.milkonomics.player;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
