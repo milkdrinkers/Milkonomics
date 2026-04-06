@@ -97,7 +97,11 @@ tasks {
         reloc("dev.jorel.commandapi", "commandapi")
         reloc("dev.triumphteam.gui", "triumphgui")
         reloc("com.zaxxer.hikari", "hikaricp")
-        reloc("org.bstats", "bstats")
+        reloc("org.snakeyaml", "snakeyaml")
+
+        reloc("io.leangen.geantyref", "geantyref")
+        reloc("org.yaml", "yaml")
+        reloc("org.spongepowered", "spongepowered")
 
         mergeServiceFiles()
     }
@@ -123,15 +127,15 @@ tasks {
 
 bukkit { // Options: https://docs.eldoria.de/pluginyml/bukkit/
     // Plugin main class (required)
-    main = project.entryPointClass
+    main = rootProject.entryPointClass
 
     // Plugin Information
-    name = project.name
-    prefix = project.name
-    version = "${project.version}"
-    description = "${project.description}"
-    authors = project.authors
-    contributors = project.contributors
+    name = rootProject.name
+    prefix = rootProject.name
+    version = "${rootProject.version}"
+    description = "${rootProject.description}"
+    authors = rootProject.authors
+    contributors = rootProject.contributors
     apiVersion = libs.versions.paper.api.get().substringBefore("-R").substringBefore("-pre")
     foliaSupported = true
 
@@ -144,18 +148,18 @@ bukkit { // Options: https://docs.eldoria.de/pluginyml/bukkit/
 }
 
 paper { // Options: https://docs.eldoria.de/pluginyml/paper/
-    main = project.entryPointClass
-    loader = project.entryPointClass + "PluginLoader"
+    main = rootProject.entryPointClass
+    loader = rootProject.entryPointClass + "PluginLoader"
     generateLibrariesJson = true
     load = net.minecrell.pluginyml.bukkit.BukkitPluginDescription.PluginLoadOrder.POSTWORLD
 
     // Info
-    name = project.name
-    prefix = project.name
-    version = "${project.version}"
-    description = "${project.description}"
-    authors = project.authors
-    contributors = project.contributors
+    name = rootProject.name
+    prefix = rootProject.name
+    version = "${rootProject.version}"
+    description = "${rootProject.description}"
+    authors = rootProject.authors
+    contributors = rootProject.contributors
     apiVersion = libs.versions.paper.api.get().substringBefore("-R").substringBefore("-pre")
     foliaSupported = false
 

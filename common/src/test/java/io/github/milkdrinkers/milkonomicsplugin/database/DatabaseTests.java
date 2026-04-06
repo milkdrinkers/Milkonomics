@@ -1,4 +1,4 @@
-package io.github.milkdrinkers.milkonomicsplugin.database;
+package io.github.milkdrinkers.milkonomics.database;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

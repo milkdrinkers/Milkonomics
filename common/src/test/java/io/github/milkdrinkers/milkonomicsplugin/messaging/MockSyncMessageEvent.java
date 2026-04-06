@@ -1,7 +1,7 @@
-package io.github.milkdrinkers.milkonomicsplugin.messaging;
+package io.github.milkdrinkers.milkonomics.messaging;
 
-import io.github.milkdrinkers.milkonomicsplugin.event.MockEvent;
-import io.github.milkdrinkers.milkonomicsplugin.messaging.message.IncomingMessage;
+import io.github.milkdrinkers.milkonomics.event.MockEvent;
+import io.github.milkdrinkers.milkonomics.messaging.message.IncomingMessage;
 
 public class MockSyncMessageEvent extends MockEvent {
     private final IncomingMessage<?, ?> message;

@@ -1,4 +1,4 @@
-package io.github.milkdrinkers.milkonomicsplugin.event;
+package io.github.milkdrinkers.milkonomics.event;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

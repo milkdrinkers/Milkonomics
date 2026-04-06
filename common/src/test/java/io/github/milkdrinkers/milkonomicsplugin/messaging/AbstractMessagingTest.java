@@ -1,12 +1,12 @@
-package io.github.milkdrinkers.milkonomicsplugin.messaging;
+package io.github.milkdrinkers.milkonomics.messaging;
 
 import com.google.gson.annotations.SerializedName;
-import io.github.milkdrinkers.milkonomicsplugin.event.MockEventListener;
-import io.github.milkdrinkers.milkonomicsplugin.event.MockEventSystem;
-import io.github.milkdrinkers.milkonomicsplugin.messaging.config.MessagingConfig;
-import io.github.milkdrinkers.milkonomicsplugin.messaging.message.BidirectionalMessage;
-import io.github.milkdrinkers.milkonomicsplugin.messaging.message.IncomingMessage;
-import io.github.milkdrinkers.milkonomicsplugin.utility.Messaging;
+import io.github.milkdrinkers.milkonomics.event.MockEventListener;
+import io.github.milkdrinkers.milkonomics.event.MockEventSystem;
+import io.github.milkdrinkers.milkonomics.messaging.config.MessagingConfig;
+import io.github.milkdrinkers.milkonomics.messaging.message.BidirectionalMessage;
+import io.github.milkdrinkers.milkonomics.messaging.message.IncomingMessage;
+import io.github.milkdrinkers.milkonomics.utility.Messaging;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.github.milkdrinkers.milkonomicsplugin.utility.Util.randomString;
+import static io.github.milkdrinkers.milkonomics.utility.Util.randomString;
 
 /**
  * Contains all test cases.

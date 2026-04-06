@@ -1,8 +1,8 @@
-package io.github.milkdrinkers.milkonomicsplugin.database;
+package io.github.milkdrinkers.milkonomics.database;
 
-import io.github.milkdrinkers.milkonomicsplugin.database.config.DatabaseConfig;
-import io.github.milkdrinkers.milkonomicsplugin.database.exception.DatabaseInitializationException;
-import io.github.milkdrinkers.milkonomicsplugin.utility.DB;
+import io.github.milkdrinkers.milkonomics.database.config.DatabaseConfig;
+import io.github.milkdrinkers.milkonomics.database.exception.DatabaseInitializationException;
+import io.github.milkdrinkers.milkonomics.utility.DB;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

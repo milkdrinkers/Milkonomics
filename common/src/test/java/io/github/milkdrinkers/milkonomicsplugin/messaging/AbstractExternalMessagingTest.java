@@ -1,7 +1,7 @@
-package io.github.milkdrinkers.milkonomicsplugin.messaging;
+package io.github.milkdrinkers.milkonomics.messaging;
 
-import io.github.milkdrinkers.milkonomicsplugin.messaging.config.MessagingConfig;
-import io.github.milkdrinkers.milkonomicsplugin.utility.Messaging;
+import io.github.milkdrinkers.milkonomics.messaging.config.MessagingConfig;
+import io.github.milkdrinkers.milkonomics.utility.Messaging;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
