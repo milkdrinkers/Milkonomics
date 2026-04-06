@@ -1,5 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.messaging.config;
 
+import io.github.milkdrinkers.milkonomicsplugin.config.DatabaseConfig;
 import io.github.milkdrinkers.milkonomicsplugin.messaging.broker.BrokerType;
 import io.github.milkdrinkers.crate.Config;
 import org.jetbrains.annotations.Nullable;
@@ -42,18 +43,18 @@ public record MessagingConfig(
      * @param cfg the cfg
      * @return the messaging config from file
      */
-    public static MessagingConfig fromConfig(Config cfg) {
+    public static MessagingConfig fromConfig(DatabaseConfig cfg) {
         return MessagingConfig.builder()
-            .withEnabled(cfg.getOrDefault("messaging.enabled", true))
-            .withPollingInterval(cfg.getLong("messaging.polling-interval"))
-            .withCleanupInterval(cfg.getLong("messaging.cleanup-interval"))
-            .withBroker(cfg.getString("messaging.type"))
-            .withAddresses(cfg.get("messaging.address"))
-            .withUsername(cfg.getString("messaging.username"))
-            .withPassword(cfg.getString("messaging.password"))
-            .withAuthMethod(cfg.getString("messaging.advanced.auth-method"))
-            .withAuthToken(cfg.getString("messaging.advanced.auth-token"))
-            .withSSL(cfg.getOrDefault("messaging.advanced.ssl.enabled", false))
+            .withEnabled(cfg.messaging.enabled)
+            .withPollingInterval(cfg.messaging.pollingInterval)
+            .withCleanupInterval(cfg.messaging.cleanupInterval)
+            .withBroker(cfg.messaging.type)
+            .withAddresses(cfg.messaging.address)
+            .withUsername(cfg.messaging.username)
+            .withPassword(cfg.messaging.password)
+            .withAuthMethod(cfg.messaging.advanced.authMethod)
+            .withAuthToken(cfg.messaging.advanced.authToken)
+            .withSSL(cfg.messaging.advanced.ssl.enabled)
 //            .withSsl(
 //                cfg.getOrDefault("messaging.advanced.ssl.enabled", false),
 //                cfg.getString("messaging.advanced.ssl.cert-path"),
@@ -62,11 +63,11 @@ public record MessagingConfig(
 //                cfg.getOrDefault("messaging.advanced.ssl.verify-server-cert", true),
 //                cfg.getOrDefault("messaging.advanced.ssl.verify-hostname", true)
 //            )
-            .withRabbitMq(cfg.getString("messaging.advanced.rabbitmq.virtual-host"))
+            .withRabbitMq(cfg.messaging.advanced.rabbitmq.virtualHost)
             .withNats(
-                cfg.getString("messaging.advanced.nats.nkey-seed-path"),
-                cfg.getString("messaging.advanced.nats.jwt-file-path"),
-                cfg.getString("messaging.advanced.nats.credentials-path")
+                cfg.messaging.advanced.nats.nkeySeedPath,
+                cfg.messaging.advanced.nats.jwtFilePath,
+                cfg.messaging.advanced.nats.credentialsPath
             )
             .build();
     }

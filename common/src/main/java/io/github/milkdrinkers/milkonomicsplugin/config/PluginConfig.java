@@ -6,16 +6,9 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 
 import java.util.Map;
-import java.util.function.Function;
 
 @ConfigSerializable
 public class PluginConfig implements VersionedConfig {
-//    @Comment("Should the plugin check for plugin updates on startup?")
-//    public boolean updateChecker = true;
-
-//    @Comment("Do not change this value!")
-//    public int configVersion = 1;
-
     @Comment("Update Checker Settings")
     public UpdateChecker updateChecker = new UpdateChecker();
 
@@ -24,17 +17,23 @@ public class PluginConfig implements VersionedConfig {
         @Comment("Should the plugin check for plugin updates on startup?")
         public boolean enabled = true;
 
-        @Comment("Should the plugin check for plugin updates on startup?")
+        @Comment("Send update notifications to the console?")
         public boolean console = true;
+
+        @Comment("Send update notifications to opped players on join?")
+        public boolean op = true;
     }
+
+    @Comment("Language, specify the language file to use, for example `en_US` which will load `/lang/en_US.json`")
+    public String language = "en_US";
 
     @Override
     public int configVersion() {
-        return 2;
+        return 1;
     }
 
     @Override
-    public Function<Class<? extends VersionedConfig>, ConfigurationTransformation.Versioned> migrator() {
-        return VersionedConfig.super.migrator();
+    public Map<Integer, ConfigurationTransformation> migrations() {
+        return Map.of();
     }
 }

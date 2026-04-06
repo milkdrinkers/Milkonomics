@@ -1,12 +1,14 @@
 package io.github.milkdrinkers.milkonomicsplugin.database;
 
+import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
 import io.github.milkdrinkers.milkonomicsplugin.api.account.AccountSnapshot;
 import io.github.milkdrinkers.milkonomicsplugin.cooldown.CooldownType;
 import io.github.milkdrinkers.milkonomicsplugin.cooldown.Cooldowns;
+import io.github.milkdrinkers.milkonomicsplugin.database.schema.tables.records.AccountsBalanceRecord;
 import io.github.milkdrinkers.milkonomicsplugin.database.schema.tables.records.AccountsRecord;
 import io.github.milkdrinkers.milkonomicsplugin.database.schema.tables.records.CooldownsRecord;
-import io.github.milkdrinkers.milkonomicsplugin.api.account.Account;
 import io.github.milkdrinkers.milkonomicsplugin.economy.account.AccountImpl;
+import io.github.milkdrinkers.milkonomicsplugin.economy.denomination.DenominationHandler;
 import io.github.milkdrinkers.milkonomicsplugin.messaging.message.BidirectionalMessage;
 import io.github.milkdrinkers.milkonomicsplugin.messaging.message.IncomingMessage;
 import io.github.milkdrinkers.milkonomicsplugin.messaging.message.OutgoingMessage;
@@ -16,6 +18,7 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.ApiStatus;
 import org.jooq.*;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -205,53 +208,91 @@ public final class Queries {
     public static final class Economy {
         public static void save(Collection<AccountSnapshot> accounts) {
             try (
-                Connection con = DB.getConnection()
+                final Connection con = DB.getConnection()
             ) {
-                DSLContext context = DB.getContext(con);
+                final DSLContext context = DB.getContext(con);
 
                 context.transaction(config -> {
-                    DSLContext ctx = config.dsl();
+                    final DSLContext ctx = config.dsl();
 
-                    final List<InsertOnDuplicateSetMoreStep<AccountsRecord>> queries = accounts.stream().map(account -> ctx
-                        .insertInto(
-                            ACCOUNTS,
-                            ACCOUNTS.UUID,
-                            ACCOUNTS.NAME,
-                            ACCOUNTS.BALANCE
+                    final List<InsertOnDuplicateSetMoreStep<AccountsRecord>> accountQueries = accounts.stream()
+                        .map(account -> ctx
+                            .insertInto(
+                                ACCOUNTS,
+                                ACCOUNTS.UUID,
+                                ACCOUNTS.NAME
+                            )
+                            .values(
+                                UUIDUtil.toBytes(account.uuid()),
+                                account.name()
+                            )
+                            .onDuplicateKeyUpdate()
+                            .set(ACCOUNTS.NAME, account.name())
                         )
-                        .values(
-                            UUIDUtil.toBytes(account.uuid()),
-                            account.name(),
-                            account.balance()
-                        )
-                        .onDuplicateKeyUpdate()
-                        .set(ACCOUNTS.NAME, account.name())
-                        .set(ACCOUNTS.BALANCE, account.balance())
-                    )
                         .toList();
 
-                    ctx.batch(queries)
-                        .execute();
+                    final List<InsertOnDuplicateSetMoreStep<AccountsBalanceRecord>> balanceQueries = accounts.stream()
+                        .flatMap(account -> account.balances().entrySet().stream()
+                            .map(entry -> ctx
+                                .insertInto(
+                                    ACCOUNTS_BALANCE,
+                                    ACCOUNTS_BALANCE.ACCOUNT_UUID,
+                                    ACCOUNTS_BALANCE.NAME,
+                                    ACCOUNTS_BALANCE.BALANCE
+                                )
+                                .values(
+                                    UUIDUtil.toBytes(account.uuid()),
+                                    entry.getKey(),
+                                    entry.getValue()
+                                )
+                                .onDuplicateKeyUpdate()
+                                .set(ACCOUNTS_BALANCE.BALANCE, entry.getValue())
+                            )
+                        )
+                        .toList();
+
+                    ctx.batch(accountQueries).execute();
+                    ctx.batch(balanceQueries).execute();
                 });
             } catch (SQLException e) {
                 Logger.get().error("SQL Query threw an error!", e);
             }
         }
 
-        public static List<Account> load() {
+        public static List<AccountImpl> load() {
             try (
-                Connection con = DB.getConnection()
+                final Connection con = DB.getConnection()
             ) {
-                DSLContext context = DB.getContext(con);
+                final DSLContext context = DB.getContext(con);
 
                 return context
-                    .selectFrom(ACCOUNTS)
+                    .select()
+                    .from(ACCOUNTS)
+                    .join(ACCOUNTS_BALANCE)
+                    .on(ACCOUNTS_BALANCE.ACCOUNT_UUID.eq(ACCOUNTS.UUID))
                     .fetch()
-                    .map(r -> new AccountImpl(
-                        UUIDUtil.fromBytes(r.getUuid()),
-                        r.getName(),
-                        r.getBalance()
-                    ));
+                    .intoGroups(r -> r.into(ACCOUNTS))
+                    .entrySet()
+                    .stream()
+                    .map(e -> {
+                        final AccountsRecord account = e.getKey();
+
+                        final Map<String, BigDecimal> balances = e.getValue().stream()
+                            .collect(Collectors.toMap(
+                                r -> r.get(ACCOUNTS_BALANCE.NAME),
+                                r -> r.get(ACCOUNTS_BALANCE.BALANCE)
+                            ));
+
+                        final DenominationHandler denominationHandler = AbstractMilkonomicsPlugin.getInstance().getDenominationHandler();
+
+                        return new AccountImpl(
+                            UUIDUtil.fromBytes(account.getUuid()),
+                            account.getName(),
+                            denominationHandler.getDefaultDenomination(),
+                            balances
+                        );
+                    })
+                    .toList();
             } catch (SQLException e) {
                 Logger.get().error("SQL Query threw an error!", e);
             }

@@ -9,6 +9,7 @@ import io.github.milkdrinkers.milkonomicsplugin.economy.AccountManagerImpl;
 import io.github.milkdrinkers.milkonomicsplugin.api.AccountSaveHandler;
 import io.github.milkdrinkers.milkonomicsplugin.economy.AccountSaveHandlerImpl;
 import io.github.milkdrinkers.milkonomicsplugin.economy.EconomyImpl;
+import io.github.milkdrinkers.milkonomicsplugin.economy.denomination.DenominationHandler;
 import io.github.milkdrinkers.milkonomicsplugin.hook.HookManager;
 import io.github.milkdrinkers.milkonomicsplugin.listener.ListenerHandler;
 import io.github.milkdrinkers.milkonomicsplugin.messaging.MessagingHandler;
@@ -22,6 +23,7 @@ import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -43,6 +45,7 @@ public class MilkonomicsPlugin extends AbstractMilkonomicsPlugin {
     private UpdateHandler updateHandler;
     private SchedulerHandler schedulerHandler;
     private CooldownHandler cooldownHandler;
+    private DenominationHandler denominationHandler;
     private AccountSaveHandlerImpl accountSaveHandler;
     private AccountManagerImpl accountManager;
     private MilkonomicsAPIProvider apiHandler;
@@ -72,6 +75,7 @@ public class MilkonomicsPlugin extends AbstractMilkonomicsPlugin {
         updateHandler = new UpdateHandler(this);
         schedulerHandler = new SchedulerHandler();
         cooldownHandler = new CooldownHandler();
+        denominationHandler = new DenominationHandler();
         accountSaveHandler = new AccountSaveHandlerImpl();
         accountManager = new AccountManagerImpl(accountSaveHandler);
         apiHandler = new MilkonomicsAPIProvider(this);
@@ -87,6 +91,7 @@ public class MilkonomicsPlugin extends AbstractMilkonomicsPlugin {
             listenerHandler,
             updateHandler,
             schedulerHandler,
+            cooldownHandler,
             cooldownHandler,
             accountSaveHandler,
             accountManager,
@@ -110,7 +115,7 @@ public class MilkonomicsPlugin extends AbstractMilkonomicsPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
         }
 
-        if (!Messaging.isReady() && configHandler.getDatabaseConfig().getBoolean("messenger.enabled")) {
+        if (!Messaging.isReady() && configHandler.getDatabaseConfig().messaging.enabled) {
             Logger.get().warn(ColorParser.of("<yellow>Messaging handler failed to start. Messaging support has been disabled.").build());
             Bukkit.getPluginManager().disablePlugin(this);
         }
@@ -152,6 +157,11 @@ public class MilkonomicsPlugin extends AbstractMilkonomicsPlugin {
     @Override
     public @NotNull AccountSaveHandler getAccountSaveHandler() {
         return accountSaveHandler;
+    }
+
+    @Override
+    public @NonNull DenominationHandler getDenominationHandler() {
+        return denominationHandler;
     }
 
     @Override

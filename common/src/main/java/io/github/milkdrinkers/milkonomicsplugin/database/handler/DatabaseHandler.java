@@ -61,7 +61,7 @@ public final class DatabaseHandler extends AbstractService implements Reloadable
     @Override
     public void onLoad(AbstractMilkonomicsPlugin plugin) {
         if (config == null)
-            config = DatabaseConfig.fromConfig(plugin.getConfigHandler().getDatabaseConfig());
+            config = DatabaseConfig.fromConfig(plugin.getConfigHandler().getDatabaseConfig(), plugin.getDataPath().resolve("database"));
 
         try {
             doStartup();

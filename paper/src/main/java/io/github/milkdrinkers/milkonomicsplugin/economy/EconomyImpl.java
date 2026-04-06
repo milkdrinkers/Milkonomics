@@ -351,7 +351,7 @@ public class EconomyImpl implements Economy, Reloadable {
             return false;
         }
 
-        manager.createAccount(uuid, accountId, defaultDenomination, initialBalance);
+        manager.createAccount(uuid, accountId, plugin.getDenominationHandler().getDefaultDenomination(), plugin.getDenominationHandler().getDenominationsDefaults());
 
         return true;
     }

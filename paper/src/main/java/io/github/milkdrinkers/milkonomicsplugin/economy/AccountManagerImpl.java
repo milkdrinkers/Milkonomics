@@ -23,7 +23,7 @@ public class AccountManagerImpl extends AccountManager<Account> implements Reloa
     @Override
     public void onEnable(AbstractMilkonomicsPlugin plugin) {
         Queries.Economy.load().forEach(acc -> {
-            this.createAccount(acc.getUUID(), acc.getName(), acc.getDefaultDenomination(), acc.get());
+            this.createAccount(acc.getUUID(), acc.getName(), plugin.getDenominationHandler().getDefaultDenomination(), plugin.getDenominationHandler().getDenominationsDefaults());
         });
     }
 
@@ -33,7 +33,7 @@ public class AccountManagerImpl extends AccountManager<Account> implements Reloa
     }
 
     @Override
-    protected AccountImpl newAccount(UUID uuid, String name, Denomination defaultDenomination, Map<Denomination, BigDecimal> initialBalances) {
+    protected AccountImpl newAccount(UUID uuid, String name, Denomination defaultDenomination, Map<String, BigDecimal> initialBalances) {
         return new AccountImpl(uuid, name, defaultDenomination, initialBalances);
     }
 }

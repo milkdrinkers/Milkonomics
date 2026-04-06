@@ -3,6 +3,12 @@ package io.github.milkdrinkers.milkonomicsplugin.config;
 import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import io.github.milkdrinkers.milkonomicsplugin.config.loading.ConfigLoader;
+import io.github.milkdrinkers.milkonomicsplugin.utility.Logger;
+
+import java.io.File;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A class that generates/loads {@literal &} provides access to a configuration file.
@@ -11,6 +17,7 @@ public class ConfigHandler implements Reloadable {
     private final AbstractMilkonomicsPlugin plugin;
     private PluginConfig cfg;
     private DatabaseConfig databaseCfg;
+    private List<DenominationConfig> denominationConfigs;
 
     /**
      * Instantiates a new Config handler.
@@ -44,6 +51,28 @@ public class ConfigHandler implements Reloadable {
             .withPath(plugin.getDataFolder().toPath().resolve("database.yml"))
             .withHeader("")
             .build(DatabaseConfig.class);
+
+
+        denominationConfigs = loadDenominations(plugin);
+    }
+
+    private List<DenominationConfig> loadDenominations(AbstractMilkonomicsPlugin plugin) {
+        final File denominationsPath = plugin.getDataFolder().toPath().resolve("denominations").toFile();
+        if (!denominationsPath.mkdirs() || !denominationsPath.isDirectory()) {
+            Logger.get().error("Failed to create denominations directory at {}", denominationsPath.getAbsolutePath());
+            return List.of();
+        }
+
+        return Arrays.stream(denominationsPath.listFiles())
+            .filter(file -> file.isFile() && file.getName().endsWith(".yml"))
+            .map(file -> {
+                    return new ConfigLoader()
+                        .withDirectory()
+                        .withFile(file)
+                        .withHeader("")
+                        .build(DenominationConfig.class);
+                })
+            .toList();
     }
 
     /**
@@ -62,5 +91,14 @@ public class ConfigHandler implements Reloadable {
      */
     public DatabaseConfig getDatabaseConfig() {
         return databaseCfg;
+    }
+
+    /**
+     * Gets the list of denomination configs.
+     *
+     * @return the list of denomination configs
+     */
+    public List<DenominationConfig> getDenominationConfigs() {
+        return denominationConfigs;
     }
 }

@@ -1,27 +1,28 @@
 package io.github.milkdrinkers.milkonomicsplugin.economy.account;
 
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
 import io.github.milkdrinkers.milkonomicsplugin.api.account.Account;
+import io.github.milkdrinkers.milkonomicsplugin.api.account.AccountSnapshot;
+import io.github.milkdrinkers.milkonomicsplugin.api.denomination.Denomination;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.UUID;
 
 public class AccountImpl extends Account {
-    public AccountImpl(UUID uuid, String name) {
-        this.uuid = uuid;
-        this.name = name;
-        this.balance = new BigDecimal("0");
+    public AccountImpl(UUID uuid, String name, Denomination defaultDenomination, Map<String, BigDecimal> initialBalances) {
+        super(uuid, name, defaultDenomination, initialBalances);
     }
 
-    public AccountImpl(UUID uuid, String name, BigDecimal balance) {
-        this.uuid = uuid;
-        this.name = name;
-        this.balance = balance;
+    public AccountImpl(UUID uuid, String name, Denomination defaultDenomination, BigDecimal initialBalance) {
+        super(uuid, name, defaultDenomination, initialBalance);
     }
 
+    public AccountImpl(UUID uuid, String name, Denomination defaultDenomination) {
+        super(uuid, name, defaultDenomination);
+    }
 
     @Override
-    public io.github.milkdrinkers.milkonomicsplugin.api.account.AccountSnapshot getSnapshot() {
-        return new AccountSnapshot(getUUID(), getName(), getBalance());
+    public AccountSnapshot getSnapshot() {
+        return null;
     }
 }
