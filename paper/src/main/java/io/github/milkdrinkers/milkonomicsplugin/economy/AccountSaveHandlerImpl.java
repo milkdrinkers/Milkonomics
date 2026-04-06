@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.economy;
 
-import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
+import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import io.github.milkdrinkers.milkonomicsplugin.api.AccountSaveHandler;
 import io.github.milkdrinkers.milkonomicsplugin.api.account.AccountSnapshot;
@@ -25,7 +25,7 @@ public class AccountSaveHandlerImpl implements Reloadable, AccountSaveHandler {
     }
 
     @Override
-    public void onEnable(Milkonomics plugin) {
+    public void onEnable(AbstractMilkonomics plugin) {
         queue.clear();
         task = plugin.getServer().getAsyncScheduler().runAtFixedRate(plugin, task -> flush(), 0L, 1, TimeUnit.SECONDS); // TODO Make flush interval configurable
     }
@@ -34,7 +34,7 @@ public class AccountSaveHandlerImpl implements Reloadable, AccountSaveHandler {
      * Cancels the scheduled flush task and flushes any remaining accounts in the queue before shutdown.
      */
     @Override
-    public void onDisable(Milkonomics plugin) {
+    public void onDisable(AbstractMilkonomics plugin) {
         if (task != null && !task.isCancelled()) {
             task.cancel();
             task = null;

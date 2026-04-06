@@ -7,15 +7,15 @@ public interface Reloadable {
     /**
      * On plugin load.
      */
-    default void onLoad(Milkonomics plugin) {};
+    default void onLoad(AbstractMilkonomics plugin) {};
 
     /**
      * On plugin enable.
      */
-    default void onEnable(Milkonomics plugin) {}
+    default void onEnable(AbstractMilkonomics plugin) {}
 
     /**
      * On plugin disable.
      */
-    default void onDisable(Milkonomics plugin) {};
+    default void onDisable(AbstractMilkonomics plugin) {};
 }

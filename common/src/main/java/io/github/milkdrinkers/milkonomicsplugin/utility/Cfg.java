@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.utility;
 
-import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
+import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.config.ConfigHandler;
 import io.github.milkdrinkers.crate.Config;
 import io.github.milkdrinkers.milkonomicsplugin.config.PluginConfig;
@@ -17,6 +17,6 @@ public final class Cfg {
      */
     @NotNull
     public static PluginConfig get() {
-        return Milkonomics.getInstance().getConfigHandler().getConfig();
+        return AbstractMilkonomics.getInstance().getConfigHandler().getConfig();
     }
 }

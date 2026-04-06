@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.config;
 
-import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
+import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import io.github.milkdrinkers.milkonomicsplugin.config.loading.ConfigLoader;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ import java.util.Objects;
  * A class that generates/loads {@literal &} provides access to a configuration file.
  */
 public class ConfigHandler implements Reloadable {
-    private final Milkonomics plugin;
+    private final AbstractMilkonomics plugin;
     private final Path configDir;
     private final Logger logger;
 
@@ -28,20 +28,20 @@ public class ConfigHandler implements Reloadable {
      *
      * @param plugin the plugin instance
      */
-    public ConfigHandler(Milkonomics plugin) {
+    public ConfigHandler(AbstractMilkonomics plugin) {
         this.plugin = plugin;
         this.configDir = plugin.getDataFolder().toPath();
         this.logger = plugin.getComponentLogger();
     }
 
-    public ConfigHandler(Milkonomics plugin, Path configDir, Logger logger) {
+    public ConfigHandler(AbstractMilkonomics plugin, Path configDir, Logger logger) {
         this.plugin = plugin;
         this.configDir = configDir;
         this.logger = logger;
     }
 
     @Override
-    public void onLoad(Milkonomics plugin) {
+    public void onLoad(AbstractMilkonomics plugin) {
         cfg = new ConfigLoader()
             .withLogger(logger)
             .withDirectory()
@@ -59,7 +59,7 @@ public class ConfigHandler implements Reloadable {
         denominationConfigs = loadDenominations(plugin);
     }
 
-    private List<DenominationConfig> loadDenominations(Milkonomics plugin) {
+    private List<DenominationConfig> loadDenominations(AbstractMilkonomics plugin) {
         final File denominationsPath = configDir.resolve("denominations").toFile();
         if (!denominationsPath.mkdirs() && !denominationsPath.isDirectory()) {
             logger.error("Failed to create denominations directory at {}", denominationsPath.getAbsolutePath());

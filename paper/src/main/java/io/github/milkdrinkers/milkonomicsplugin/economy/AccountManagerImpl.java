@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.economy;
 
-import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
+import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import io.github.milkdrinkers.milkonomicsplugin.api.AccountManager;
 import io.github.milkdrinkers.milkonomicsplugin.api.AccountSaveHandler;
@@ -21,14 +21,14 @@ public class AccountManagerImpl extends AccountManager<Account> implements Reloa
     }
 
     @Override
-    public void onEnable(Milkonomics plugin) {
+    public void onEnable(AbstractMilkonomics plugin) {
         Queries.Economy.load().forEach(acc -> {
             this.createAccount(acc.getUUID(), acc.getName(), plugin.getDenominationHandler().getDefaultDenomination(), plugin.getDenominationHandler().getDenominationsDefaults());
         });
     }
 
     @Override
-    public void onDisable(Milkonomics plugin) {
+    public void onDisable(AbstractMilkonomics plugin) {
         clear();
     }
 

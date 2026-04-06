@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.cooldown.listener;
 
-import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
+import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import org.bukkit.event.Listener;
 
@@ -12,19 +12,19 @@ import java.util.List;
  */
 @SuppressWarnings("FieldCanBeLocal")
 public class ListenerHandler implements Reloadable {
-    private final Milkonomics plugin;
+    private final AbstractMilkonomics plugin;
     private final List<Listener> listeners = new ArrayList<>();
 
-    public ListenerHandler(Milkonomics plugin) {
+    public ListenerHandler(AbstractMilkonomics plugin) {
         this.plugin = plugin;
     }
 
     @Override
-    public void onLoad(Milkonomics plugin) {
+    public void onLoad(AbstractMilkonomics plugin) {
     }
 
     @Override
-    public void onEnable(Milkonomics plugin) {
+    public void onEnable(AbstractMilkonomics plugin) {
         listeners.clear();
         listeners.add(new CooldownListener(plugin));
 
@@ -34,6 +34,6 @@ public class ListenerHandler implements Reloadable {
     }
 
     @Override
-    public void onDisable(Milkonomics plugin) {
+    public void onDisable(AbstractMilkonomics plugin) {
     }
 }

@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.cooldown;
 
-import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
+import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import io.github.milkdrinkers.milkonomicsplugin.cooldown.listener.ListenerHandler;
 import io.github.milkdrinkers.milkonomicsplugin.database.Queries;
@@ -16,7 +16,7 @@ public final class CooldownHandler implements Reloadable {
     private ScheduledTask autoSaveTask;
 
     @Override
-    public void onLoad(Milkonomics plugin) {
+    public void onLoad(AbstractMilkonomics plugin) {
         if (listenerHandler != null)
             return;
 
@@ -25,7 +25,7 @@ public final class CooldownHandler implements Reloadable {
     }
 
     @Override
-    public void onEnable(Milkonomics plugin) {
+    public void onEnable(AbstractMilkonomics plugin) {
         if (listenerHandler == null)
             return;
 
@@ -34,7 +34,7 @@ public final class CooldownHandler implements Reloadable {
     }
 
     @Override
-    public void onDisable(Milkonomics plugin) {
+    public void onDisable(AbstractMilkonomics plugin) {
         if (listenerHandler == null)
             return;
 

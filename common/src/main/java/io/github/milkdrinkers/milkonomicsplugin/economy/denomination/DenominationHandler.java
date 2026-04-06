@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.economy.denomination;
 
-import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
+import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import io.github.milkdrinkers.milkonomicsplugin.api.denomination.Denomination;
 import io.github.milkdrinkers.milkonomicsplugin.utility.Logger;
@@ -15,7 +15,7 @@ public class DenominationHandler implements Reloadable {
     private final Map<String, Denomination> denominations = new ConcurrentHashMap<>();
 
     @Override
-    public void onEnable(Milkonomics plugin) {
+    public void onEnable(AbstractMilkonomics plugin) {
         plugin.getConfigHandler().getDenominationConfigs().forEach(denominationConfig -> {
             final Denomination denomination = new DenominationImpl(
                 denominationConfig.id,
@@ -61,7 +61,7 @@ public class DenominationHandler implements Reloadable {
     }
 
     @Override
-    public void onDisable(Milkonomics plugin) {
+    public void onDisable(AbstractMilkonomics plugin) {
         defaultDenomination = null;
         denominations.clear();
     }

@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.updatechecker;
 
-import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
+import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.MilkonomicsPlugin;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import io.github.milkdrinkers.milkonomicsplugin.utility.Cfg;
@@ -21,7 +21,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
  */
 public class UpdateHandler implements Reloadable {
     private final static String GITHUB_USER = "milkdrinkers"; // The GitHub user/organization name
-    private final static String GITHUB_REPO = "Milkonomics"; // The GitHub repository
+    private final static String GITHUB_REPO = "AbstractMilkonomics"; // The GitHub repository
 
     private final VersionWatcher watcher;
 
@@ -39,7 +39,7 @@ public class UpdateHandler implements Reloadable {
      * On plugin enable.
      */
     @Override
-    public void onEnable(Milkonomics plugin) {
+    public void onEnable(AbstractMilkonomics plugin) {
         final boolean shouldLog = Cfg.get().updateChecker.enabled && Cfg.get().updateChecker.console;
 
         // Fetch the latest version and send message to console

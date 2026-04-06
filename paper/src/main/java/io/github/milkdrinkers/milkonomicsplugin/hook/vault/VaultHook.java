@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.hook.vault;
 
-import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
+import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.MilkonomicsPlugin;
 import io.github.milkdrinkers.milkonomicsplugin.hook.AbstractHook;
 import io.github.milkdrinkers.milkonomicsplugin.hook.Hook;
@@ -30,7 +30,7 @@ public class VaultHook extends AbstractHook implements Listener {
     }
 
     @Override
-    public void onEnable(Milkonomics plugin) {
+    public void onEnable(AbstractMilkonomics plugin) {
         if (!isHookLoaded()) return;
 
         setPermissions(getPlugin().getServer().getServicesManager().getRegistration(Permission.class));
@@ -38,7 +38,7 @@ public class VaultHook extends AbstractHook implements Listener {
     }
 
     @Override
-    public void onDisable(Milkonomics plugin) {
+    public void onDisable(AbstractMilkonomics plugin) {
         if (!isHookLoaded()) return;
 
         setPermissions(null);

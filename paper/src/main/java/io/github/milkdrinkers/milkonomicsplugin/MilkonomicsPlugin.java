@@ -31,7 +31,7 @@ import java.util.List;
  * Main class.
  */
 @SuppressWarnings({"FieldCanBeLocal", "unused"})
-public class MilkonomicsPlugin extends Milkonomics {
+public class MilkonomicsPlugin extends AbstractMilkonomics {
     private static MilkonomicsPlugin instance;
 
     // Handlers/Managers

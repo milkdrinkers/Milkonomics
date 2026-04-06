@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.messaging.adapter.task;
 
-import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
+import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomics;
 import org.bukkit.Bukkit;
 
 import java.util.concurrent.TimeUnit;
@@ -14,11 +14,11 @@ public class BukkitTaskAdapter implements TaskAdapter {
 
     @Override
     public void init(Runnable runnable, long delay, long interval, TimeUnit timeUnit) {
-        Bukkit.getAsyncScheduler().runAtFixedRate(Milkonomics.getInstance(), (task) -> runnable.run(), delay, interval, timeUnit);
+        Bukkit.getAsyncScheduler().runAtFixedRate(AbstractMilkonomics.getInstance(), (task) -> runnable.run(), delay, interval, timeUnit);
     }
 
     @Override
     public void cancel() {
-        Bukkit.getAsyncScheduler().cancelTasks(Milkonomics.getInstance());
+        Bukkit.getAsyncScheduler().cancelTasks(AbstractMilkonomics.getInstance());
     }
 }
