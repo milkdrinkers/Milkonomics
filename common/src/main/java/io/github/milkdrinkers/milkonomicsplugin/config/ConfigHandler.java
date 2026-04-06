@@ -3,9 +3,10 @@ package io.github.milkdrinkers.milkonomicsplugin.config;
 import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import io.github.milkdrinkers.milkonomicsplugin.config.loading.ConfigLoader;
-import io.github.milkdrinkers.milkonomicsplugin.utility.Logger;
+import org.slf4j.Logger;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -15,6 +16,9 @@ import java.util.Objects;
  */
 public class ConfigHandler implements Reloadable {
     private final AbstractMilkonomicsPlugin plugin;
+    private final Path configDir;
+    private final Logger logger;
+
     private PluginConfig cfg;
     private DatabaseConfig databaseCfg;
     private List<DenominationConfig> denominationConfigs;
@@ -26,46 +30,59 @@ public class ConfigHandler implements Reloadable {
      */
     public ConfigHandler(AbstractMilkonomicsPlugin plugin) {
         this.plugin = plugin;
+        this.configDir = plugin.getDataFolder().toPath();
+        this.logger = plugin.getComponentLogger();
+    }
+
+    public ConfigHandler(Milkonomics plugin, Path configDir, Logger logger) {
+        this.plugin = plugin;
+        this.configDir = configDir;
+        this.logger = logger;
     }
 
     @Override
     public void onLoad(AbstractMilkonomicsPlugin plugin) {
         cfg = new ConfigLoader()
+            .withLogger(logger)
             .withDirectory()
-            .withPath(plugin.getDataFolder().toPath().resolve("config.yml"))
+            .withPath(configDir.resolve("config.yml"))
             .withHeader("")
             .build(PluginConfig.class);
 
         databaseCfg = new ConfigLoader()
+            .withLogger(logger)
             .withDirectory()
-            .withPath(plugin.getDataFolder().toPath().resolve("database.yml"))
+            .withPath(configDir.resolve("database.yml"))
             .withHeader("")
             .build(DatabaseConfig.class);
 
         denominationConfigs = loadDenominations(plugin);
     }
 
-    private List<DenominationConfig> loadDenominations(AbstractMilkonomicsPlugin plugin) {
-        final File denominationsPath = plugin.getDataFolder().toPath().resolve("denominations").toFile();
-        if (!denominationsPath.mkdirs() || !denominationsPath.isDirectory()) {
-            Logger.get().error("Failed to create denominations directory at {}", denominationsPath.getAbsolutePath());
+    private List<DenominationConfig> loadDenominations(Milkonomics plugin) {
+        final File denominationsPath = configDir.resolve("denominations").toFile();
+        if (!denominationsPath.mkdirs() && !denominationsPath.isDirectory()) {
+            logger.error("Failed to create denominations directory at {}", denominationsPath.getAbsolutePath());
             return List.of();
         }
 
         final File[] files = denominationsPath.listFiles();
         if (files == null) {
-            Logger.get().error("Failed to get files in denominations directory at {}", denominationsPath.getAbsolutePath());
+            logger.error("Failed to get files in denominations directory at {}", denominationsPath.getAbsolutePath());
             return List.of();
         }
 
         if (files.length == 0) {
-            Logger.get().warn("No denomination config files found in {}, creating default file.", denominationsPath.getAbsolutePath());
+            logger.warn("No denomination config files found in {}, creating default file.", denominationsPath.getAbsolutePath());
 
-            return List.of(Objects.requireNonNull(new ConfigLoader()
+            final DenominationConfig cfg = new ConfigLoader()
+                .withLogger(logger)
                 .withDirectory()
-                .withFile(denominationsPath.toPath().resolve("dollar.yml").toFile())
+                .withPath(denominationsPath.toPath().resolve("dollar.yml"))
                 .withHeader("")
-                .build(DenominationConfig.class)));
+                .build(DenominationConfig.class);
+
+            return List.of(cfg);
         }
 
         return Arrays.stream(files)
@@ -75,6 +92,7 @@ public class ConfigHandler implements Reloadable {
                 .withFile(file)
                 .withHeader("")
                 .build(DenominationConfig.class))
+            .filter(Objects::nonNull)
             .toList();
     }
 

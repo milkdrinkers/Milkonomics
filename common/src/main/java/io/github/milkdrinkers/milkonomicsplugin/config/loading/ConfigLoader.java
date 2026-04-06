@@ -1,12 +1,13 @@
 package io.github.milkdrinkers.milkonomicsplugin.config.loading;
 
 import io.github.milkdrinkers.milkonomicsplugin.config.common.VersionedConfig;
+import io.github.milkdrinkers.milkonomicsplugin.config.typeserializer.BigDecimalSerializer;
 import io.github.milkdrinkers.milkonomicsplugin.config.typeserializer.StringObjectMapSerializer;
-import io.github.milkdrinkers.milkonomicsplugin.utility.Logger;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
+import org.slf4j.Logger;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Map;
@@ -35,6 +37,8 @@ public class ConfigLoader {
     private Consumer<CommentedConfigurationNode> transformer;
     private File file;
     private String header = "";
+    private boolean createDirectory = false;
+    private Logger logger;
 
     @VisibleForTesting
     CommentedConfigurationNode configurationNode;
@@ -48,20 +52,17 @@ public class ConfigLoader {
     }
 
     public ConfigLoader withDirectory() {
-        if (!file.exists()) {
-            if (!file.mkdirs()) {
-                // Log error
-            }
-        }
+        createDirectory = true;
         return this;
     }
 
-    public ConfigLoader withTransformer() {
-        if (!file.exists()) {
-            if (!file.mkdirs()) {
-                // Log error
-            }
-        }
+    public ConfigLoader withTransformer() throws NoSuchMethodException {
+        // TODO implement
+        throw new NoSuchMethodException("Not yet implemented");
+    }
+
+    public ConfigLoader withLogger(Logger logger) {
+        this.logger = logger;
         return this;
     }
 
@@ -87,30 +88,40 @@ public class ConfigLoader {
         try {
             return new Loader().loadInternal(configClass);
         } catch (IOException e) {
-            Logger.get().error("Failed to load config file of type: {}", configClass.getSimpleName(), e);
+            if (logger != null)
+                logger.error("Failed to load config file of type: {}", configClass.getSimpleName(), e);
             return null;
         }
     }
 
     private class Loader {
         private <T extends VersionedConfig> T loadInternal(Class<T> configClass) throws ConfigurateException {
+            if (createDirectory) {
+                if (!file.getParentFile().exists()) {
+                    if (!file.getParentFile().mkdirs()) {
+                        if (logger != null)
+                            logger.error("Failed to create directory for config file at {}", file.getAbsolutePath());
+                    }
+                }
+            }
+
             final YamlConfigurationLoader loader = createLoader(file);
 
             final CommentedConfigurationNode node = loader.load();
             final boolean originallyEmpty = !file.exists() || node.isNull();
 
-            ConfigurationTransformation.Versioned migrations;
-            try {
-                // noinspection unchecked
-                final Function<Class<? extends VersionedConfig>, ConfigurationTransformation.Versioned> migrateFunc = (Function<Class<? extends VersionedConfig>, ConfigurationTransformation.Versioned>) configClass.getDeclaredMethod("migrator").invoke(new Object());
-                migrations = migrateFunc.apply(configClass);
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            }
-
-            final int currentVersion = migrations.version(node);
-            migrations.apply(node);
-            final int newVersion = migrations.version(node);
+//            ConfigurationTransformation.Versioned migrations;
+//            try {
+//                // noinspection unchecked
+//                final Function<Class<? extends VersionedConfig>, ConfigurationTransformation.Versioned> migrateFunc = (Function<Class<? extends VersionedConfig>, ConfigurationTransformation.Versioned>) configClass.getMethod("migrator").invoke(new Object());
+//                migrations = migrateFunc.apply(configClass);
+//            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+//                throw new RuntimeException(e);
+//            }
+//
+//            final int currentVersion = migrations.version(node);
+//            migrations.apply(node);
+//            final int newVersion = migrations.version(node);
 
             T config = node.get(configClass);
 
@@ -121,11 +132,11 @@ public class ConfigLoader {
             final CommentedConfigurationNode newRoot = CommentedConfigurationNode.root(loader.defaultOptions());
             newRoot.set(config);
 
-            if (originallyEmpty || currentVersion != newVersion) {
+            if (originallyEmpty /*|| currentVersion != newVersion*/) {
                 // Only copy comments over if the file already existed
-                if (!originallyEmpty) {
-                    ConfigurationCommentMover.moveComments(node, newRoot);
-                }
+//                if (!originallyEmpty) {
+//                    ConfigurationCommentMover.moveComments(node, newRoot);
+//                }
 
                 loader.save(newRoot);
             }
@@ -181,6 +192,7 @@ public class ConfigLoader {
                     .serializers(builder -> {
                         builder.register(new LowercaseEnumSerializer());
                         builder.registerExact(stringObjectMapToken, new StringObjectMapSerializer());
+                        builder.registerExact(BigDecimal.class, BigDecimalSerializer.INSTANCE);
                     })
                 )
                 .build();
