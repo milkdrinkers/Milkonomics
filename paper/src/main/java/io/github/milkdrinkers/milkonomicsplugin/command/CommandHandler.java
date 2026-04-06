@@ -46,7 +46,6 @@ public class CommandHandler implements Reloadable {
         if (!CommandAPI.isLoaded())
             return;
 
-        CommandAPI.getRegisteredCommands().forEach(registeredCommand -> CommandAPI.unregister(registeredCommand.namespace() + ':' + registeredCommand.commandName(), true));
         CommandAPI.onDisable();
     }
 }
