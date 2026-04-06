@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.hook.bstats;
 
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.MilkonomicsPlugin;
 import io.github.milkdrinkers.milkonomicsplugin.hook.AbstractHook;
 import org.bstats.bukkit.Metrics;
@@ -24,7 +24,7 @@ public class BStatsHook extends AbstractHook {
     }
 
     @Override
-    public void onEnable(AbstractMilkonomicsPlugin plugin) {
+    public void onEnable(Milkonomics plugin) {
         // Catch startup errors for bstats
         try {
             setHook(new Metrics(getPlugin(), BSTATS_ID));
@@ -34,7 +34,7 @@ public class BStatsHook extends AbstractHook {
     }
 
     @Override
-    public void onDisable(AbstractMilkonomicsPlugin plugin) {
+    public void onDisable(Milkonomics plugin) {
         getHook().shutdown();
         setHook(null);
     }

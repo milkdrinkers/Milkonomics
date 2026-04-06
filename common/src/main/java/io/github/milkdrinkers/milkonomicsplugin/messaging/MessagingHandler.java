@@ -1,7 +1,7 @@
 package io.github.milkdrinkers.milkonomicsplugin.messaging;
 
 import io.github.milkdrinkers.milkonomicsplugin.AbstractService;
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import io.github.milkdrinkers.milkonomicsplugin.messaging.adapter.receiver.BukkitReceiverAdapter;
 import io.github.milkdrinkers.milkonomicsplugin.messaging.adapter.receiver.ReceiverAdapter;
@@ -81,7 +81,7 @@ public final class MessagingHandler extends AbstractService implements Reloadabl
     }
 
     @Override
-    public void onLoad(AbstractMilkonomicsPlugin plugin) {
+    public void onLoad(Milkonomics plugin) {
         if (config == null)
             this.config = MessagingConfig.fromConfig(plugin.getConfigHandler().getDatabaseConfig());
 
@@ -93,7 +93,7 @@ public final class MessagingHandler extends AbstractService implements Reloadabl
     }
 
     @Override
-    public void onEnable(AbstractMilkonomicsPlugin plugin) {
+    public void onEnable(Milkonomics plugin) {
         try {
             scheduleTasks();
         } catch (Exception e) {
@@ -102,7 +102,7 @@ public final class MessagingHandler extends AbstractService implements Reloadabl
     }
 
     @Override
-    public void onDisable(AbstractMilkonomicsPlugin plugin) {
+    public void onDisable(Milkonomics plugin) {
         try {
             doShutdown();
         } catch (Exception e) {

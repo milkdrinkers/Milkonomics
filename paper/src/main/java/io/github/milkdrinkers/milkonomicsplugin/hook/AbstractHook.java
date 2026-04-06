@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.hook;
 
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.MilkonomicsPlugin;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import org.bukkit.Bukkit;
@@ -36,21 +36,21 @@ public abstract class AbstractHook implements Reloadable {
      * On plugin load.
      */
     @Override
-    public void onLoad(AbstractMilkonomicsPlugin plugin) {
+    public void onLoad(Milkonomics plugin) {
     }
 
     /**
      * On plugin enable.
      */
     @Override
-    public void onEnable(AbstractMilkonomicsPlugin plugin) {
+    public void onEnable(Milkonomics plugin) {
     }
 
     /**
      * On plugin disable.
      */
     @Override
-    public void onDisable(AbstractMilkonomicsPlugin plugin) {
+    public void onDisable(Milkonomics plugin) {
     }
 
     /**

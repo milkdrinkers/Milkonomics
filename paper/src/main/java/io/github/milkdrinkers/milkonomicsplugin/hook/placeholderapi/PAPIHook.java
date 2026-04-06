@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.hook.placeholderapi;
 
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.MilkonomicsPlugin;
 import io.github.milkdrinkers.milkonomicsplugin.hook.AbstractHook;
 import io.github.milkdrinkers.milkonomicsplugin.hook.Hook;
@@ -21,7 +21,7 @@ public class PAPIHook extends AbstractHook {
     }
 
     @Override
-    public void onEnable(AbstractMilkonomicsPlugin plugin) {
+    public void onEnable(Milkonomics plugin) {
         if (!isHookLoaded())
             return;
 
@@ -30,7 +30,7 @@ public class PAPIHook extends AbstractHook {
     }
 
     @Override
-    public void onDisable(AbstractMilkonomicsPlugin plugin) {
+    public void onDisable(Milkonomics plugin) {
         if (!isHookLoaded())
             return;
 

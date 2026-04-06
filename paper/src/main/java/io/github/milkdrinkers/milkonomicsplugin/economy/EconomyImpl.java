@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.economy;
 
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import io.github.milkdrinkers.milkonomicsplugin.api.AccountManager;
 import io.github.milkdrinkers.milkonomicsplugin.api.account.Account;
@@ -14,16 +14,16 @@ import java.math.BigDecimal;
 import java.util.*;
 
 public class EconomyImpl implements Economy, Reloadable {
-    private final AbstractMilkonomicsPlugin plugin;
+    private final Milkonomics plugin;
     private final AccountManager<Account> manager;
 
-    public EconomyImpl(AbstractMilkonomicsPlugin plugin, AccountManager<Account> manager) {
+    public EconomyImpl(Milkonomics plugin, AccountManager<Account> manager) {
         this.plugin = plugin;
         this.manager = manager;
     }
 
     @Override
-    public void onEnable(AbstractMilkonomicsPlugin plugin) {
+    public void onEnable(Milkonomics plugin) {
         Bukkit.getServicesManager().register(Economy.class, this, plugin, ServicePriority.Highest);
     }
 

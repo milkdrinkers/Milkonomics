@@ -2,7 +2,7 @@ package io.github.milkdrinkers.milkonomicsplugin.database.handler;
 
 import com.zaxxer.hikari.HikariDataSource;
 import io.github.milkdrinkers.milkonomicsplugin.AbstractService;
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import io.github.milkdrinkers.milkonomicsplugin.config.ConfigHandler;
 import io.github.milkdrinkers.milkonomicsplugin.database.config.DatabaseConfig;
@@ -59,7 +59,7 @@ public final class DatabaseHandler extends AbstractService implements Reloadable
      * On plugin load.
      */
     @Override
-    public void onLoad(AbstractMilkonomicsPlugin plugin) {
+    public void onLoad(Milkonomics plugin) {
         if (config == null)
             config = DatabaseConfig.fromConfig(plugin.getConfigHandler().getDatabaseConfig(), plugin.getDataPath().resolve("database"));
 
@@ -74,7 +74,7 @@ public final class DatabaseHandler extends AbstractService implements Reloadable
      * On plugin disable.
      */
     @Override
-    public void onDisable(AbstractMilkonomicsPlugin plugin) {
+    public void onDisable(Milkonomics plugin) {
         try {
             doShutdown();
         } catch (Exception e) {

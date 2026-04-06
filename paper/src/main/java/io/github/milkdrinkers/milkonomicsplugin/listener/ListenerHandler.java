@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.listener;
 
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.MilkonomicsPlugin;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import org.bukkit.event.Listener;
@@ -25,11 +25,11 @@ public class ListenerHandler implements Reloadable {
     }
 
     @Override
-    public void onLoad(AbstractMilkonomicsPlugin plugin) {
+    public void onLoad(Milkonomics plugin) {
     }
 
     @Override
-    public void onEnable(AbstractMilkonomicsPlugin plugin) {
+    public void onEnable(Milkonomics plugin) {
         listeners.clear(); // Clear the list to avoid duplicate listeners when reloading the plugin
 //        listeners.add(new ExampleListener());
 
@@ -40,6 +40,6 @@ public class ListenerHandler implements Reloadable {
     }
 
     @Override
-    public void onDisable(AbstractMilkonomicsPlugin plugin) {
+    public void onDisable(Milkonomics plugin) {
     }
 }

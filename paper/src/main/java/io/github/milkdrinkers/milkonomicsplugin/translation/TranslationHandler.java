@@ -1,7 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.translation;
 
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
-import io.github.milkdrinkers.milkonomicsplugin.MilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import io.github.milkdrinkers.milkonomicsplugin.config.ConfigHandler;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
@@ -21,7 +20,7 @@ public class TranslationHandler implements Reloadable {
     }
 
     @Override
-    public void onEnable(AbstractMilkonomicsPlugin plugin) {
+    public void onEnable(Milkonomics plugin) {
         Translation.initialize(TranslationConfig.builder() // Initialize word-weaver
             .translationDirectory(plugin.getDataPath().resolve("lang"))
             .resourcesDirectory(Path.of("lang"))

@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.cooldown.listener;
 
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.cooldown.Cooldowns;
 import io.github.milkdrinkers.milkonomicsplugin.database.Queries;
 import io.github.milkdrinkers.threadutil.Scheduler;
@@ -11,9 +11,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 @SuppressWarnings({"unused", "FieldCanBeLocal", "CodeBlock2Expr"})
 class CooldownListener implements Listener {
-    private final AbstractMilkonomicsPlugin plugin;
+    private final Milkonomics plugin;
 
-    public CooldownListener(AbstractMilkonomicsPlugin plugin) {
+    public CooldownListener(Milkonomics plugin) {
         this.plugin = plugin;
     }
 

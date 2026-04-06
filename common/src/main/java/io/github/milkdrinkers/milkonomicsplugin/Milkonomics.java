@@ -9,16 +9,20 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class AbstractMilkonomicsPlugin extends JavaPlugin {
-    private static AbstractMilkonomicsPlugin instance;
+public abstract class Milkonomics extends JavaPlugin {
+    private static Milkonomics instance;
 
     /**
      * Gets plugin instance.
      *
      * @return the plugin instance
      */
-    public static AbstractMilkonomicsPlugin getInstance() {
-        return AbstractMilkonomicsPlugin.instance;
+    public static Milkonomics getInstance() {
+        return Milkonomics.instance;
+    }
+
+    Milkonomics() {
+        Milkonomics.instance = this;
     }
 
     /**

@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.hook;
 
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.MilkonomicsPlugin;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import io.github.milkdrinkers.milkonomicsplugin.utility.Logger;
@@ -25,7 +25,7 @@ public class HookManager implements Reloadable {
      * On plugin load.
      */
     @Override
-    public void onLoad(AbstractMilkonomicsPlugin plugin) {
+    public void onLoad(Milkonomics plugin) {
         for (Hook hook : Hook.values()) {
             try {
                 if (hook.getPluginName() != null && Bukkit.getPluginManager().getPlugin(hook.getPluginName()) == null) {
@@ -73,7 +73,7 @@ public class HookManager implements Reloadable {
      * On plugin enable.
      */
     @Override
-    public void onEnable(AbstractMilkonomicsPlugin plugin) {
+    public void onEnable(Milkonomics plugin) {
         for (AbstractHook hook : getHooks().values()) {
             hook.onEnable(plugin);
 
@@ -87,7 +87,7 @@ public class HookManager implements Reloadable {
      * On plugin disable.
      */
     @Override
-    public void onDisable(AbstractMilkonomicsPlugin plugin) {
+    public void onDisable(Milkonomics plugin) {
         for (AbstractHook hook : getHooks().values()) {
             hook.onDisable(plugin);
         }

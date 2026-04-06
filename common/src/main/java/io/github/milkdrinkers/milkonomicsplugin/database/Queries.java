@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.database;
 
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.api.account.AccountSnapshot;
 import io.github.milkdrinkers.milkonomicsplugin.cooldown.CooldownType;
 import io.github.milkdrinkers.milkonomicsplugin.cooldown.Cooldowns;
@@ -283,7 +283,7 @@ public final class Queries {
                                 r -> r.get(ACCOUNTS_BALANCE.BALANCE)
                             ));
 
-                        final DenominationHandler denominationHandler = AbstractMilkonomicsPlugin.getInstance().getDenominationHandler();
+                        final DenominationHandler denominationHandler = Milkonomics.getInstance().getDenominationHandler();
 
                         return new AccountImpl(
                             UUIDUtil.fromBytes(account.getUuid()),

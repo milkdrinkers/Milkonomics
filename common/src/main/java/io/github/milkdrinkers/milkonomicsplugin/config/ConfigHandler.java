@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.config;
 
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import io.github.milkdrinkers.milkonomicsplugin.config.loading.ConfigLoader;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ import java.util.Objects;
  * A class that generates/loads {@literal &} provides access to a configuration file.
  */
 public class ConfigHandler implements Reloadable {
-    private final AbstractMilkonomicsPlugin plugin;
+    private final Milkonomics plugin;
     private final Path configDir;
     private final Logger logger;
 
@@ -28,7 +28,7 @@ public class ConfigHandler implements Reloadable {
      *
      * @param plugin the plugin instance
      */
-    public ConfigHandler(AbstractMilkonomicsPlugin plugin) {
+    public ConfigHandler(Milkonomics plugin) {
         this.plugin = plugin;
         this.configDir = plugin.getDataFolder().toPath();
         this.logger = plugin.getComponentLogger();
@@ -41,7 +41,7 @@ public class ConfigHandler implements Reloadable {
     }
 
     @Override
-    public void onLoad(AbstractMilkonomicsPlugin plugin) {
+    public void onLoad(Milkonomics plugin) {
         cfg = new ConfigLoader()
             .withLogger(logger)
             .withDirectory()

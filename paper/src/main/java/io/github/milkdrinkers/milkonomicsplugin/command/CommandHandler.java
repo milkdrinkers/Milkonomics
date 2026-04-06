@@ -2,7 +2,7 @@ package io.github.milkdrinkers.milkonomicsplugin.command;
 
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIPaperConfig;
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.MilkonomicsPlugin;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 
@@ -23,7 +23,7 @@ public class CommandHandler implements Reloadable {
     }
 
     @Override
-    public void onLoad(AbstractMilkonomicsPlugin plugin) {
+    public void onLoad(Milkonomics plugin) {
         CommandAPI.onLoad(
             new CommandAPIPaperConfig(plugin)
                 .silentLogs(true)
@@ -31,7 +31,7 @@ public class CommandHandler implements Reloadable {
     }
 
     @Override
-    public void onEnable(AbstractMilkonomicsPlugin plugin) {
+    public void onEnable(Milkonomics plugin) {
         if (!CommandAPI.isLoaded())
             return;
 
@@ -42,7 +42,7 @@ public class CommandHandler implements Reloadable {
     }
 
     @Override
-    public void onDisable(AbstractMilkonomicsPlugin plugin) {
+    public void onDisable(Milkonomics plugin) {
         if (!CommandAPI.isLoaded())
             return;
 

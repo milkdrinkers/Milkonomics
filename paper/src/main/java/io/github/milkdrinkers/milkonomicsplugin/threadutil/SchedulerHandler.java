@@ -1,7 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.threadutil;
 
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
-import io.github.milkdrinkers.milkonomicsplugin.MilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import io.github.milkdrinkers.threadutil.PlatformBukkit;
 import io.github.milkdrinkers.threadutil.Scheduler;
@@ -13,18 +12,18 @@ import java.time.Duration;
  */
 public class SchedulerHandler implements Reloadable {
     @Override
-    public void onLoad(AbstractMilkonomicsPlugin plugin) {
+    public void onLoad(Milkonomics plugin) {
         Scheduler.init(new PlatformBukkit(plugin)); // Initialize thread-util
         Scheduler.setErrorHandler(e -> plugin.getSLF4JLogger().error("[Scheduler]: {}", e.getMessage()));
     }
 
     @Override
-    public void onEnable(AbstractMilkonomicsPlugin plugin) {
+    public void onEnable(Milkonomics plugin) {
 
     }
 
     @Override
-    public void onDisable(AbstractMilkonomicsPlugin plugin) {
+    public void onDisable(Milkonomics plugin) {
         if (Scheduler.isInitialized())
             Scheduler.shutdown(Duration.ofSeconds(60));
     }

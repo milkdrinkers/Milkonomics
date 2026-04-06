@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.updatechecker;
 
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.MilkonomicsPlugin;
 import io.github.milkdrinkers.milkonomicsplugin.Reloadable;
 import io.github.milkdrinkers.milkonomicsplugin.utility.Cfg;
@@ -39,7 +39,7 @@ public class UpdateHandler implements Reloadable {
      * On plugin enable.
      */
     @Override
-    public void onEnable(AbstractMilkonomicsPlugin plugin) {
+    public void onEnable(Milkonomics plugin) {
         final boolean shouldLog = Cfg.get().updateChecker.enabled && Cfg.get().updateChecker.console;
 
         // Fetch the latest version and send message to console

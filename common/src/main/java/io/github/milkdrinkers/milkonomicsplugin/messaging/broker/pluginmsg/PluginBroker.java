@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomicsplugin.messaging.broker.pluginmsg;
 
-import io.github.milkdrinkers.milkonomicsplugin.AbstractMilkonomicsPlugin;
+import io.github.milkdrinkers.milkonomicsplugin.Milkonomics;
 import io.github.milkdrinkers.milkonomicsplugin.messaging.MessageConsumer;
 import io.github.milkdrinkers.milkonomicsplugin.messaging.broker.AbstractBroker;
 import io.github.milkdrinkers.milkonomicsplugin.messaging.broker.MessagingUtils;
@@ -20,13 +20,13 @@ import java.util.Optional;
  */
 @SuppressWarnings({"FieldCanBeLocal", "unused"})
 public final class PluginBroker extends AbstractBroker implements PluginMessageListener {
-    private final AbstractMilkonomicsPlugin plugin;
+    private final Milkonomics plugin;
     private final String name;
     private final String channelName;
 
     public PluginBroker(MessageConsumer messageConsumer, String name) {
         super(messageConsumer);
-        this.plugin = AbstractMilkonomicsPlugin.getInstance();
+        this.plugin = Milkonomics.getInstance();
         this.name = name;
         this.channelName = "%s:message".formatted(name.toLowerCase());
     }
