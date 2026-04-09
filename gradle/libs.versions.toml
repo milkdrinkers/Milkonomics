@@ -19,7 +19,7 @@ versionwatch = "io.github.milkdrinkers:versionwatch:1.1.0"
 wordweaver = "io.github.milkdrinkers:wordweaver:0.0.7"
 crate-api = { module = "io.github.milkdrinkers:crate-api", version.ref = "crate" }
 crate-yaml = { module = "io.github.milkdrinkers:crate-yaml", version.ref = "crate" }
-yaml = { module = "org.yaml:snakeyaml", version = "2.5" }
+yaml = { module = "org.yaml:snakeyaml", version = "2.6" }
 configurate-interface-ap = { module = "org.spongepowered:configurate-extra-interface-ap", version.ref = "configurate" }
 configurate-interface = { module = "org.spongepowered:configurate-extra-interface", version.ref = "configurate" }
 configurate-core = { module = "org.spongepowered:configurate-core", version.ref = "configurate" }
