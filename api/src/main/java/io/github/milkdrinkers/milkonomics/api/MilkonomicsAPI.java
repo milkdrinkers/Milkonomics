@@ -12,7 +12,7 @@ public abstract class MilkonomicsAPI implements VaultProvider {
      * @return the instance of MilkonomicsAPI
      * @since 1.0.0
      */
-    private static MilkonomicsAPI getInstance() {
+    public static MilkonomicsAPI getInstance() {
         if (INSTANCE == null)
             throw new RuntimeException("Milkonomics API was accessed before being initialized!");
         return INSTANCE;
@@ -35,12 +35,12 @@ public abstract class MilkonomicsAPI implements VaultProvider {
      *
      * @return the account manager
      */
-    protected abstract AccountManager<Account> getAccountManager();
+    public abstract AccountManager<Account> getAccountManager();
 
     /**
      * Gets the account save handler.
      *
      * @return the account save handler
      */
-    protected abstract AccountSaveHandler getAccountSaveHandler();
+    public abstract AccountSaveHandler getAccountSaveHandler();
 }

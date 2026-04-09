@@ -1,5 +1,6 @@
 package io.github.milkdrinkers.milkonomics.api.account;
 
+import io.github.milkdrinkers.milkonomics.api.MilkonomicsAPI;
 import io.github.milkdrinkers.milkonomics.api.denomination.Denomination;
 
 import java.math.BigDecimal;
@@ -15,13 +16,23 @@ public abstract class Account implements AccountBalance, DenominationBalance {
     private final Denomination defaultDenomination;
     private final Map<String, BalanceEntry> balances = new ConcurrentHashMap<>();
 
-    public Account(UUID uuid, String name, Denomination defaultDenomination, Map<String, BigDecimal> initialBalances) {
+    private final StampedLock stateLock = new StampedLock();
+    private boolean acceptingTransactions = true;
+
+    public Account(
+        UUID uuid,
+        String name,
+        Denomination defaultDenomination,
+        Map<String, BigDecimal> initialBalances,
+        boolean acceptingTransactions
+    ) {
         this.uuid = uuid;
         this.name = name;
         this.defaultDenomination = defaultDenomination;
         for (Map.Entry<String, BigDecimal> entry : initialBalances.entrySet()) {
             this.balances.put(entry.getKey(), new BalanceEntry(entry.getValue()));
         }
+        this.acceptingTransactions = acceptingTransactions;
     }
 
     public Account(UUID uuid, String name, Denomination defaultDenomination, BigDecimal initialBalance) {
@@ -49,7 +60,7 @@ public abstract class Account implements AccountBalance, DenominationBalance {
     }
 
     public Map<String, BigDecimal> getAllBalances() {
-        Map<String, BigDecimal> result = new ConcurrentHashMap<>();
+        final Map<String, BigDecimal> result = new ConcurrentHashMap<>();
         balances.forEach((denomId, entry) -> result.put(denomId, entry.read(() -> entry.balance)));
         return result;
     }
@@ -71,8 +82,7 @@ public abstract class Account implements AccountBalance, DenominationBalance {
 
     @Override
     public boolean deposit(BigDecimal amount) {
-        deposit(defaultDenomination, amount);
-        return true;
+        return deposit(defaultDenomination, amount);
     }
 
     @Override
@@ -83,6 +93,7 @@ public abstract class Account implements AccountBalance, DenominationBalance {
     @Override
     public boolean set(Denomination denomination, BigDecimal amount) {
         getEntry(denomination).writeWith(() -> balances.get(denomination.id()).balance = amount);
+        MilkonomicsAPI.getInstance().getAccountSaveHandler().queue(this);
         return true;
     }
 
@@ -99,6 +110,7 @@ public abstract class Account implements AccountBalance, DenominationBalance {
                 return false;
             }
             entry.balance = entry.balance.subtract(amount);
+            MilkonomicsAPI.getInstance().getAccountSaveHandler().queue(this);
             return true;
         });
     }
@@ -109,6 +121,7 @@ public abstract class Account implements AccountBalance, DenominationBalance {
             final BalanceEntry entry = balances.get(denomination.id());
             entry.balance = entry.balance.add(amount);
         });
+        MilkonomicsAPI.getInstance().getAccountSaveHandler().queue(this);
         return true;
     }
 
@@ -175,6 +188,39 @@ public abstract class Account implements AccountBalance, DenominationBalance {
             } finally {
                 lock.unlockWrite(stamp);
             }
+        }
+    }
+
+    /**
+     * Checks if the account is currently accepting transactions.
+     */
+    public boolean isAcceptingTransactions() {
+        long stamp = stateLock.tryOptimisticRead();
+        boolean value = acceptingTransactions;
+
+        if (!stateLock.validate(stamp)) {
+            stamp = stateLock.readLock();
+            try {
+                value = acceptingTransactions;
+            } finally {
+                stateLock.unlockRead(stamp);
+            }
+        }
+
+        return value;
+    }
+
+    /**
+     * Sets whether the account is currently accepting transactions. When set to false, all transaction operations (withdraw, deposit, set) should be rejected until accepting transactions is set back to true.
+     * @param value Whether the account should accept transactions.
+     */
+    public void setAcceptingTransactions(boolean value) {
+        final long stamp = stateLock.writeLock();
+        try {
+            acceptingTransactions = value;
+        } finally {
+            stateLock.unlockWrite(stamp);
+            MilkonomicsAPI.getInstance().getAccountSaveHandler().queue(this);
         }
     }
 }

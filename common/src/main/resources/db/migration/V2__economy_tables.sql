@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS "${tablePrefix}accounts" (
     "uuid" BINARY(16) NOT NULL,
     "name" VARCHAR(255) NOT NULL,
-    "balance" DECIMAL(19, 4) NOT NULL DEFAULT 0,
+    "accepting_payments" TINYINT(1) NOT NULL DEFAULT 1,
     PRIMARY KEY ("uuid")
 );
 

@@ -20,6 +20,7 @@ public class DenominationHandler implements Reloadable {
             final Denomination denomination = new DenominationImpl(
                 denominationConfig.id,
                 denominationConfig.displayName,
+                denominationConfig.displayNamePlural,
                 denominationConfig.symbol,
                 denominationConfig.prefix,
                 denominationConfig.suffix,
@@ -48,6 +49,7 @@ public class DenominationHandler implements Reloadable {
                 defaultDenomination = new DenominationImpl(
                     "dollar",
                     "Dollar",
+                    "Dollars",
                     "$",
                     "$",
                     "",

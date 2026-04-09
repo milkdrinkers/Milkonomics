@@ -9,12 +9,17 @@ import java.util.Map;
 import java.util.UUID;
 
 public class AccountImpl extends Account {
-    public AccountImpl(UUID uuid, String name, Denomination defaultDenomination, Map<String, BigDecimal> initialBalances) {
-        super(uuid, name, defaultDenomination, initialBalances);
+    public AccountImpl(UUID uuid, String name, Denomination defaultDenomination, Map<String, BigDecimal> initialBalances, boolean acceptingTransactions) {
+        super(uuid, name, defaultDenomination, initialBalances, acceptingTransactions);
     }
 
     @Override
     public AccountSnapshot getSnapshot() {
-        return null;
+        return new io.github.milkdrinkers.milkonomics.economy.account.AccountSnapshot(
+            getUUID(),
+            getName(),
+            getAllBalances(),
+            isAcceptingTransactions()
+        );
     }
 }

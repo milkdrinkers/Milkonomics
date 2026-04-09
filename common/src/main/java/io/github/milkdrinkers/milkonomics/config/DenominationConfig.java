@@ -16,6 +16,9 @@ public class DenominationConfig implements VersionedConfig {
     @Comment("The display name for this denomination, for example 'Dollar' or 'Euro'.")
     public String displayName = "Dollar";
 
+    @Comment("The display name (plural) for this denomination, for example 'Dollars' or 'Euros'.")
+    public String displayNamePlural = "Dollars";
+
     @Comment("The symbol to use for this denomination, for example $ or €.")
     public String symbol = "$";
 

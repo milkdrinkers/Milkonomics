@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.github.milkdrinkers.milkonomics.database.QueryUtils.UUIDUtil;
+import static io.github.milkdrinkers.milkonomics.database.QueryUtils.BooleanUtil;
 import static io.github.milkdrinkers.milkonomics.database.schema.Tables.*;
 import static org.jooq.impl.DSL.*;
 
@@ -220,14 +221,17 @@ public final class Queries {
                             .insertInto(
                                 ACCOUNTS,
                                 ACCOUNTS.UUID,
-                                ACCOUNTS.NAME
+                                ACCOUNTS.NAME,
+                                ACCOUNTS.ACCEPTING_PAYMENTS
                             )
                             .values(
                                 UUIDUtil.toBytes(account.uuid()),
-                                account.name()
+                                account.name(),
+                                BooleanUtil.toByte(account.acceptingTransactions())
                             )
                             .onDuplicateKeyUpdate()
                             .set(ACCOUNTS.NAME, account.name())
+                            .set(ACCOUNTS.ACCEPTING_PAYMENTS, BooleanUtil.toByte(account.acceptingTransactions()))
                         )
                         .toList();
 
@@ -289,7 +293,8 @@ public final class Queries {
                             UUIDUtil.fromBytes(account.getUuid()),
                             account.getName(),
                             denominationHandler.getDefaultDenomination(),
-                            balances
+                            balances,
+                            BooleanUtil.fromByte(account.getAcceptingPayments())
                         );
                     })
                     .toList();
