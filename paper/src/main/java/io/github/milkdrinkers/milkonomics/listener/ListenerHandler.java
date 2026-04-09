@@ -31,7 +31,6 @@ public class ListenerHandler implements Reloadable {
     @Override
     public void onEnable(AbstractMilkonomics plugin) {
         listeners.clear(); // Clear the list to avoid duplicate listeners when reloading the plugin
-        listeners.add(new PlayerJoinListener());
 
         // Register listeners here
         for (Listener listener : listeners) {

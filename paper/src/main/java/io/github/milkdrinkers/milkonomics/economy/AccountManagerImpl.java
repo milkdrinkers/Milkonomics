@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
-public class AccountManagerImpl extends AccountManager<Account> implements Reloadable {
+public final class AccountManagerImpl extends AccountManager<Account> implements Reloadable {
     private final AccountSaveHandler saveHandler;
 
     public AccountManagerImpl(AccountSaveHandler saveHandler) {
@@ -34,6 +34,6 @@ public class AccountManagerImpl extends AccountManager<Account> implements Reloa
 
     @Override
     protected AccountImpl newAccount(UUID uuid, String name, Denomination defaultDenomination, Map<String, BigDecimal> initialBalances) {
-        return new AccountImpl(uuid, name, defaultDenomination, initialBalances);
+        return new AccountImpl(uuid, name, defaultDenomination, initialBalances, true);
     }
 }

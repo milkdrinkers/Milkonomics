@@ -1,14 +1,17 @@
-package io.github.milkdrinkers.milkonomicsplugin.command;
+package io.github.milkdrinkers.milkonomics.command;
 
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.CommandAPIPaper;
+import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
-import io.github.milkdrinkers.milkonomics.player.PlayerDataHolder;
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
+import io.github.milkdrinkers.milkonomics.api.MilkonomicsAPI;
+import io.github.milkdrinkers.milkonomics.api.account.Account;
+import io.github.milkdrinkers.wordweaver.Translation;
 import org.bukkit.entity.Player;
 
-public class ToggleCommand {
-
+final class ToggleCommand {
     public ToggleCommand() {
-        command().register();
     }
 
     public CommandAPICommand command() {
@@ -17,8 +20,15 @@ public class ToggleCommand {
             .executesPlayer(this::executor);
     }
 
-    public void executor(Player sender, CommandArguments args) {
-        PlayerDataHolder.getInstance().getPlayerData(sender.getUniqueId()).togglePayments();
-    }
+    public void executor(Player sender, CommandArguments args) throws WrapperCommandSyntaxException {
+        final Account account = MilkonomicsAPI.getInstance().getAccountManager().getAccount(sender.getUniqueId()).orElseThrow(
+            () -> CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.toggle-payments.no-data")).build())
+        );
 
+        if (account.isAcceptingTransactions()) {
+            sender.sendMessage(ColorParser.of(Translation.as("commands.toggle-payments.accepting")).build());
+        } else {
+            sender.sendMessage(ColorParser.of(Translation.as("commands.toggle-payments.declining")).build());
+        }
+    }
 }

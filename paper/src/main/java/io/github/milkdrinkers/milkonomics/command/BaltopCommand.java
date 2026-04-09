@@ -16,14 +16,11 @@ import org.bukkit.command.CommandSender;
 
 import java.util.List;
 
-public class BaltopCommand {
-
-    private AbstractMilkonomics plugin;
+final class BaltopCommand {
+    private final AbstractMilkonomics plugin;
 
     public BaltopCommand(AbstractMilkonomics plugin) {
         this.plugin = plugin;
-
-        command().register();
     }
 
     public CommandAPICommand command() {
@@ -36,23 +33,25 @@ public class BaltopCommand {
     }
 
     private void executor(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
-        List<Account> accounts = plugin.getAccountManager().getAccounts().stream().toList();
+        final List<Account> accounts = plugin.getAccountManager().getAccounts().stream().toList();
         if (accounts.isEmpty()) {
             throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.baltop.no-balances")).build());
         }
 
         Scheduler.async(() -> {
-            int pageLength = 10; // TODO config
+            final int pageLength = 10; // TODO config
             int page = args.getByClassOrDefault("page", Integer.class, 1);
-            int totalBalances = accounts.size();
-            int totalPages = calculatePages(totalBalances, pageLength);
+            final int totalBalances = accounts.size();
+            final int totalPages = calculatePages(totalBalances, pageLength);
 
             if (page <= 0)
                 page = 1;
             else if (page > totalPages)
                 page = totalPages;
 
-            List<Account> sortedAccounts = accounts.stream().sorted((a, b) -> b.get().compareTo(a.get())).toList();
+            final List<Account> sortedAccounts = accounts.stream()
+                .sorted((a, b) -> b.get().compareTo(a.get()))
+                .toList();
 
             Component message = ColorParser.of(Translation.as("commands.baltop.header"))
                 .with("page", String.valueOf(page)).build();
@@ -61,7 +60,7 @@ public class BaltopCommand {
                 int index = (page - 1) * pageLength + i;
                 if (index >= sortedAccounts.size())
                     break;
-                message.appendNewline().append(
+                message = message.appendNewline().append(
                     ColorParser.of(Translation.as("commands.baltop.format"))
                         .with("rank", String.valueOf(index + 1))
                         .with("account", accounts.get(index).getName())
@@ -73,12 +72,10 @@ public class BaltopCommand {
             }
 
             sender.sendMessage(message);
-
         }).execute();
     }
 
     private int calculatePages(int totalBalances, int pageLength) {
         return (int) Math.ceil((double) totalBalances / pageLength);
     }
-
 }

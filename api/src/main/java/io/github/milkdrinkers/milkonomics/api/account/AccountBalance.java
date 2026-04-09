@@ -72,6 +72,7 @@ public interface AccountBalance {
      * @param amount The amount to withdraw. Must be non-negative.
      * @return True if the withdrawal was successful, false otherwise.
      */
+    @SuppressWarnings("UnusedReturnValue")
     default boolean withdraw(double amount) {
         return withdraw(BigDecimal.valueOf(amount));
     }
@@ -90,9 +91,14 @@ public interface AccountBalance {
      * @param amount The amount to deposit. Must be non-negative.
      * @return True if the deposit was successful, false otherwise.
      */
+    @SuppressWarnings("UnusedReturnValue")
     default boolean deposit(double amount) {
         return deposit(BigDecimal.valueOf(amount));
     }
 
+    /**
+     * Gets a snapshot of the account's current state, including its balance and any other relevant information. This snapshot can be used for saving the account to the database or for other purposes where a consistent view of the account's state is needed.
+     * @return A snapshot of the account's current state.
+     */
     AccountSnapshot getSnapshot();
 }

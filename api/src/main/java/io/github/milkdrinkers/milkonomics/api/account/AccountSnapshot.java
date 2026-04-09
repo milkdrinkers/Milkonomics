@@ -10,4 +10,6 @@ public interface AccountSnapshot {
     String name();
 
     Map<String, BigDecimal> balances();
+
+    boolean acceptingTransactions();
 }

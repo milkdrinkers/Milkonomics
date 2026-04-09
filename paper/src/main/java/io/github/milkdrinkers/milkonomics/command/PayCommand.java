@@ -9,19 +9,17 @@ import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
+import io.github.milkdrinkers.milkonomics.api.MilkonomicsAPI;
+import io.github.milkdrinkers.milkonomics.api.account.Account;
 import io.github.milkdrinkers.milkonomics.utility.Cfg;
-import io.github.milkdrinkers.milkonomics.player.PlayerDataHolder;
 import io.github.milkdrinkers.wordweaver.Translation;
 import org.bukkit.entity.Player;
 
-public class PayCommand {
-
-    AbstractMilkonomics plugin;
+final class PayCommand {
+    private final AbstractMilkonomics plugin;
 
     public PayCommand(AbstractMilkonomics plugin) {
         this.plugin = plugin;
-
-        command().register();
     }
 
     public CommandAPICommand command() {
@@ -34,36 +32,49 @@ public class PayCommand {
     }
 
     private void executor(Player sender, CommandArguments args) throws WrapperCommandSyntaxException {
-        PlayerProfile profile = args.getByClassOrDefault("player", PlayerProfile.class, null);
-        if (profile == null) throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.pay.player-not-found")).build());
+        final double amount = args.getByClassOrDefault("amount", Double.class, 0.0);
+        if (amount <= 0.0)
+            throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.pay.invalid-amount")).build());
 
-        Player target = plugin.getServer().getPlayer(profile.getId());
-        double amount = args.getByClassOrDefault("amount", Double.class, 0.0);
+        final PlayerProfile targetProfile = args.getByClassOrDefault("player", PlayerProfile.class, null);
+        if (targetProfile == null)
+            throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.pay.player-not-found")).build());
 
+        final Player target = plugin.getServer().getPlayer(targetProfile.getId());
         if (target == null)
             throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.pay.player-not-found")).build());
 
-        if (!PlayerDataHolder.getInstance().getPlayerData(target.getUniqueId()).isAcceptingPayments())
+        if (target == sender)
+            throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.pay.self-payment")).build());
+
+        final Account originAccount = MilkonomicsAPI.getInstance().getAccountManager().getAccount(sender.getUniqueId()).orElseThrow(
+            () -> CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.pay.origin-account-not-found")).build())
+        );
+
+        final Account targetAccount = MilkonomicsAPI.getInstance().getAccountManager().getAccount(sender.getUniqueId()).orElseThrow(
+            () -> CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.pay.target-account-not-found")).build())
+        );
+
+        if (!targetAccount.isAcceptingTransactions())
             throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.pay.target-not-accepting-payments")).with("player", target.displayName()).build());
 
-        if (target.getUniqueId() == sender.getUniqueId()) throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.pay.self")).build());
+        if (!originAccount.has(amount))
+            throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.pay.insufficient-funds")).build());
 
-        if (!plugin.getEconomyProvider().has(sender, amount)) throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.pay.insufficient-funds")).build());
+        originAccount.withdraw(amount);
+        targetAccount.deposit(amount);
 
-        plugin.getEconomyProvider().withdrawPlayer(sender, amount);
-        plugin.getEconomyProvider().depositPlayer(plugin.getServer().getPlayer(target.getUniqueId()), amount);
-
-        sender.sendMessage(ColorParser.of(Translation.as("commands.pay.success"))
+        sender.sendMessage(ColorParser.of(Translation.as("commands.pay.origin-success"))
             .with("prefix", Cfg.getDefaultDenominationCfg().prefix)
             .with("amount", String.valueOf(amount))
             .with("suffix", Cfg.getDefaultDenominationCfg().suffix)
             .with("player", target.displayName())
             .build());
 
-        target.sendMessage(ColorParser.of(Translation.as("commands.pay.success-target"))
+        target.sendMessage(ColorParser.of(Translation.as("commands.pay.target-success"))
             .with("prefix", Cfg.getDefaultDenominationCfg().prefix)
             .with("amount", String.valueOf(amount))
-            .with("suffix", Cfg.getDefaultDenominationCfg().suffix) // TODO
+            .with("suffix", Cfg.getDefaultDenominationCfg().suffix)
             .with("player", sender.displayName())
             .build());
     }

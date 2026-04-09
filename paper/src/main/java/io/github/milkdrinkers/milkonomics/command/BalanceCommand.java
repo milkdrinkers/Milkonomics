@@ -8,23 +8,18 @@ import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
+import io.github.milkdrinkers.milkonomics.api.MilkonomicsAPI;
+import io.github.milkdrinkers.milkonomics.api.account.Account;
 import io.github.milkdrinkers.milkonomics.utility.Cfg;
 import io.github.milkdrinkers.wordweaver.Translation;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.Optional;
-
-public class BalanceCommand {
-
-    private AbstractMilkonomics plugin;
+final class BalanceCommand {
+    private final AbstractMilkonomics plugin;
 
     public BalanceCommand(AbstractMilkonomics plugin) {
         this.plugin = plugin;
-
-        command().register();
     }
 
     public CommandAPICommand command() {
@@ -32,29 +27,38 @@ public class BalanceCommand {
             .withHelp("Check your own, or someone else's balance.", "Check your own, or someone else's balance.") // TODO translation
             .withPermission("milkonomics.command.balance")
             .withOptionalArguments(new PlayerProfileArgument("player"))
-            .executes(this::executor);
+            .executes(this::executor)
+            .executesPlayer(this::executorPlayer);
     }
 
     private void executor(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
-        double balance;
-        Optional<PlayerProfile> profileOptional = args.getOptionalByClass("player", PlayerProfile.class);
-        if (profileOptional.isEmpty()) {
-            if (!(sender instanceof Player player)) {
-                throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.of("commands.balance.not-player")).build());
-            }
+        final PlayerProfile profile = args.getOptionalByClass("player", PlayerProfile.class).orElseThrow(
+            () -> CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.of("commands.balance.no-player-specified")).build())
+        );
 
-            balance = plugin.getEconomyProvider().getBalance(player);
-        } else {
-            PlayerProfile profile = profileOptional.get();
-            OfflinePlayer player = Bukkit.getOfflinePlayer(profile.getId());
-            balance = plugin.getEconomyProvider().getBalance(player);
-        }
+        final Account account = MilkonomicsAPI.getInstance().getAccountManager().getAccount(profile.getId()).orElseThrow(
+            () -> CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.of("commands.balance.account-not-found")).build())
+        );
 
         sender.sendMessage(ColorParser.of(Translation.of("commands.balance.balance"))
             .with("prefix", Cfg.getDefaultDenominationCfg().prefix)
-            .with("amount", String.valueOf(balance))
+            .with("amount", String.valueOf(account.get()))
             .with("suffix", Cfg.getDefaultDenominationCfg().suffix)
             .build());
     }
 
+    private void executorPlayer(Player sender, CommandArguments args) throws WrapperCommandSyntaxException {
+        final PlayerProfile profile = args.getOptionalByClass("player", PlayerProfile.class)
+            .orElse(sender.getPlayerProfile());
+
+        final Account account = MilkonomicsAPI.getInstance().getAccountManager().getAccount(profile.getId()).orElseThrow(
+            () -> CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.of("commands.balance.account-not-found")).build())
+        );
+
+        sender.sendMessage(ColorParser.of(Translation.of("commands.balance.balance"))
+            .with("prefix", Cfg.getDefaultDenominationCfg().prefix)
+            .with("amount", String.valueOf(account.get()))
+            .with("suffix", Cfg.getDefaultDenominationCfg().suffix)
+            .build());
+    }
 }

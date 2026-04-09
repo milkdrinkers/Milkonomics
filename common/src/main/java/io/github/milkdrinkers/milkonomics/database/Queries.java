@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.github.milkdrinkers.milkonomics.database.QueryUtils.UUIDUtil;
+import static io.github.milkdrinkers.milkonomics.database.QueryUtils.BooleanUtil;
 import static io.github.milkdrinkers.milkonomics.database.schema.Tables.*;
 import static org.jooq.impl.DSL.*;
 
@@ -220,14 +221,17 @@ public final class Queries {
                             .insertInto(
                                 ACCOUNTS,
                                 ACCOUNTS.UUID,
-                                ACCOUNTS.NAME
+                                ACCOUNTS.NAME,
+                                ACCOUNTS.ACCEPTING_PAYMENTS
                             )
                             .values(
                                 UUIDUtil.toBytes(account.uuid()),
-                                account.name()
+                                account.name(),
+                                BooleanUtil.toByte(account.acceptingTransactions())
                             )
                             .onDuplicateKeyUpdate()
                             .set(ACCOUNTS.NAME, account.name())
+                            .set(ACCOUNTS.ACCEPTING_PAYMENTS, BooleanUtil.toByte(account.acceptingTransactions()))
                         )
                         .toList();
 
@@ -289,7 +293,8 @@ public final class Queries {
                             UUIDUtil.fromBytes(account.getUuid()),
                             account.getName(),
                             denominationHandler.getDefaultDenomination(),
-                            balances
+                            balances,
+                            BooleanUtil.fromByte(account.getAcceptingPayments())
                         );
                     })
                     .toList();
@@ -297,42 +302,6 @@ public final class Queries {
                 Logger.get().error("SQL Query threw an error!", e);
             }
             return Collections.emptyList();
-        }
-    }
-
-    public static final class Players {
-        public static boolean loadAcceptingPayments(UUID uuid) {
-            try (
-                Connection con = DB.getConnection()
-            ) {
-                DSLContext context = DB.getContext(con);
-
-                return context
-                    .selectFrom(PLAYERDATA)
-                    .where(PLAYERDATA.UUID.eq(UUIDUtil.toBytes(uuid)))
-                    .fetchOptional(PLAYERDATA.ACCEPTING_PAYMENTS)
-                    .orElse(true);
-            } catch (SQLException e) {
-                Logger.get().error("SQL Query threw an error!", e);
-            }
-            return true;
-        }
-
-        public static void saveAcceptingPayments(UUID uuid, boolean acceptingPayments) {
-            try (
-                Connection con = DB.getConnection()
-            ) {
-                DSLContext context = DB.getContext(con);
-
-                context
-                    .insertInto(PLAYERDATA, PLAYERDATA.UUID, PLAYERDATA.ACCEPTING_PAYMENTS)
-                    .values(UUIDUtil.toBytes(uuid), acceptingPayments)
-                    .onDuplicateKeyUpdate()
-                    .set(PLAYERDATA.ACCEPTING_PAYMENTS, acceptingPayments)
-                    .execute();
-            } catch (SQLException e) {
-                Logger.get().error("SQL Query threw an error!", e);
-            }
         }
     }
 }

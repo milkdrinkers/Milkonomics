@@ -11,11 +11,11 @@ import static io.github.milkdrinkers.milkonomics.command.CommandHandler.BASE_PER
 /**
  * Class containing the code for the example command.
  */
-class MilkonomicsCommand {
+final class MilkonomicsCommand {
     /**
      * Instantiates and registers a new command.
      */
-    protected MilkonomicsCommand(AbstractMilkonomics plugin) {
+    MilkonomicsCommand(AbstractMilkonomics plugin) {
         new CommandAPICommand("milkonomics")
             .withHelp("Base command.", "Base command.")
             .withPermission(BASE_PERM)
@@ -25,7 +25,8 @@ class MilkonomicsCommand {
                 new AdminCommand(plugin).command(),
                 new BalanceCommand(plugin).command(),
                 new PayCommand(plugin).command(),
-                new BaltopCommand(plugin).command()
+                new BaltopCommand(plugin).command(),
+                new ToggleCommand().command()
             )
             .executes(this::executorExample)
             .register();
@@ -33,7 +34,7 @@ class MilkonomicsCommand {
 
     private void executorExample(CommandSender sender, CommandArguments args) {
         sender.sendMessage(
-            ColorParser.of("<white>Read more about CommandAPI &9<click:open_url:'https://commandapi.jorel.dev/9.0.3/'>here</click><white>.")
+            ColorParser.of("<white>Read more about CommandAPI &9<click:open_url:'https://commandapi.jorel.dev/9.0.3/'>here</click><white>.") // TODO Help message translatable
                 .legacy() // Parse legacy color codes
                 .build()
         );

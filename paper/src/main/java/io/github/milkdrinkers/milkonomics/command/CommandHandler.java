@@ -39,6 +39,10 @@ public class CommandHandler implements Reloadable {
 
         // Register commands here
         new MilkonomicsCommand(plugin);
+        new BalanceCommand(plugin).command().register();
+        new PayCommand(plugin).command().register();
+        new BaltopCommand(plugin).command().register();
+        new ToggleCommand().command().register();
     }
 
     @Override

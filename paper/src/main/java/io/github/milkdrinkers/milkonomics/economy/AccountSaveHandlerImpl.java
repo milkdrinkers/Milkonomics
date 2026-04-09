@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Handles saving of accounts to the database. Accounts are queued for saving and flushed periodically to avoid overwhelming the database with too many individual save operations.
  */
-public class AccountSaveHandlerImpl implements Reloadable, AccountSaveHandler {
+public final class AccountSaveHandlerImpl implements Reloadable, AccountSaveHandler {
     private final Map<UUID, io.github.milkdrinkers.milkonomics.api.account.AccountSnapshot> queue;
     private ScheduledTask task;
 

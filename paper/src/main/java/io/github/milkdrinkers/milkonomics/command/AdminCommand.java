@@ -9,16 +9,16 @@ import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
+import io.github.milkdrinkers.milkonomics.api.MilkonomicsAPI;
+import io.github.milkdrinkers.milkonomics.api.account.Account;
 import io.github.milkdrinkers.milkonomics.utility.Cfg;
 import io.github.milkdrinkers.wordweaver.Translation;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
 import java.math.BigDecimal;
 
-public class AdminCommand {
-
-    private AbstractMilkonomics plugin;
+final class AdminCommand {
+    private final AbstractMilkonomics plugin;
 
     public AdminCommand(AbstractMilkonomics plugin) {
         this.plugin = plugin;
@@ -56,38 +56,53 @@ public class AdminCommand {
     }
 
     private void executorAdd(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
-        PlayerProfile profile = args.getByClassOrDefault("player", PlayerProfile.class, null);
-        if (profile == null) {
+        final PlayerProfile profile = args.getByClassOrDefault("player", PlayerProfile.class, null);
+        if (profile == null)
             throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.of("commands.admin.add.player-not-found")).build());
-        }
 
         double amount = args.getByClassOrDefault("amount", Double.class, 0.0);
 
-        plugin.getEconomyProvider().depositPlayer(Bukkit.getOfflinePlayer(profile.getUniqueId()), amount);
+        final Account account = MilkonomicsAPI.getInstance().getAccountManager().getAccount(profile.getId()).orElseThrow(
+            () -> CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.of("commands.admin.add.account-not-found")).build())
+        );
+
+        if (amount < 0.0)
+            amount = 0.0;
+
+        account.deposit(amount);
     }
 
     private void executorRemove(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
-        PlayerProfile profile = args.getByClassOrDefault("player", PlayerProfile.class, null);
-        if (profile == null) {
+        final PlayerProfile profile = args.getByClassOrDefault("player", PlayerProfile.class, null);
+        if (profile == null)
             throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.of("commands.admin.remove.player-not-found")).build());
-        }
 
         double amount = args.getByClassOrDefault("amount", Double.class, 0.0);
 
-        plugin.getEconomyProvider().withdrawPlayer(Bukkit.getOfflinePlayer(profile.getUniqueId()), amount);
+        final Account account = MilkonomicsAPI.getInstance().getAccountManager().getAccount(profile.getId()).orElseThrow(
+            () -> CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.of("commands.admin.remove.account-not-found")).build())
+        );
+
+        if (amount < 0.0)
+            amount = 0.0;
+
+        if (amount > account.getDouble())
+            amount = account.getDouble();
+
+        account.withdraw(amount);
     }
 
     private void executorReset(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
-        PlayerProfile profile = args.getByClassOrDefault("player", PlayerProfile.class, null);
-        if (profile == null) {
+        final PlayerProfile profile = args.getByClassOrDefault("player", PlayerProfile.class, null);
+        if (profile == null)
             throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.of("commands.admin.reset.player-not-found")).build());
-        }
 
-        BigDecimal balance = Cfg.getDefaultDenominationCfg().defaultBalance; // TODO get default balance from config
+        final BigDecimal balance = Cfg.getDefaultDenominationCfg().defaultBalance;
 
-        // Accessing the account directly rather than through EconomyImpl to make use of the "setBalance" method.
-        if (plugin.getAccountManager().getAccount(profile.getId()).isPresent())
-            plugin.getAccountManager().getAccount(profile.getId()).get().set(balance);
+        final Account account = MilkonomicsAPI.getInstance().getAccountManager().getAccount(profile.getId()).orElseThrow(
+            () -> CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.of("commands.admin.reset.account-not-found")).build())
+        );
+
+        account.set(balance);
     }
-
 }

@@ -11,9 +11,11 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.ServicePriority;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.*;
 
-public class EconomyImpl implements Economy, Reloadable {
+public final class EconomyImpl implements Economy, Reloadable {
     private final AbstractMilkonomics plugin;
     private final AccountManager<Account> manager;
 
@@ -44,39 +46,34 @@ public class EconomyImpl implements Economy, Reloadable {
 
     @Override
     public int fractionalDigits() {
-        // TODO Allow setting in config
-        return 0;
+        return plugin.getDenominationHandler().getDefaultDenomination().decimalPlaces();
     }
+
+    private static final DecimalFormatSymbols SYMBOLS = DecimalFormatSymbols.getInstance(Locale.US);
+    private static final ThreadLocal<DecimalFormat> INTEGER_FORMAT = ThreadLocal.withInitial(() -> new DecimalFormat("#,##0", SYMBOLS));
+    private static final ThreadLocal<Map<Integer, DecimalFormat>> FRACTIONAL_FORMATS = ThreadLocal.withInitial(HashMap::new);
 
     @Override
     public String format(double amount) {
         final int decimals = fractionalDigits();
 
-        // TODO Format
-//        DecimalFormat df;
-//        if (fractionalDigits > 0 && amount % 1 != 0)
-//        {
-//            df = new DecimalFormat("#,##0." + StringUtils.repeat("0", fractionalDigits));
-//        }
-//        else
-//        {
-//            df = new DecimalFormat("#,##0");
-//        }
+        if (decimals <= 0 || amount % 1 == 0) {
+            return INTEGER_FORMAT.get().format(amount);
+        }
 
+        final DecimalFormat df = FRACTIONAL_FORMATS.get().computeIfAbsent(decimals, d -> new DecimalFormat("#,##0." + "0".repeat(d), SYMBOLS));
 
-        return "";
+        return df.format(amount);
     }
 
     @Override
     public String currencyNamePlural() {
-        // TODO Allow setting in config
-        return "";
+        return plugin.getDenominationHandler().getDefaultDenomination().displayNamePlural();
     }
 
     @Override
     public String currencyNameSingular() {
-        // TODO Allow setting in config
-        return "";
+        return plugin.getDenominationHandler().getDefaultDenomination().displayName();
     }
 
     private boolean hasAccount(UUID uuid) {
@@ -337,6 +334,7 @@ public class EconomyImpl implements Economy, Reloadable {
     }
 
     private boolean createPlayerAccount(UUID uuid, String accountId) {
+        // TODO All of these denomination things should be validated by configurate on load, not here
         final BigDecimal initialBalance = new BigDecimal(0).stripTrailingZeros(); // TODO Allow setting in config
 
         if (EconomyUtil.isNegative(initialBalance)) {
