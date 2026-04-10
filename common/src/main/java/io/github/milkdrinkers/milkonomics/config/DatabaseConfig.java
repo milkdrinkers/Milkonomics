@@ -89,7 +89,7 @@ public class DatabaseConfig implements VersionedConfig {
         public int pollingInterval = 1000;
 
         @Comment("How often to clean up old messages (in milliseconds)\nMust be at least 3x the polling-interval")
-        public int cleanupInterval = 1000;
+        public int cleanupInterval = 30000;
 
         @Comment("Available broker types: \"sql\", \"plugin\", \"redis\", \"rabbitmq\", \"nats\"")
         public String type = "sql";
