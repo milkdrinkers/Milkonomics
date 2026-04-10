@@ -97,7 +97,7 @@ tasks {
         reloc("dev.jorel.commandapi", "commandapi")
         reloc("dev.triumphteam.gui", "triumphgui")
         reloc("com.zaxxer.hikari", "hikaricp")
-        reloc("org.snakeyaml", "snakeyaml")
+        reloc("org.bstats", "bstats")
 
         reloc("io.leangen.geantyref", "geantyref")
         reloc("org.yaml", "yaml")
