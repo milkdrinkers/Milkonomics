@@ -1,8 +1,8 @@
 package io.github.milkdrinkers.milkonomics.database.handler;
 
 import com.zaxxer.hikari.HikariDataSource;
-import io.github.milkdrinkers.milkonomics.AbstractService;
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
+import io.github.milkdrinkers.milkonomics.AbstractService;
 import io.github.milkdrinkers.milkonomics.Reloadable;
 import io.github.milkdrinkers.milkonomics.config.ConfigHandler;
 import io.github.milkdrinkers.milkonomics.database.config.DatabaseConfig;

@@ -14,7 +14,7 @@ public final class EconomyUtil {
         try {
             // If the accountId is a UUID, get the account using the UUID
             final UUID uuid = UUID.fromString(accountId);
-            
+
             return Milkonomics
                 .getInstance()
                 .getAccountManager()
@@ -29,14 +29,14 @@ public final class EconomyUtil {
                 .getAccountManager()
                 .getAccount(accountId)
                 .orElse(null);
-            
+
             if (acc == null) {
                 // Tru to get a player UUID using the accountId as a player name
                 final UUID uuid = Objects.requireNonNull(Bukkit.getOfflinePlayerIfCached(accountId), "UUID is null").getUniqueId();
-                
+
                 return getUUIDFromCache(uuid);
             }
-            
+
             return acc;
         }
     }

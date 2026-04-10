@@ -22,10 +22,10 @@ public abstract class AccountManager<A extends Account> {
     /**
      * Constructs a new account instance. Called internally by {@link #createAccount}.
      *
-     * @param uuid The unique identifier for the account.
-     * @param name The name of the account.
+     * @param uuid                The unique identifier for the account.
+     * @param name                The name of the account.
      * @param defaultDenomination The denomination used by all default balance operations.
-     * @param initialBalances The starting balances.
+     * @param initialBalances     The starting balances.
      * @return A new, unregistered account instance.
      * @apiNote Implementations should not register the account themselves.
      */
@@ -77,10 +77,10 @@ public abstract class AccountManager<A extends Account> {
      * Creates and registers a new account with the given identity and starting balance.
      * If an account with the same UUID already exists, the existing account is returned.
      *
-     * @param uuid The unique identifier for the account.
-     * @param name The name for the account.
+     * @param uuid                The unique identifier for the account.
+     * @param name                The name for the account.
      * @param defaultDenomination The denomination used for all default balance operations.
-     * @param initialBalances The starting balances.
+     * @param initialBalances     The starting balances.
      * @return The newly created account, or the existing account if one already existed.
      */
     public A createAccount(UUID uuid, String name, Denomination defaultDenomination, Map<String, BigDecimal> initialBalances) {

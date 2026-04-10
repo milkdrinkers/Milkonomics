@@ -1,9 +1,9 @@
 package io.github.milkdrinkers.milkonomics.translation;
 
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomics.Reloadable;
 import io.github.milkdrinkers.milkonomics.config.ConfigHandler;
-import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import io.github.milkdrinkers.wordweaver.Translation;
 import io.github.milkdrinkers.wordweaver.config.TranslationConfig;
 

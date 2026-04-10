@@ -16,7 +16,10 @@ import io.github.milkdrinkers.milkonomics.utility.DB;
 import io.github.milkdrinkers.milkonomics.utility.Logger;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.ApiStatus;
-import org.jooq.*;
+import org.jooq.DSLContext;
+import org.jooq.DatePart;
+import org.jooq.InsertOnDuplicateSetMoreStep;
+import org.jooq.Result;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -25,8 +28,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.github.milkdrinkers.milkonomics.database.QueryUtils.UUIDUtil;
 import static io.github.milkdrinkers.milkonomics.database.QueryUtils.BooleanUtil;
+import static io.github.milkdrinkers.milkonomics.database.QueryUtils.UUIDUtil;
 import static io.github.milkdrinkers.milkonomics.database.schema.Tables.*;
 import static org.jooq.impl.DSL.*;
 

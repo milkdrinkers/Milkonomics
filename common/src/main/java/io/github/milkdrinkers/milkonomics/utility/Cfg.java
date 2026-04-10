@@ -1,8 +1,8 @@
 package io.github.milkdrinkers.milkonomics.utility;
 
+import io.github.milkdrinkers.crate.Config;
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomics.config.ConfigHandler;
-import io.github.milkdrinkers.crate.Config;
 import io.github.milkdrinkers.milkonomics.config.DenominationConfig;
 import io.github.milkdrinkers.milkonomics.config.PluginConfig;
 import org.jetbrains.annotations.NotNull;

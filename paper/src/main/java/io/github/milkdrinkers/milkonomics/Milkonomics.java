@@ -1,12 +1,13 @@
 package io.github.milkdrinkers.milkonomics;
 
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
+import io.github.milkdrinkers.milkonomics.api.AccountSaveHandler;
 import io.github.milkdrinkers.milkonomics.api.MilkonomicsAPI;
 import io.github.milkdrinkers.milkonomics.command.CommandHandler;
 import io.github.milkdrinkers.milkonomics.config.ConfigHandler;
 import io.github.milkdrinkers.milkonomics.cooldown.CooldownHandler;
 import io.github.milkdrinkers.milkonomics.database.handler.DatabaseHandler;
 import io.github.milkdrinkers.milkonomics.economy.AccountManagerImpl;
-import io.github.milkdrinkers.milkonomics.api.AccountSaveHandler;
 import io.github.milkdrinkers.milkonomics.economy.AccountSaveHandlerImpl;
 import io.github.milkdrinkers.milkonomics.economy.EconomyImpl;
 import io.github.milkdrinkers.milkonomics.economy.denomination.DenominationHandler;
@@ -19,7 +20,6 @@ import io.github.milkdrinkers.milkonomics.updatechecker.UpdateHandler;
 import io.github.milkdrinkers.milkonomics.utility.DB;
 import io.github.milkdrinkers.milkonomics.utility.Logger;
 import io.github.milkdrinkers.milkonomics.utility.Messaging;
-import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;

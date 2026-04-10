@@ -47,10 +47,10 @@ public abstract class AbstractMilkonomics extends JavaPlugin {
     public abstract @NotNull AccountSaveHandler getAccountSaveHandler();
 
     /**
-    * Gets economy provider.
-    *
-    * @return the economy provider
-    */
+     * Gets economy provider.
+     *
+     * @return the economy provider
+     */
     public abstract @NotNull Economy getEconomyProvider();
 
     /**

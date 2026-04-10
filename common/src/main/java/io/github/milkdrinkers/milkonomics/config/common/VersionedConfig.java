@@ -17,7 +17,7 @@ public interface VersionedConfig {
     @Exclude
     default Map<Integer, ConfigurationTransformation> migrations() {
         return Map.of();
-    };
+    }
 
     /**
      * Copyright (c) 2024 GeyserMC. <a href="http://geysermc.org">geysermc.org</a>
@@ -41,6 +41,7 @@ public interface VersionedConfig {
      * THE SOFTWARE.
      * <p>
      * The base interface for config migrations.
+     *
      * @author GeyserMC
      * @link <a href="https://github.com/GeyserMC/Geyser">Github</a>
      */

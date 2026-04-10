@@ -36,6 +36,7 @@ public class MilkonomicsPluginLoader implements PluginLoader {
      * Load the plugin libraries from the `paper-libraries.json` file.
      * <p>
      * The file is read using GSON and parsed into a {@link PluginLibraries} instance.
+     *
      * @return A {@link PluginLibraries} instance containing repositories and dependencies.
      */
     public PluginLibraries load() {
@@ -78,6 +79,7 @@ public class MilkonomicsPluginLoader implements PluginLoader {
         /**
          * The default Maven Central mirror URL as configured by the Paper server.
          * This is used to replace any of the {@link #MAVEN_CENTRAL_URLS} in the repositories.
+         *
          * @implNote This is obtained using reflection to support pre 1.21.7 versions of Paper that do not have this field.
          */
         private static final String MAVEN_CENTRAL_MIRROR = getMavenCentralMirror();
@@ -89,6 +91,7 @@ public class MilkonomicsPluginLoader implements PluginLoader {
 
         /**
          * Get the declared dependencies as a stream of {@link Dependency}.
+         *
          * @return A stream of {@link Dependency} instances.
          */
         public Stream<Dependency> asDependencies() {
@@ -101,6 +104,7 @@ public class MilkonomicsPluginLoader implements PluginLoader {
 
         /**
          * Get the declared repositories as a stream of {@link RemoteRepository}.
+         *
          * @return A stream of {@link RemoteRepository} instances.
          * @implNote This method filters out any maven central repositories as defined in {@link #MAVEN_CENTRAL_URLS}, and replaces them with {@link #MAVEN_CENTRAL_MIRROR}.
          */
@@ -123,6 +127,7 @@ public class MilkonomicsPluginLoader implements PluginLoader {
 
         /**
          * Get the default Maven Central mirror URL as configure by the Paper server, or fallback.
+         *
          * @return A Maven Central mirror URL.
          * @implNote Uses reflection to support pre 1.21.7 versions of Paper that do not have this field.
          */

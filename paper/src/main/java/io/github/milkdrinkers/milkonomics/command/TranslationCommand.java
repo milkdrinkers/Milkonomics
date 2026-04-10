@@ -1,13 +1,13 @@
 package io.github.milkdrinkers.milkonomics.command;
 
-import dev.jorel.commandapi.CommandAPIPaper;
 import dev.jorel.commandapi.CommandAPICommand;
+import dev.jorel.commandapi.CommandAPIPaper;
 import dev.jorel.commandapi.arguments.ArgumentSuggestions;
 import dev.jorel.commandapi.arguments.StringArgument;
 import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
-import io.github.milkdrinkers.milkonomics.utility.Cfg;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
+import io.github.milkdrinkers.milkonomics.utility.Cfg;
 import io.github.milkdrinkers.wordweaver.Translation;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

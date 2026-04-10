@@ -1,13 +1,13 @@
 package io.github.milkdrinkers.milkonomics.updatechecker;
 
+import io.github.milkdrinkers.colorparser.paper.ColorParser;
+import io.github.milkdrinkers.javasemver.Version;
+import io.github.milkdrinkers.javasemver.exception.VersionParseException;
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomics.Milkonomics;
 import io.github.milkdrinkers.milkonomics.Reloadable;
 import io.github.milkdrinkers.milkonomics.utility.Cfg;
 import io.github.milkdrinkers.milkonomics.utility.Logger;
-import io.github.milkdrinkers.colorparser.paper.ColorParser;
-import io.github.milkdrinkers.javasemver.Version;
-import io.github.milkdrinkers.javasemver.exception.VersionParseException;
 import io.github.milkdrinkers.versionwatch.Platform;
 import io.github.milkdrinkers.versionwatch.VersionWatcher;
 import io.github.milkdrinkers.wordweaver.Translation;

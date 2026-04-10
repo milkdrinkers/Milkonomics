@@ -1,7 +1,7 @@
 package io.github.milkdrinkers.milkonomics.messaging;
 
-import io.github.milkdrinkers.milkonomics.AbstractService;
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
+import io.github.milkdrinkers.milkonomics.AbstractService;
 import io.github.milkdrinkers.milkonomics.Reloadable;
 import io.github.milkdrinkers.milkonomics.messaging.adapter.receiver.BukkitReceiverAdapter;
 import io.github.milkdrinkers.milkonomics.messaging.adapter.receiver.ReceiverAdapter;

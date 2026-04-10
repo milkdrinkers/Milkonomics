@@ -190,12 +190,13 @@ public class ConfigLoader {
                 .file(file)
                 .indent(2)
                 .nodeStyle(NodeStyle.BLOCK)
-                .defaultOptions(options -> InterfaceDefaultOptions.addTo(options, builder -> {})
-                    .shouldCopyDefaults(false) // If we use ConfigurationNode#get(type, default), do not write the default back to the node.
-                    .header(header)
-                    .serializers(builder -> {
-                        builder.registerAll(serializers);
-                    })
+                .defaultOptions(options -> InterfaceDefaultOptions.addTo(options, builder -> {
+                        })
+                        .shouldCopyDefaults(false) // If we use ConfigurationNode#get(type, default), do not write the default back to the node.
+                        .header(header)
+                        .serializers(builder -> {
+                            builder.registerAll(serializers);
+                        })
                 )
                 .build();
         }
@@ -222,12 +223,14 @@ public class ConfigLoader {
          * THE SOFTWARE.
          * <p>
          * Ensures enum values are written to lowercase. {@link Scalars#ENUM} will read enum values in any case.
+         *
          * @author GeyserMC
          * @link <a href="https://github.com/GeyserMC/Geyser">Github</a>
          */
         private static final class LowercaseEnumSerializer extends ScalarSerializer<Enum<?>> {
             LowercaseEnumSerializer() {
-                super(new TypeToken<>() {});
+                super(new TypeToken<>() {
+                });
             }
 
             @Override
@@ -263,10 +266,12 @@ public class ConfigLoader {
          * THE SOFTWARE.
          * <p>
          * Moves comments from a different node and puts them on this node.
+         *
          * @author GeyserMC
          * @link <a href="https://github.com/GeyserMC/Geyser">Github</a>
          */
-        private record ConfigurationCommentMover(CommentedConfigurationNode otherRoot) implements ConfigurationVisitor.Stateless<RuntimeException> {
+        private record ConfigurationCommentMover(
+            CommentedConfigurationNode otherRoot) implements ConfigurationVisitor.Stateless<RuntimeException> {
             private ConfigurationCommentMover(@NotNull CommentedConfigurationNode otherRoot) {
                 this.otherRoot = otherRoot;
             }
@@ -294,7 +299,7 @@ public class ConfigLoader {
              * Comments are only moved to the destination node and its children which exist.
              * Comments are only moved to and from nodes with the exact same path.
              *
-             * @param source the source of the comments, which must be the topmost parent of a tree.
+             * @param source      the source of the comments, which must be the topmost parent of a tree.
              * @param destination the destination of the comments, any node in a different tree.
              */
             public static void moveComments(@NotNull CommentedConfigurationNode source, @NotNull CommentedConfigurationNode destination) {

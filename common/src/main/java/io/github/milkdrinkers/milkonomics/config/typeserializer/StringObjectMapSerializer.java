@@ -10,6 +10,7 @@ import java.util.Map;
 
 /**
  * A custom TypeSerializer that can serialize and deserialize a map of String keys and Object values. This is useful for maps where the user can specify multiple types of values, like a list of int and boolean values.
+ *
  * @author darksaid98
  */
 public class StringObjectMapSerializer implements TypeSerializer<Map<String, Object>> {

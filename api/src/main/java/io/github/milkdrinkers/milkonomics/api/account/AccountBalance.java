@@ -98,6 +98,7 @@ public interface AccountBalance {
 
     /**
      * Gets a snapshot of the account's current state, including its balance and any other relevant information. This snapshot can be used for saving the account to the database or for other purposes where a consistent view of the account's state is needed.
+     *
      * @return A snapshot of the account's current state.
      */
     AccountSnapshot getSnapshot();

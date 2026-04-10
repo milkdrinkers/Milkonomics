@@ -5,7 +5,6 @@ import io.github.milkdrinkers.milkonomics.database.exception.DatabaseInitializat
 import io.github.milkdrinkers.milkonomics.database.handler.DatabaseType;
 
 import java.nio.file.Path;
-import java.util.Optional;
 
 import static io.github.milkdrinkers.milkonomics.database.handler.DatabaseType.SQLITE;
 

@@ -4,13 +4,22 @@ import java.math.BigDecimal;
 
 public interface Denomination {
     String id();
+
     String displayName();
+
     String displayNamePlural();
+
     String symbol();
+
     String prefix();
+
     String suffix();
+
     String format();
+
     int decimalPlaces();
+
     boolean isDefault();
+
     BigDecimal defaultBalance();
 }

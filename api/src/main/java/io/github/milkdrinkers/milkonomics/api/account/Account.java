@@ -212,6 +212,7 @@ public abstract class Account implements AccountBalance, DenominationBalance {
 
     /**
      * Sets whether the account is currently accepting transactions. When set to false, all transaction operations (withdraw, deposit, set) should be rejected until accepting transactions is set back to true.
+     *
      * @param value Whether the account should accept transactions.
      */
     public void setAcceptingTransactions(boolean value) {
