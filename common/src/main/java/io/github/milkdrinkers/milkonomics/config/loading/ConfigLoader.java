@@ -16,6 +16,7 @@ import org.spongepowered.configurate.interfaces.InterfaceDefaultOptions;
 import org.spongepowered.configurate.serialize.ScalarSerializer;
 import org.spongepowered.configurate.serialize.Scalars;
 import org.spongepowered.configurate.serialize.SerializationException;
+import org.spongepowered.configurate.serialize.TypeSerializerCollection;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
@@ -179,6 +180,12 @@ public class ConfigLoader {
                 }
             };
 
+            final TypeSerializerCollection serializers = TypeSerializerCollection.defaults().childBuilder()
+                .register(new LowercaseEnumSerializer())
+                .registerExact(stringObjectMapToken, new StringObjectMapSerializer())
+                .registerExact(BigDecimal.class, BigDecimalSerializer.INSTANCE)
+                .build();
+
             return YamlConfigurationLoader.builder()
                 .file(file)
                 .indent(2)
@@ -187,9 +194,7 @@ public class ConfigLoader {
                     .shouldCopyDefaults(false) // If we use ConfigurationNode#get(type, default), do not write the default back to the node.
                     .header(header)
                     .serializers(builder -> {
-                        builder.register(new LowercaseEnumSerializer());
-                        builder.registerExact(stringObjectMapToken, new StringObjectMapSerializer());
-                        builder.registerExact(BigDecimal.class, BigDecimalSerializer.INSTANCE);
+                        builder.registerAll(serializers);
                     })
                 )
                 .build();
