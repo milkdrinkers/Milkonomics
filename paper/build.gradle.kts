@@ -119,8 +119,8 @@ tasks {
         downloadPlugins {
             github("MilkBowl", "Vault", "1.7.3", "Vault.jar")
             github("PlaceholderAPI", "PlaceholderAPI", "2.11.7", "PlaceholderAPI-2.11.7.jar")
-            hangar("ViaVersion", "5.5.1")
-            hangar("ViaBackwards", "5.5.1")
+            hangar("ViaVersion", "5.8.1")
+            hangar("ViaBackwards", "5.8.1")
         }
     }
 }
