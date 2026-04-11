@@ -1,6 +1,8 @@
 package io.github.milkdrinkers.milkonomics.config;
 
 import io.github.milkdrinkers.milkonomics.config.common.VersionedConfig;
+import io.github.milkdrinkers.milkonomics.database.handler.DatabaseType;
+import io.github.milkdrinkers.milkonomics.messaging.broker.BrokerType;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.transformation.ConfigurationTransformation;
@@ -29,7 +31,7 @@ public class DatabaseConfig implements VersionedConfig {
     @ConfigSerializable
     public static class Database {
         @Comment("Available types: \"sqlite\", \"h2\", \"mysql\", \"mariadb\"")
-        public String type = "sqlite";
+        public DatabaseType type = DatabaseType.SQLITE;
         public String tablePrefix = "milkonomics_";
 
         @Comment("Authentication")
@@ -94,8 +96,8 @@ public class DatabaseConfig implements VersionedConfig {
         @Comment("How often to clean up old messages (in milliseconds)\nMust be at least 3x the polling-interval")
         public int cleanupInterval = 30000;
 
-        @Comment("Available broker types: \"sql\", \"plugin\", \"redis\", \"rabbitmq\", \"nats\"")
-        public String type = "sql";
+        @Comment("Available broker types: \"database\", \"plugin\", \"redis\", \"rabbitmq\", \"nats\"")
+        public BrokerType type = BrokerType.DATABASE;
 
         @Comment("Connection settings (redis, rabbitmq, nats)")
         public String address = "localhost:6379";
