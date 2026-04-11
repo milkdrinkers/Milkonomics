@@ -9,6 +9,19 @@ import java.util.Map;
 
 @ConfigSerializable
 public class PluginConfig implements VersionedConfig {
+    @Comment("Do not change this value!")
+    public int configVersion = 1;
+
+    @Override
+    public int configVersion() {
+        return configVersion;
+    }
+
+    @Override
+    public Map<Integer, ConfigurationTransformation> migrations() {
+        return Map.of();
+    }
+
     @Comment("Update Checker Settings")
     public UpdateChecker updateChecker = new UpdateChecker();
 
@@ -26,14 +39,4 @@ public class PluginConfig implements VersionedConfig {
 
     @Comment("Language, specify the language file to use, for example `en_US` which will load `/lang/en_US.json`")
     public String language = "en_US";
-
-    @Override
-    public int configVersion() {
-        return 1;
-    }
-
-    @Override
-    public Map<Integer, ConfigurationTransformation> migrations() {
-        return Map.of();
-    }
 }

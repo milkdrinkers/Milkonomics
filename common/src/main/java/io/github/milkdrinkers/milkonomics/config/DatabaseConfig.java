@@ -10,9 +10,12 @@ import java.util.Map;
 
 @ConfigSerializable
 public class DatabaseConfig implements VersionedConfig {
+    @Comment("Do not change this value!")
+    public int configVersion = 1;
+
     @Override
     public int configVersion() {
-        return 1;
+        return configVersion;
     }
 
     @Override

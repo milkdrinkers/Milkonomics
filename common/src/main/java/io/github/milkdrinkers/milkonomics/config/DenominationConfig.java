@@ -10,6 +10,19 @@ import java.util.Map;
 
 @ConfigSerializable
 public class DenominationConfig implements VersionedConfig {
+    @Comment("Do not change this value!")
+    public int configVersion = 1;
+
+    @Override
+    public int configVersion() {
+        return configVersion;
+    }
+
+    @Override
+    public Map<Integer, ConfigurationTransformation> migrations() {
+        return Map.of();
+    }
+
     @Comment("The unique identifier for this denomination, for example 'dollar' or 'euro'. This should be lowercase, without spaces, and must be unique.")
     public String id = "dollar";
 
@@ -39,14 +52,4 @@ public class DenominationConfig implements VersionedConfig {
 
     @Comment("The default balance each account starts with.")
     public BigDecimal defaultBalance = BigDecimal.valueOf(0.0);
-
-    @Override
-    public int configVersion() {
-        return 1;
-    }
-
-    @Override
-    public Map<Integer, ConfigurationTransformation> migrations() {
-        return Map.of();
-    }
 }
