@@ -25,7 +25,7 @@ public abstract class AbstractEmbeddedMessagingTest extends AbstractMessagingTes
     @DisplayName("Initialize message broker")
     void beforeAllTests() {
         final DatabaseConfig databaseConfig = DatabaseConfig.builder()
-            .withDatabaseType(databaseTestConfig.jdbcPrefix())
+            .withDatabaseType(databaseTestConfig.databaseType())
             .withPath(TEMP_DIR)
             .withTablePrefix(databaseTestConfig.tablePrefix())
             .build();

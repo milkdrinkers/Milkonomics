@@ -20,7 +20,7 @@ public abstract class AbstractEmbeddedDatabaseTest extends AbstractDatabaseTest 
     @DisplayName("Initialize connection pool")
     void beforeAllTests() {
         databaseConfig = DatabaseConfig.builder()
-            .withDatabaseType(getTestConfig().jdbcPrefix())
+            .withDatabaseType(getTestConfig().databaseType())
             .withPath(TEMP_DIR)
             .withTablePrefix(getTestConfig().tablePrefix())
             .build();

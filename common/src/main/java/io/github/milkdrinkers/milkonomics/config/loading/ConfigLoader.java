@@ -148,6 +148,9 @@ public class ConfigLoader {
             // For testing
 //            this.configurationNode = newRoot;
 
+            if (config != null)
+                config.validate();
+
             return config;
         }
 

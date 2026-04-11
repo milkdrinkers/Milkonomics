@@ -92,7 +92,7 @@ public record MessagingConfig(
         private @Nullable Boolean enabled;
         private @Nullable Long pollingInterval;
         private @Nullable Long cleanupInterval;
-        private @Nullable String broker;
+        private @Nullable BrokerType broker;
         private @Nullable AddressList addressList;
         private @Nullable String username;
         private @Nullable String password;
@@ -117,7 +117,7 @@ public record MessagingConfig(
             return this;
         }
 
-        public Builder withBroker(String broker) {
+        public Builder withBroker(BrokerType broker) {
             this.broker = broker;
             return this;
         }
@@ -188,7 +188,7 @@ public record MessagingConfig(
                 pollingInterval = cleanupInterval / 3;
             }
 
-            BrokerType brokerType = BrokerType.fromName(broker);
+            BrokerType brokerType = broker;
             if (brokerType == null) {
                 LOGGER.warn("Messaging \"type\" is invalid, using default \"{}\".", BrokerType.DATABASE.getName());
                 brokerType = BrokerType.DATABASE;

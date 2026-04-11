@@ -1,6 +1,7 @@
 package io.github.milkdrinkers.milkonomics.messaging;
 
 import com.redis.testcontainers.RedisContainer;
+import io.github.milkdrinkers.milkonomics.messaging.broker.BrokerType;
 import org.jetbrains.annotations.TestOnly;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.RabbitMQContainer;
@@ -55,7 +56,7 @@ final class MessengerTestUtils {
     @TestOnly
     public static MessengerTestParams database() {
         return MessengerTestParams.builder()
-            .withType("sql")
+            .withType(BrokerType.DATABASE)
             .build();
     }
 
@@ -68,7 +69,7 @@ final class MessengerTestUtils {
     @TestOnly
     public static MessengerTestParams redis() {
         return MessengerTestParams.builder()
-            .withType("redis")
+            .withType(BrokerType.REDIS)
             .build();
     }
 
@@ -80,7 +81,7 @@ final class MessengerTestUtils {
     @TestOnly
     public static MessengerTestParams nats() {
         return MessengerTestParams.builder()
-            .withType("nats")
+            .withType(BrokerType.NATS)
             .build();
     }
 
@@ -92,7 +93,7 @@ final class MessengerTestUtils {
     @TestOnly
     public static MessengerTestParams rabbitmq() {
         return MessengerTestParams.builder()
-            .withType("rabbitmq")
+            .withType(BrokerType.RABBITMQ)
             .build();
     }
 }

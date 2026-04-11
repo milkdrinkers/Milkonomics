@@ -1,6 +1,7 @@
 package io.github.milkdrinkers.milkonomics.config;
 
 import io.github.milkdrinkers.milkonomics.config.common.VersionedConfig;
+import io.github.milkdrinkers.milkonomics.config.exception.ConfigValidationException;
 import io.github.milkdrinkers.milkonomics.database.handler.DatabaseType;
 import io.github.milkdrinkers.milkonomics.messaging.broker.BrokerType;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
@@ -23,6 +24,16 @@ public class DatabaseConfig implements VersionedConfig {
     @Override
     public Map<Integer, ConfigurationTransformation> migrations() {
         return Map.of();
+    }
+
+    @Override
+    public void validate() throws ConfigValidationException {
+        if (messaging.pollingInterval >= messaging.cleanupInterval) {
+            throw new ConfigValidationException(
+                "messaging.polling-interval (" + messaging.pollingInterval + "ms) " +
+                    "must be less than messaging.cleanup-interval (" + messaging.cleanupInterval + "ms)"
+            );
+        }
     }
 
     @Comment("Database Settings")

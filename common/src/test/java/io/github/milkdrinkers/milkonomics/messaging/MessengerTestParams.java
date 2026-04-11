@@ -1,18 +1,20 @@
 package io.github.milkdrinkers.milkonomics.messaging;
 
+import io.github.milkdrinkers.milkonomics.messaging.broker.BrokerType;
+
 @SuppressWarnings("unused")
-public record MessengerTestParams(String type) {
+public record MessengerTestParams(BrokerType type) {
     static Builder builder() {
         return new Builder();
     }
 
     static class Builder {
-        private String type;
+        private BrokerType type;
 
         private Builder() {
         }
 
-        public Builder withType(String type) {
+        public Builder withType(BrokerType type) {
             this.type = type;
             return this;
         }

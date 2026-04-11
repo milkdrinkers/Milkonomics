@@ -25,14 +25,14 @@ public abstract class AbstractExternalMessagingTest extends AbstractMessagingTes
         Assertions.assertTrue(container.isRunning());
 
         final String username = switch (getTestConfig().type()) {
-            case "redis" -> "default";
-            case "rabbitmq" -> "guest";
+            case REDIS -> "default";
+            case RABBITMQ -> "guest";
             default -> "";
         };
 
         final String password = switch (getTestConfig().type()) {
-            case "redis" -> "default";
-            case "rabbitmq" -> "guest";
+            case REDIS -> "default";
+            case RABBITMQ -> "guest";
             default -> "";
         };
 

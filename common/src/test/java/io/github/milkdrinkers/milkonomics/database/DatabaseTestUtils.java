@@ -67,7 +67,7 @@ public final class DatabaseTestUtils {
     @TestOnly
     public static DatabaseTestParams mysql(final TablePrefix tablePrefix) {
         return DatabaseTestParams.builder()
-            .withJdbcPrefix("mysql")
+            .withDatabaseType(DatabaseType.MYSQL)
             .withRequiredDatabaseType(DatabaseType.MYSQL)
             .withTablePrefix(tablePrefix.prefix())
             .build();
@@ -82,7 +82,7 @@ public final class DatabaseTestUtils {
     @TestOnly
     public static DatabaseTestParams mariadb(final TablePrefix tablePrefix) {
         return DatabaseTestParams.builder()
-            .withJdbcPrefix("mariadb")
+            .withDatabaseType(DatabaseType.MARIADB)
             .withRequiredDatabaseType(DatabaseType.MARIADB)
             .withTablePrefix(tablePrefix.prefix())
             .build();
@@ -97,7 +97,7 @@ public final class DatabaseTestUtils {
     @TestOnly
     public static DatabaseTestParams sqlite(final TablePrefix tablePrefix) {
         return DatabaseTestParams.builder()
-            .withJdbcPrefix("sqlite")
+            .withDatabaseType(DatabaseType.SQLITE)
             .withRequiredDatabaseType(DatabaseType.SQLITE)
             .withTablePrefix(tablePrefix.prefix())
             .build();
@@ -112,7 +112,7 @@ public final class DatabaseTestUtils {
     @TestOnly
     public static DatabaseTestParams h2(final TablePrefix tablePrefix) {
         return DatabaseTestParams.builder()
-            .withJdbcPrefix("h2")
+            .withDatabaseType(DatabaseType.H2)
             .withRequiredDatabaseType(DatabaseType.H2)
             .withTablePrefix(tablePrefix.prefix())
             .build();

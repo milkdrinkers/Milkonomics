@@ -1,8 +1,10 @@
 package io.github.milkdrinkers.milkonomics.config.common;
 
+import io.github.milkdrinkers.milkonomics.config.exception.ConfigValidationException;
 import org.spongepowered.configurate.interfaces.meta.Exclude;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
+import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 
 import java.util.Map;
@@ -57,5 +59,13 @@ public interface VersionedConfig {
 
             return builder.build();
         };
+    }
+
+    /**
+     * Validate the config after loading. This is useful for validating values that cannot be validated by the Configurate library, such as checking if a value is within a certain range or if a string matches a certain pattern.
+     * @throws ConfigValidationException if the config is invalid
+     */
+    @Exclude
+    default void validate() throws ConfigValidationException {
     }
 }

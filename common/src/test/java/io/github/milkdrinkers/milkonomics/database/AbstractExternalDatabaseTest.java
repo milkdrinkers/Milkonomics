@@ -26,7 +26,7 @@ public abstract class AbstractExternalDatabaseTest extends AbstractDatabaseTest 
         Assertions.assertTrue(container.isRunning());
 
         databaseConfig = DatabaseConfig.builder()
-            .withDatabaseType(getTestConfig().jdbcPrefix())
+            .withDatabaseType(getTestConfig().databaseType())
             .withDatabase("testing")
             .withHost(container.getHost())
             .withPort(container.getFirstMappedPort())

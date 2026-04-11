@@ -300,11 +300,11 @@ public class DatabaseConfig {
         /**
          * With database type database config builder.
          *
-         * @param vendorPrefix the vendor prefix
+         * @param type         the type
          * @return the database config builder
          */
-        public Builder withDatabaseType(String vendorPrefix) {
-            this.databaseType = DatabaseType.getDatabaseTypeFromJdbcPrefix(vendorPrefix.toLowerCase());
+        public Builder withDatabaseType(DatabaseType type) {
+            this.databaseType = type;
             return this;
         }
 
