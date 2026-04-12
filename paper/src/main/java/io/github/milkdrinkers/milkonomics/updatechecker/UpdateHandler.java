@@ -21,7 +21,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
  */
 public class UpdateHandler implements Reloadable {
     private final static String GITHUB_USER = "milkdrinkers"; // The GitHub user/organization name
-    private final static String GITHUB_REPO = "AbstractMilkonomics"; // The GitHub repository
+    private final static String GITHUB_REPO = "Milkonomics"; // The GitHub repository
 
     private final VersionWatcher watcher;
 
