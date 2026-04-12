@@ -78,7 +78,7 @@ public class Milkonomics extends AbstractMilkonomics {
         cooldownHandler = new CooldownHandler();
         denominationHandler = new DenominationHandler();
         accountSaveHandler = new AccountSaveHandlerImpl();
-        accountManager = new AccountManagerImpl(accountSaveHandler);
+        accountManager = new AccountManagerImpl();
         apiHandler = new MilkonomicsAPIProvider(this);
         economyProvider = new EconomyImpl(this, accountManager);
 

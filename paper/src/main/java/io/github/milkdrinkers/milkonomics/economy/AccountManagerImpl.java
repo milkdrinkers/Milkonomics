@@ -14,10 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public final class AccountManagerImpl extends AccountManager<Account> implements Reloadable {
-    private final AccountSaveHandler saveHandler;
-
-    public AccountManagerImpl(AccountSaveHandler saveHandler) {
-        this.saveHandler = saveHandler;
+    public AccountManagerImpl() {
     }
 
     @Override
