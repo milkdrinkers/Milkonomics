@@ -1,6 +1,7 @@
 package io.github.milkdrinkers.milkonomics.database;
 
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
+import io.github.milkdrinkers.milkonomics.api.account.Account;
 import io.github.milkdrinkers.milkonomics.api.account.AccountSnapshot;
 import io.github.milkdrinkers.milkonomics.cooldown.CooldownType;
 import io.github.milkdrinkers.milkonomics.cooldown.Cooldowns;
@@ -265,7 +266,7 @@ public final class Queries {
             }
         }
 
-        public static List<AccountImpl> load() {
+        public static List<Account> load() {
             try (
                 final Connection con = DB.getConnection()
             ) {
@@ -289,7 +290,7 @@ public final class Queries {
                                 r -> r.get(ACCOUNTS_BALANCE.BALANCE)
                             ));
 
-                        return new AccountImpl(
+                        return (Account) new AccountImpl(
                             UUIDUtil.fromBytes(account.getUuid()),
                             account.getName(),
                             balances,

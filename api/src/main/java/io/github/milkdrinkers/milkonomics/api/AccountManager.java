@@ -110,6 +110,21 @@ public abstract class AccountManager<A extends Account> {
     public A createAccount(UUID uuid, String name) {
         return createAccount(uuid, name, Map.of(MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination().id(), BigDecimal.ZERO));
     }
+
+    /**
+     * Loads a collection of accounts into the manager, replacing any existing accounts with the same UUIDs.
+     * @param accounts The accounts to load.
+     */
+    protected void loadAccounts(Collection<A> accounts) {
+        writeLock.lock();
+        try {
+            for (A account : accounts) {
+                this.accounts.put(account.getUUID(), account);
+                accountLookup.put(account.getName(), account.getUUID());
+            }
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     /**

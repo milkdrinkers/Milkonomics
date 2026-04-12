@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.StampedLock;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public abstract class Account implements AccountBalance, DenominationBalance {
     private final UUID uuid;
@@ -32,10 +33,14 @@ public abstract class Account implements AccountBalance, DenominationBalance {
         this.acceptingTransactions = acceptingTransactions;
     }
 
+    public Account(UUID uuid, String name, BigDecimal initialBalance) {
         this.uuid = uuid;
         this.name = name;
+        this.balances.put(MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination().id(), new BalanceEntry(initialBalance));
     }
 
+    public Account(UUID uuid, String name) {
+        this(uuid, name, BigDecimal.ZERO);
     }
 
     public UUID getUUID() {
@@ -48,6 +53,7 @@ public abstract class Account implements AccountBalance, DenominationBalance {
 
     @Override
     public BigDecimal get() {
+        return get(MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination());
     }
 
     public Map<String, BigDecimal> getAllBalances() {
