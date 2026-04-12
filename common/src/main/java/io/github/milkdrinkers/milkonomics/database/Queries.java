@@ -8,7 +8,6 @@ import io.github.milkdrinkers.milkonomics.database.schema.tables.records.Account
 import io.github.milkdrinkers.milkonomics.database.schema.tables.records.AccountsRecord;
 import io.github.milkdrinkers.milkonomics.database.schema.tables.records.CooldownsRecord;
 import io.github.milkdrinkers.milkonomics.economy.account.AccountImpl;
-import io.github.milkdrinkers.milkonomics.economy.denomination.DenominationHandler;
 import io.github.milkdrinkers.milkonomics.messaging.message.BidirectionalMessage;
 import io.github.milkdrinkers.milkonomics.messaging.message.IncomingMessage;
 import io.github.milkdrinkers.milkonomics.messaging.message.OutgoingMessage;
@@ -290,12 +289,9 @@ public final class Queries {
                                 r -> r.get(ACCOUNTS_BALANCE.BALANCE)
                             ));
 
-                        final DenominationHandler denominationHandler = AbstractMilkonomics.getInstance().getDenominationHandler();
-
                         return new AccountImpl(
                             UUIDUtil.fromBytes(account.getUuid()),
                             account.getName(),
-                            denominationHandler.getDefaultDenomination(),
                             balances,
                             BooleanUtil.fromByte(account.getAcceptingPayments())
                         );

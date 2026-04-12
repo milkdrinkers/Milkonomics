@@ -2,6 +2,7 @@ package io.github.milkdrinkers.milkonomics;
 
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import io.github.milkdrinkers.milkonomics.api.AccountSaveHandler;
+import io.github.milkdrinkers.milkonomics.api.DenominationManager;
 import io.github.milkdrinkers.milkonomics.api.MilkonomicsAPI;
 import io.github.milkdrinkers.milkonomics.command.CommandHandler;
 import io.github.milkdrinkers.milkonomics.config.ConfigHandler;
@@ -93,6 +94,7 @@ public class Milkonomics extends AbstractMilkonomics {
             schedulerHandler,
             cooldownHandler,
             cooldownHandler,
+            denominationHandler,
             accountSaveHandler,
             accountManager,
             apiHandler,
@@ -160,7 +162,7 @@ public class Milkonomics extends AbstractMilkonomics {
     }
 
     @Override
-    public @NonNull DenominationHandler getDenominationHandler() {
+    public @NonNull DenominationManager getDenominationHandler() {
         return denominationHandler;
     }
 

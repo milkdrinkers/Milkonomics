@@ -349,7 +349,7 @@ public final class EconomyImpl implements Economy, Reloadable {
             return false;
         }
 
-        manager.createAccount(uuid, accountId, plugin.getDenominationHandler().getDefaultDenomination(), plugin.getDenominationHandler().getDenominationsDefaults());
+        manager.createAccount(uuid, accountId, plugin.getDenominationHandler().getDenominationsDefaults());
 
         return true;
     }

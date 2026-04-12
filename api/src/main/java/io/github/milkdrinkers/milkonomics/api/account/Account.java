@@ -13,7 +13,6 @@ import java.util.function.Supplier;
 public abstract class Account implements AccountBalance, DenominationBalance {
     private final UUID uuid;
     private final String name;
-    private final Denomination defaultDenomination;
     private final Map<String, BalanceEntry> balances = new ConcurrentHashMap<>();
 
     private final StampedLock stateLock = new StampedLock();
@@ -22,28 +21,21 @@ public abstract class Account implements AccountBalance, DenominationBalance {
     public Account(
         UUID uuid,
         String name,
-        Denomination defaultDenomination,
         Map<String, BigDecimal> initialBalances,
         boolean acceptingTransactions
     ) {
         this.uuid = uuid;
         this.name = name;
-        this.defaultDenomination = defaultDenomination;
         for (Map.Entry<String, BigDecimal> entry : initialBalances.entrySet()) {
             this.balances.put(entry.getKey(), new BalanceEntry(entry.getValue()));
         }
         this.acceptingTransactions = acceptingTransactions;
     }
 
-    public Account(UUID uuid, String name, Denomination defaultDenomination, BigDecimal initialBalance) {
         this.uuid = uuid;
         this.name = name;
-        this.defaultDenomination = defaultDenomination;
-        this.balances.put(defaultDenomination.id(), new BalanceEntry(initialBalance));
     }
 
-    public Account(UUID uuid, String name, Denomination defaultDenomination) {
-        this(uuid, name, defaultDenomination, BigDecimal.ZERO);
     }
 
     public UUID getUUID() {
@@ -56,7 +48,6 @@ public abstract class Account implements AccountBalance, DenominationBalance {
 
     @Override
     public BigDecimal get() {
-        return get(defaultDenomination);
     }
 
     public Map<String, BigDecimal> getAllBalances() {
@@ -67,22 +58,22 @@ public abstract class Account implements AccountBalance, DenominationBalance {
 
     @Override
     public boolean set(BigDecimal amount) {
-        return set(defaultDenomination, amount);
+        return set(MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination(), amount);
     }
 
     @Override
     public boolean has(BigDecimal amount) {
-        return has(defaultDenomination, amount);
+        return has(MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination(), amount);
     }
 
     @Override
     public boolean withdraw(BigDecimal amount) {
-        return withdraw(defaultDenomination, amount);
+        return withdraw(MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination(), amount);
     }
 
     @Override
     public boolean deposit(BigDecimal amount) {
-        return deposit(defaultDenomination, amount);
+        return deposit(MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination(), amount);
     }
 
     @Override

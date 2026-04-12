@@ -4,7 +4,6 @@ import io.github.milkdrinkers.milkonomics.api.AccountManager;
 import io.github.milkdrinkers.milkonomics.api.AccountSaveHandler;
 import io.github.milkdrinkers.milkonomics.api.account.Account;
 import io.github.milkdrinkers.milkonomics.config.ConfigHandler;
-import io.github.milkdrinkers.milkonomics.economy.denomination.DenominationHandler;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -58,5 +57,5 @@ public abstract class AbstractMilkonomics extends JavaPlugin {
      *
      * @return the denomination handler
      */
-    public abstract @NotNull DenominationHandler getDenominationHandler();
+    public abstract @NotNull io.github.milkdrinkers.milkonomics.api.DenominationManager getDenominationHandler();
 }

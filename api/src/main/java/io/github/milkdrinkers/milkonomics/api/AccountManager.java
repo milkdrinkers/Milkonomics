@@ -1,7 +1,6 @@
 package io.github.milkdrinkers.milkonomics.api;
 
 import io.github.milkdrinkers.milkonomics.api.account.Account;
-import io.github.milkdrinkers.milkonomics.api.denomination.Denomination;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -24,12 +23,11 @@ public abstract class AccountManager<A extends Account> {
      *
      * @param uuid                The unique identifier for the account.
      * @param name                The name of the account.
-     * @param defaultDenomination The denomination used by all default balance operations.
      * @param initialBalances     The starting balances.
      * @return A new, unregistered account instance.
      * @apiNote Implementations should not register the account themselves.
      */
-    protected abstract A newAccount(UUID uuid, String name, Denomination defaultDenomination, Map<String, BigDecimal> initialBalances);
+    protected abstract A newAccount(UUID uuid, String name, Map<String, BigDecimal> initialBalances);
 
     /**
      * Looks up an account by UUID.
@@ -79,11 +77,10 @@ public abstract class AccountManager<A extends Account> {
      *
      * @param uuid                The unique identifier for the account.
      * @param name                The name for the account.
-     * @param defaultDenomination The denomination used for all default balance operations.
      * @param initialBalances     The starting balances.
      * @return The newly created account, or the existing account if one already existed.
      */
-    public A createAccount(UUID uuid, String name, Denomination defaultDenomination, Map<String, BigDecimal> initialBalances) {
+    public A createAccount(UUID uuid, String name, Map<String, BigDecimal> initialBalances) {
         A existing = accounts.get(uuid);
         if (existing != null) {
             return existing;
@@ -96,7 +93,7 @@ public abstract class AccountManager<A extends Account> {
                 return existing;
             }
 
-            final A account = newAccount(uuid, name, defaultDenomination, initialBalances);
+            final A account = newAccount(uuid, name, initialBalances);
             accounts.put(uuid, account);
             accountLookup.put(name, uuid);
             return account;
@@ -108,10 +105,11 @@ public abstract class AccountManager<A extends Account> {
     /**
      * Creates and registers a new account with a zero starting balance.
      *
-     * @see #createAccount(UUID, String, Denomination, Map)
+     * @see #createAccount(UUID, String, Map)
      */
-    public A createAccount(UUID uuid, String name, Denomination defaultDenomination) {
-        return createAccount(uuid, name, defaultDenomination, Map.of(defaultDenomination.id(), BigDecimal.ZERO));
+    public A createAccount(UUID uuid, String name) {
+        return createAccount(uuid, name, Map.of(MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination().id(), BigDecimal.ZERO));
+    }
     }
 
     /**

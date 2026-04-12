@@ -43,4 +43,11 @@ public abstract class MilkonomicsAPI implements VaultProvider {
      * @return the account save handler
      */
     public abstract AccountSaveHandler getAccountSaveHandler();
+
+    /**
+     * Gets the denomination manager.
+     *
+     * @return the denomination manager
+     */
+    public abstract DenominationManager getDenominationManager();
 }

@@ -4,6 +4,7 @@ import io.github.milkdrinkers.milkonomics.config.common.VersionedConfig;
 import io.github.milkdrinkers.milkonomics.config.exception.ConfigValidationException;
 import io.github.milkdrinkers.milkonomics.database.handler.DatabaseType;
 import io.github.milkdrinkers.milkonomics.messaging.broker.BrokerType;
+import org.spongepowered.configurate.interfaces.meta.Exclude;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.transformation.ConfigurationTransformation;
@@ -17,16 +18,19 @@ public class DatabaseConfig implements VersionedConfig {
     public int configVersion = 1;
 
     @Override
+    @Exclude
     public int configVersion() {
         return configVersion;
     }
 
     @Override
+    @Exclude
     public Map<Integer, ConfigurationTransformation> migrations() {
         return Map.of();
     }
 
     @Override
+    @Exclude
     public void validate() throws ConfigValidationException {
         if (messaging.pollingInterval >= messaging.cleanupInterval) {
             throw new ConfigValidationException(

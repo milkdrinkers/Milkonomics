@@ -1,6 +1,8 @@
 package io.github.milkdrinkers.milkonomics.config;
 
 import io.github.milkdrinkers.milkonomics.config.common.VersionedConfig;
+import io.github.milkdrinkers.milkonomics.config.exception.ConfigValidationException;
+import org.spongepowered.configurate.interfaces.meta.Exclude;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.transformation.ConfigurationTransformation;
@@ -14,13 +16,20 @@ public class DenominationConfig implements VersionedConfig {
     public int configVersion = 1;
 
     @Override
+    @Exclude
     public int configVersion() {
         return configVersion;
     }
 
     @Override
+    @Exclude
     public Map<Integer, ConfigurationTransformation> migrations() {
         return Map.of();
+    }
+
+    @Override
+    @Exclude
+    public void validate() throws ConfigValidationException {
     }
 
     @Comment("The unique identifier for this denomination, for example 'dollar' or 'euro'. This should be lowercase, without spaces, and must be unique.")
