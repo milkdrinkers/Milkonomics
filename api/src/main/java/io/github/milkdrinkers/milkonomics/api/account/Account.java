@@ -102,15 +102,15 @@ public abstract class Account implements AccountBalance, DenominationBalance {
 
     @Override
     public boolean withdraw(Denomination denomination, BigDecimal amount) {
-        return getEntry(denomination).writeAndGet(() -> {
+        final boolean ok = getEntry(denomination).writeAndGet(() -> {
             final BalanceEntry entry = balances.get(denomination.id());
-            if (entry.balance.compareTo(amount) < 0) {
-                return false;
-            }
+            if (entry.balance.compareTo(amount) < 0) return false;
             entry.balance = entry.balance.subtract(amount);
-            MilkonomicsAPI.getInstance().getAccountSaveHandler().queue(this);
             return true;
         });
+        if (ok)
+            MilkonomicsAPI.getInstance().getAccountSaveHandler().queue(this);
+        return ok;
     }
 
     @Override
@@ -219,7 +219,7 @@ public abstract class Account implements AccountBalance, DenominationBalance {
             acceptingTransactions = value;
         } finally {
             stateLock.unlockWrite(stamp);
-            MilkonomicsAPI.getInstance().getAccountSaveHandler().queue(this);
         }
+        MilkonomicsAPI.getInstance().getAccountSaveHandler().queue(this);
     }
 }
