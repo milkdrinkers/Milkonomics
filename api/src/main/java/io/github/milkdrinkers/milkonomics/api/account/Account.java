@@ -57,9 +57,10 @@ public abstract class Account implements AccountBalance, DenominationBalance {
     }
 
     public Map<String, BigDecimal> getAllBalances() {
-        final Map<String, BigDecimal> result = new ConcurrentHashMap<>();
-        balances.forEach((denomId, entry) -> result.put(denomId, entry.read(() -> entry.balance)));
-        return result;
+        return Map.copyOf(balances.entrySet().stream()
+            .map(entry -> Map.entry(entry.getKey(), entry.getValue().balance))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+        );
     }
 
     @Override
