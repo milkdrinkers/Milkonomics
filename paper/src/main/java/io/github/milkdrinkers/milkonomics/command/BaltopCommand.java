@@ -9,6 +9,7 @@ import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomics.api.MilkonomicsAPI;
 import io.github.milkdrinkers.milkonomics.api.account.Account;
 import io.github.milkdrinkers.milkonomics.api.denomination.Denomination;
+import io.github.milkdrinkers.milkonomics.database.Queries;
 import io.github.milkdrinkers.threadutil.Scheduler;
 import io.github.milkdrinkers.wordweaver.Translation;
 import net.kyori.adventure.text.Component;
@@ -32,53 +33,76 @@ final class BaltopCommand extends Command {
     }
 
     private void executor(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
-        final List<Account> accounts = plugin.getAccountManager().getAccounts().stream().toList();
-        if (accounts.isEmpty())
-            throw Result.fail(ColorParser.of(Translation.of("commands.baltop.no-balances")).build());
+        final int requestedPage = Math.max(1, args.getByClassOrDefault("page", Integer.class, 1));
 
-        Scheduler.async(() -> {
-            final int pageLength = 10; // TODO config
-            int page = args.getByClassOrDefault("page", Integer.class, 1);
-            final int totalBalances = accounts.size();
-            final int totalPages = calculatePages(totalBalances, pageLength);
+        Scheduler
+            .async(() -> Queries.Baltop.get(
+                plugin.getConfigHandler().getConfig().balanceTop.entriesPerPage,
+                MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination().id(),
+                requestedPage
+            ))
+            .sync(accounts -> {
+                try {
+                    if (accounts.isEmpty() && requestedPage == 1)
+                        throw Result.fail(ColorParser.of(Translation.of("commands.baltop.no-balances")).build());
 
-            if (page <= 0)
-                page = 1;
-            else if (page > totalPages)
-                page = totalPages;
+                    if (accounts.isEmpty())
+                        throw Result.fail(ColorParser.of(Translation.of("commands.baltop.page-not-exist")).build());
 
-            final List<Account> sortedAccounts = accounts.stream()
-                .sorted((a, b) -> b.get().compareTo(a.get()))
-                .toList();
-
-            Component message = ColorParser.of(Translation.of("commands.baltop.header"))
-                .with("page", String.valueOf(page)).build();
-
-            final Denomination defaultDenomination = MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination();
-
-            for (int i = 0; i < pageLength; i++) {
-                int index = (page - 1) * pageLength + i;
-                if (index >= sortedAccounts.size())
-                    break;
-                message = message.appendNewline().append(
-                    ColorParser.of(Translation.of("commands.baltop.format"))
-                        .with("rank", String.valueOf(index + 1))
-                        .with("account", accounts.get(index).getName())
-                        .with("balance", String.valueOf(sortedAccounts.get(index).get()))
-                        .with("prefix", defaultDenomination.prefix())
-                        .with("suffix", defaultDenomination.suffix())
-                        .with("symbol", defaultDenomination.symbol())
-                        .with("currency_name", defaultDenomination.displayName())
-                        .with("currency_name_plural", defaultDenomination.displayNamePlural())
-                        .build()
-                );
-            }
-
-            sender.sendMessage(message);
-        }).execute();
+                    sender.sendMessage(render(requestedPage, accounts));
+                } catch (Result.CommandException e) {
+                    sender.sendMessage(e.getClientMessage());
+                }
+            })
+            .execute();
     }
 
-    private int calculatePages(int totalBalances, int pageLength) {
-        return (int) Math.ceil((double) totalBalances / pageLength);
+    private Component render(int page, List<Account> accounts) {
+        final Denomination d = MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination();
+        final int prevPage = Math.max(1, page - 1);
+        final int nextPage = page + 1;
+
+        Component message = ColorParser.of(Translation.of("commands.baltop.header"))
+            .with("page", String.valueOf(page))
+            .build();
+
+        for (int i = 0; i < accounts.size(); i++) {
+            final Account account = accounts.get(i);
+            final int rank = (page - 1) * plugin.getConfigHandler().getConfig().balanceTop.entriesPerPage + i + 1;
+
+            message = message.appendNewline().append(
+                ColorParser.of(Translation.of("commands.baltop.format"))
+                    .with("rank", String.valueOf(rank))
+                    .with("account", account.getName())
+                    .with("balance", String.valueOf(account.get()))
+                    .with("balance_formatted", String.valueOf(d.format(account.get())))
+                    .with("prefix", d.prefix())
+                    .with("suffix", d.suffix())
+                    .with("symbol", d.symbol())
+                    .with("currency_name", d.displayName())
+                    .with("currency_name_plural", d.displayNamePlural())
+                    .build()
+            );
+        }
+
+        final Component footer = ColorParser.of(Translation.of("commands.baltop.footer"))
+            .with("next_page", String.valueOf(nextPage))
+            .with("page", String.valueOf(page))
+            .with("previous_page", String.valueOf(prevPage))
+            .with("previous_page_button", ColorParser.of(Translation.of("commands.baltop.previous-page"))
+                .with("next_page", String.valueOf(nextPage))
+                .with("page", String.valueOf(page))
+                .with("previous_page", String.valueOf(prevPage))
+                .build()
+            )
+            .with("next_page_button", ColorParser.of(Translation.of("commands.baltop.next-page"))
+                .with("next_page", String.valueOf(nextPage))
+                .with("page", String.valueOf(page))
+                .with("previous_page", String.valueOf(prevPage))
+                .build()
+            )
+            .build();
+
+        return message.appendNewline().append(footer);
     }
 }

@@ -12,3 +12,6 @@ CREATE TABLE IF NOT EXISTS "${tablePrefix}accounts_balance" (
     PRIMARY KEY ("account_uuid", "name"),
     FOREIGN KEY ("account_uuid") REFERENCES "${tablePrefix}accounts" ("uuid") ON DELETE CASCADE
 );
+
+CREATE INDEX IF NOT EXISTS "idx_${tablePrefix}accounts_balance_name_balance"
+    ON "${tablePrefix}accounts_balance" ("name", "balance" DESC);

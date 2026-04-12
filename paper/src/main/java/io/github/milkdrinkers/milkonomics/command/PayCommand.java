@@ -16,6 +16,7 @@ import io.github.milkdrinkers.threadutil.Scheduler;
 import io.github.milkdrinkers.wordweaver.Translation;
 import org.bukkit.entity.Player;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -50,7 +51,7 @@ final class PayCommand extends Command {
             .sync(profileList -> {
                 try {
                     if (profileList.isEmpty() || profileList.getFirst() == null)
-                        throw Result.fail(ColorParser.of(Translation.of("commands.pay.player-not-found")).build()); // TODO Resolve these messages being stripped as exceptions
+                        throw Result.fail(ColorParser.of(Translation.of("commands.pay.player-not-found")).build());
 
                     final PlayerProfile targetProfile = profileList.getFirst();
                     if (targetProfile.getId() == null)
@@ -85,6 +86,7 @@ final class PayCommand extends Command {
                     sender.sendMessage(ColorParser.of(Translation.of("commands.pay.origin-success"))
                         .with("player", target.displayName())
                         .with("amount", String.valueOf(amount))
+                        .with("amount_formatted", String.valueOf(defaultDenomination.format(BigDecimal.valueOf(amount))))
                         .with("prefix", defaultDenomination.prefix())
                         .with("suffix", defaultDenomination.suffix())
                         .with("symbol", defaultDenomination.symbol())
@@ -95,6 +97,7 @@ final class PayCommand extends Command {
                     target.sendMessage(ColorParser.of(Translation.of("commands.pay.target-success"))
                         .with("player", sender.displayName())
                         .with("amount", String.valueOf(amount))
+                        .with("amount_formatted", String.valueOf(defaultDenomination.format(BigDecimal.valueOf(amount))))
                         .with("prefix", defaultDenomination.prefix())
                         .with("suffix", defaultDenomination.suffix())
                         .with("symbol", defaultDenomination.symbol())

@@ -1,6 +1,7 @@
 package io.github.milkdrinkers.milkonomics.database;
 
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
+import io.github.milkdrinkers.milkonomics.api.MilkonomicsAPI;
 import io.github.milkdrinkers.milkonomics.api.account.Account;
 import io.github.milkdrinkers.milkonomics.api.account.AccountSnapshot;
 import io.github.milkdrinkers.milkonomics.cooldown.CooldownType;
@@ -302,6 +303,62 @@ public final class Queries {
                 Logger.get().error("SQL Query threw an error!", e);
             }
             return Collections.emptyList();
+        }
+    }
+
+    public static final class Baltop {
+        public static List<Account> get(final int pageSize, final String denominationId, int page) {
+            final int safePage = Math.max(1, page);
+            final int offset = (safePage - 1) * pageSize;
+
+            try (
+                final Connection con = DB.getConnection()
+            ) {
+                final DSLContext context = DB.getContext(con);
+
+                return context
+                    .select(ACCOUNTS.UUID, ACCOUNTS.NAME, ACCOUNTS.ACCEPTING_PAYMENTS, ACCOUNTS_BALANCE.BALANCE)
+                    .from(ACCOUNTS)
+                    .join(ACCOUNTS_BALANCE)
+                    .on(ACCOUNTS_BALANCE.ACCOUNT_UUID.eq(ACCOUNTS.UUID))
+                    .where(ACCOUNTS_BALANCE.NAME.eq(denominationId))
+                    .orderBy(ACCOUNTS_BALANCE.BALANCE.desc())
+                    .limit(pageSize)
+                    .offset(offset)
+                    .fetch()
+                    .stream()
+                    .map(r -> (Account) new AccountImpl(
+                        UUIDUtil.fromBytes(r.get(ACCOUNTS.UUID)),
+                        r.get(ACCOUNTS.NAME),
+                        Map.of(denominationId, r.get(ACCOUNTS_BALANCE.BALANCE)),
+                        BooleanUtil.fromByte(r.get(ACCOUNTS.ACCEPTING_PAYMENTS))
+                    ))
+                    .toList();
+            } catch (SQLException e) {
+                Logger.get().error("SQL Query threw an error!", e);
+                return Collections.emptyList();
+            }
+        }
+
+        public static int count(final int pageSize) {
+            try (
+                final Connection con = DB.getConnection()
+            ) {
+                final DSLContext context = DB.getContext(con);
+
+                final String defaultDenominationId = MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination().id();
+
+                final Integer total = context
+                    .selectCount()
+                    .from(ACCOUNTS_BALANCE)
+                    .where(ACCOUNTS_BALANCE.NAME.eq(defaultDenominationId))
+                    .fetchOne(0, int.class);
+
+                return total == null ? 0 : total;
+            } catch (SQLException e) {
+                Logger.get().error("SQL Query threw an error!", e);
+                return 0;
+            }
         }
     }
 }

@@ -15,6 +15,7 @@ import io.github.milkdrinkers.wordweaver.Translation;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -60,6 +61,7 @@ final class BalanceCommand extends Command {
                     sender.sendMessage(ColorParser.of(Translation.of("commands.balance.balance"))
                         .with("player", targetProfile.getName())
                         .with("amount", String.valueOf(account.get()))
+                        .with("amount_formatted", String.valueOf(defaultDenomination.format(account.get())))
                         .with("prefix", defaultDenomination.prefix())
                         .with("suffix", defaultDenomination.suffix())
                         .with("symbol", defaultDenomination.symbol())
@@ -85,9 +87,10 @@ final class BalanceCommand extends Command {
 
             final Denomination defaultDenomination = MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination();
 
-            sender.sendMessage(ColorParser.of(Translation.of("commands.balance.balance"))
+            sender.sendMessage(ColorParser.of(Translation.of("commands.balance.balance-self"))
                 .with("player", sender.displayName())
                 .with("amount", String.valueOf(account.get()))
+                .with("amount_formatted", String.valueOf(defaultDenomination.format(account.get())))
                 .with("prefix", defaultDenomination.prefix())
                 .with("suffix", defaultDenomination.suffix())
                 .with("symbol", defaultDenomination.symbol())

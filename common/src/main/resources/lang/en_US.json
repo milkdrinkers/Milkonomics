@@ -22,18 +22,24 @@
       "account-not-found": "<red>Account not found!",
       "no-player-specified": "<red>No player specified!",
       "player-not-found": "<red>Player not found!",
-      "balance": "<white>Balance of <u><player></u>: <symbol><green><amount></green>"
+      "balance": "<white>Balance of <u><player></u>: <green><amount_formatted>",
+      "balance-self": "<white>Balance: <green><amount_formatted>"
     },
     "admin": {
       "add": {
         "player-not-found": "<red>Player not found!",
         "account-not-found": "<red>Account not found!",
-        "success": "<green>Successfully added <prefix><amount><suffix> to <player>'s account."
+        "success": "<green>Successfully added <amount_formatted> to <player>'s account."
       },
       "remove": {
         "player-not-found": "<red>Player not found!",
         "account-not-found": "<red>Account not found!",
-        "success": "<green>Successfully removed <prefix><amount><suffix> from <player>'s account."
+        "success": "<green>Successfully removed <amount_formatted> from <player>'s account."
+      },
+      "set": {
+        "player-not-found": "<red>Player not found!",
+        "account-not-found": "<red>Account not found!",
+        "success": "<green>Successfully set <player>'s balance to <amount_formatted>."
       },
       "reset": {
         "player-not-found": "<red>Player not found!",
@@ -47,8 +53,8 @@
       "insufficient-funds": "<red>Insufficient funds!",
       "self-payment": "<red>You cannot pay yourself!",
       "target-not-accepting-payments": "<red><player> isn't accepting payments.",
-      "origin-success": "<green>Successfully paid <prefix><amount><suffix> to <player>'s account.",
-      "target-success": "<green>You were paid <prefix><amount><suffix> by <player>.",
+      "origin-success": "<green>Successfully paid <amount_formatted> to <player>'s account.",
+      "target-success": "<green>You were paid <amount_formatted> by <player>.",
       "origin-account-not-found": "<red>Origin account not found!",
       "target-account-not-found": "<red>Target account not found!"
     },
@@ -59,8 +65,12 @@
     },
     "baltop": {
       "no-balances": "<red>There are no balances to display.",
-      "page": "Page <u><page></u>.",
-      "format": "<rank> | <account>: <prefix><balance><suffix>"
+      "page-not-exist": "<red>That page does not exist.",
+      "header": "<green>Top Balances<dark_grey>: <dark_grey>(<white>Page <page><dark_grey>)",
+      "footer": "<previous_page_button> <dark_grey>| <next_page_button>",
+      "previous-page": "<hover:show_text:'<white>Click to go to the previous page'><click:run_command:/balancetop <previous_page>><green>Previous Page</click></hover>",
+      "next-page": "<hover:show_text:'<white>Click to go to the next page'><click:run_command:/balancetop <next_page>><green>Next Page</click></hover>",
+      "format": "<dark_grey>- <white><rank>. <white><account> <dark_grey>- <green><balance_formatted>"
     },
     "dump": {
       "success": "<green>Successfully uploaded dump to <hover:show_text:'Click to open link'><click:open_url:'<link>'><u><link></u></click></hover>.",

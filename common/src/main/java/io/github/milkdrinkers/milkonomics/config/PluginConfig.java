@@ -48,4 +48,13 @@ public class PluginConfig implements VersionedConfig {
 
     @Comment("Language, specify the language file to use, for example `en_US` which will load `/lang/en_US.json`")
     public String language = "en_US";
+
+    @Comment("Balance Top Settings")
+    public Baltop balanceTop = new Baltop();
+
+    @ConfigSerializable
+    public static class Baltop {
+        @Comment("How many entries should each balance top page show?")
+        public int entriesPerPage = 8;
+    }
 }

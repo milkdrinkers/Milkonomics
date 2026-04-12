@@ -10,6 +10,7 @@ import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomics.api.MilkonomicsAPI;
 import io.github.milkdrinkers.milkonomics.api.account.Account;
+import io.github.milkdrinkers.milkonomics.api.denomination.Denomination;
 import io.github.milkdrinkers.threadutil.Scheduler;
 import io.github.milkdrinkers.wordweaver.Translation;
 import org.bukkit.command.CommandSender;
@@ -30,6 +31,7 @@ final class AdminCommand extends Command {
             .withSubcommands(
                 commandAdd(),
                 commandRemove(),
+                commandSet(),
                 commandReset()
             )
             .withPermission("milkonomics.command.admin");
@@ -47,6 +49,13 @@ final class AdminCommand extends Command {
             .withArguments(new AsyncPlayerProfileArgument("player"), new DoubleArgument("amount"))
             .withPermission("milkonomics.command.admin.remove")
             .executes(this::executorRemove);
+    }
+
+    private CommandAPICommand commandSet() {
+        return new CommandAPICommand("set")
+            .withArguments(new AsyncPlayerProfileArgument("player"), new DoubleArgument("amount"))
+            .withPermission("milkonomics.command.admin.set")
+            .executes(this::executorSet);
     }
 
     private CommandAPICommand commandReset() {
@@ -70,7 +79,7 @@ final class AdminCommand extends Command {
                         throw Result.fail(ColorParser.of(Translation.of("commands.admin.add.player-not-found")).build());
 
                     final PlayerProfile profile = profileList.getFirst();
-                    if (profile.getId() == null)
+                    if (profile.getId() == null || profile.getName() == null)
                         throw Result.fail(ColorParser.of(Translation.of("commands.admin.add.player-not-found")).build());
 
                     double amount = args.getByClassOrDefault("amount", Double.class, 0.0);
@@ -82,7 +91,20 @@ final class AdminCommand extends Command {
                     if (amount < 0.0)
                         amount = 0.0;
 
+                    final Denomination defaultDenomination = MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination();
+
                     account.deposit(amount);
+
+                    sender.sendMessage(ColorParser.of(Translation.of("commands.admin.add.success"))
+                        .with("player", profile.getName())
+                        .with("amount", String.valueOf(amount))
+                        .with("amount_formatted", String.valueOf(defaultDenomination.format(BigDecimal.valueOf(amount))))
+                        .with("prefix", defaultDenomination.prefix())
+                        .with("suffix", defaultDenomination.suffix())
+                        .with("symbol", defaultDenomination.symbol())
+                        .with("currency_name", defaultDenomination.displayName())
+                        .with("currency_name_plural", defaultDenomination.displayNamePlural())
+                        .build());
                 } catch (Result.CommandException e) {
                     sender.sendMessage(e.getClientMessage());
                 }
@@ -104,7 +126,7 @@ final class AdminCommand extends Command {
                         throw Result.fail(ColorParser.of(Translation.of("commands.admin.remove.player-not-found")).build());
 
                     final PlayerProfile profile = profileList.getFirst();
-                    if (profile.getId() == null)
+                    if (profile.getId() == null || profile.getName() == null)
                         throw Result.fail(ColorParser.of(Translation.of("commands.admin.remove.player-not-found")).build());
 
                     double amount = args.getByClassOrDefault("amount", Double.class, 0.0);
@@ -119,7 +141,67 @@ final class AdminCommand extends Command {
                     if (amount > account.getDouble())
                         amount = account.getDouble();
 
+                    final Denomination defaultDenomination = MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination();
+
                     account.withdraw(amount);
+
+                    sender.sendMessage(ColorParser.of(Translation.of("commands.admin.remove.success"))
+                        .with("player", profile.getName())
+                        .with("amount", String.valueOf(amount))
+                        .with("amount_formatted", String.valueOf(defaultDenomination.format(BigDecimal.valueOf(amount))))
+                        .with("prefix", defaultDenomination.prefix())
+                        .with("suffix", defaultDenomination.suffix())
+                        .with("symbol", defaultDenomination.symbol())
+                        .with("currency_name", defaultDenomination.displayName())
+                        .with("currency_name_plural", defaultDenomination.displayNamePlural())
+                        .build());
+                } catch (Result.CommandException e) {
+                    sender.sendMessage(e.getClientMessage());
+                }
+            })
+            .execute();
+    }
+
+    private void executorSet(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
+        // noinspection unchecked
+        final CompletableFuture<List<PlayerProfile>> profiles = (CompletableFuture<List<PlayerProfile>>) args.getByClassOrDefault("player", CompletableFuture.class, null);
+        if (profiles == null)
+            throw Result.fail(ColorParser.of(Translation.of("commands.admin.set.player-not-found")).build());
+
+        Scheduler
+            .async(profiles)
+            .sync(profileList -> {
+                try {
+                    if (profileList.isEmpty() || profileList.getFirst() == null)
+                        throw Result.fail(ColorParser.of(Translation.of("commands.admin.set.player-not-found")).build());
+
+                    final PlayerProfile profile = profileList.getFirst();
+                    if (profile.getId() == null || profile.getName() == null)
+                        throw Result.fail(ColorParser.of(Translation.of("commands.admin.set.player-not-found")).build());
+
+                    double amount = args.getByClassOrDefault("amount", Double.class, 0.0);
+
+                    final Account account = MilkonomicsAPI.getInstance().getAccountManager().getAccount(profile.getId()).orElseThrow(
+                        () -> Result.fail(ColorParser.of(Translation.of("commands.admin.set.account-not-found")).build())
+                    );
+
+                    if (amount < 0.0)
+                        amount = 0;
+
+                    final Denomination defaultDenomination = MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination();
+
+                    account.set(amount);
+
+                    sender.sendMessage(ColorParser.of(Translation.of("commands.admin.set.success"))
+                        .with("player", profile.getName())
+                        .with("amount", String.valueOf(amount))
+                        .with("amount_formatted", String.valueOf(defaultDenomination.format(BigDecimal.valueOf(amount))))
+                        .with("prefix", defaultDenomination.prefix())
+                        .with("suffix", defaultDenomination.suffix())
+                        .with("symbol", defaultDenomination.symbol())
+                        .with("currency_name", defaultDenomination.displayName())
+                        .with("currency_name_plural", defaultDenomination.displayNamePlural())
+                        .build());
                 } catch (Result.CommandException e) {
                     sender.sendMessage(e.getClientMessage());
                 }
@@ -141,7 +223,7 @@ final class AdminCommand extends Command {
                         throw Result.fail(ColorParser.of(Translation.of("commands.admin.reset.player-not-found")).build());
 
                     final PlayerProfile profile = profileList.getFirst();
-                    if (profile.getId() == null)
+                    if (profile.getId() == null || profile.getName() == null)
                         throw Result.fail(ColorParser.of(Translation.of("commands.admin.reset.player-not-found")).build());
 
                     final BigDecimal balance = MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination().defaultBalance();
@@ -150,7 +232,18 @@ final class AdminCommand extends Command {
                         () -> Result.fail(ColorParser.of(Translation.of("commands.admin.reset.account-not-found")).build())
                     );
 
+                    final Denomination defaultDenomination = MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination();
+
                     account.set(balance);
+
+                    sender.sendMessage(ColorParser.of(Translation.of("commands.admin.reset.success"))
+                        .with("player", profile.getName())
+                        .with("prefix", defaultDenomination.prefix())
+                        .with("suffix", defaultDenomination.suffix())
+                        .with("symbol", defaultDenomination.symbol())
+                        .with("currency_name", defaultDenomination.displayName())
+                        .with("currency_name_plural", defaultDenomination.displayNamePlural())
+                        .build());
                 } catch (Result.CommandException e) {
                     sender.sendMessage(e.getClientMessage());
                 }

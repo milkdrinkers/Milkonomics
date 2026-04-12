@@ -45,7 +45,7 @@ public class DenominationConfig implements VersionedConfig {
     public String symbol = "$";
 
     @Comment("Optional prefix to the amount, e.g. \"$\" for $100.00")
-    public String prefix = "";
+    public String prefix = "$";
 
     @Comment("Optional suffix to the amount, e.g. \"$\" for 100.00$")
     public String suffix = "";
