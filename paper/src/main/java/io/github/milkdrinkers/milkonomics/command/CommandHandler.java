@@ -38,11 +38,44 @@ public class CommandHandler implements Reloadable {
         CommandAPI.onEnable();
 
         // Register commands here
-        new MilkonomicsCommand(plugin);
-        new BalanceCommand(plugin).command().register();
-        new PayCommand(plugin).command().register();
-        new BaltopCommand(plugin).command().register();
-        new ToggleCommand().command().register();
+        new MilkonomicsCommand(plugin)
+            .command()
+            .withAliases(
+                "economy",
+                "eco"
+            )
+            .register();
+        new BalanceCommand(plugin)
+            .command()
+            .withAliases(
+                "bal",
+                "money",
+                "cash",
+                "ebal",
+                "emoney",
+                "ecash",
+                "ebalance",
+                "showbalance",
+                "showbal",
+                "showmoney"
+            )
+            .register();
+        new PayCommand(plugin)
+            .command()
+            .register();
+        new BaltopCommand(plugin)
+            .command()
+            .withAliases(
+                "baltop",
+                "topbal",
+                "topbalances",
+                "ebaltop",
+                "ebalancetop"
+            )
+            .register();
+        new ToggleCommand()
+            .command()
+            .register();
     }
 
     @Override

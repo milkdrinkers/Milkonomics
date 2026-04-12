@@ -15,7 +15,7 @@ import io.github.milkdrinkers.wordweaver.Translation;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-final class BalanceCommand {
+final class BalanceCommand extends Command {
     private final AbstractMilkonomics plugin;
 
     public BalanceCommand(AbstractMilkonomics plugin) {

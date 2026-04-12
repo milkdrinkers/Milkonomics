@@ -17,13 +17,13 @@ import static io.github.milkdrinkers.milkonomics.command.CommandHandler.BASE_PER
 /**
  * Class containing the code for the translation commands.
  */
-final class TranslationCommand {
+final class TranslationCommand extends Command {
     private static final String TRANSLATION_PERM = BASE_PERM + ".translation";
 
     /**
      * Instantiates a new command tree.
      */
-    CommandAPICommand command() {
+    public CommandAPICommand command() {
         return new CommandAPICommand("translation")
             .withHelp("Translation related commands.", "Translation related commands.")
             .withPermission(TRANSLATION_PERM)

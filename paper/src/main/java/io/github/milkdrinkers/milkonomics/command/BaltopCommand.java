@@ -16,7 +16,7 @@ import org.bukkit.command.CommandSender;
 
 import java.util.List;
 
-final class BaltopCommand {
+final class BaltopCommand extends Command {
     private final AbstractMilkonomics plugin;
 
     public BaltopCommand(AbstractMilkonomics plugin) {
@@ -24,8 +24,7 @@ final class BaltopCommand {
     }
 
     public CommandAPICommand command() {
-        return new CommandAPICommand("baltop")
-            .withAliases("balancetop", "topbalances")
+        return new CommandAPICommand("balancetop")
             .withHelp("Check the top balances.", "Check the top balances.") // TODO translation
             .withPermission("milkonomics.command.baltop")
             .withOptionalArguments(new IntegerArgument("page"))

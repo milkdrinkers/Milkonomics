@@ -17,7 +17,7 @@ import org.bukkit.command.CommandSender;
 
 import java.math.BigDecimal;
 
-final class AdminCommand {
+final class AdminCommand extends Command {
     private final AbstractMilkonomics plugin;
 
     public AdminCommand(AbstractMilkonomics plugin) {

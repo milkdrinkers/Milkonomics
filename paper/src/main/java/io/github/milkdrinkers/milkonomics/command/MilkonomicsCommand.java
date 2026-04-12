@@ -11,12 +11,19 @@ import static io.github.milkdrinkers.milkonomics.command.CommandHandler.BASE_PER
 /**
  * Class containing the code for the example command.
  */
-final class MilkonomicsCommand {
+final class MilkonomicsCommand extends Command {
+    private final AbstractMilkonomics plugin;
+
     /**
      * Instantiates and registers a new command.
      */
     MilkonomicsCommand(AbstractMilkonomics plugin) {
-        new CommandAPICommand("milkonomics")
+        this.plugin = plugin;
+    }
+
+    @Override
+    public CommandAPICommand command() {
+        return new CommandAPICommand("milkonomics")
             .withHelp("Base command.", "Base command.")
             .withPermission(BASE_PERM)
             .withSubcommands(
@@ -28,8 +35,7 @@ final class MilkonomicsCommand {
                 new BaltopCommand(plugin).command(),
                 new ToggleCommand().command()
             )
-            .executes(this::executorExample)
-            .register();
+            .executes(this::executorExample);
     }
 
     private void executorExample(CommandSender sender, CommandArguments args) {

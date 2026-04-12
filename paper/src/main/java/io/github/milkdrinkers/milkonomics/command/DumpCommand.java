@@ -35,7 +35,7 @@ import static io.github.milkdrinkers.milkonomics.command.CommandHandler.BASE_PER
  * <p>
  * This command gathers server and plugin configurations, logs, and other information, and uploads it to <a href="https://mclo.gs">MCLogs</a>.
  */
-final class DumpCommand {
+final class DumpCommand extends Command {
     private static final boolean INCLUDE_PLUGINS = true; // Whether to include the plugin list in dumps
     private static final Map<String, Path> INCLUDED_SERVER_CONFIGS = Map.ofEntries( // Server-specific configurations to include in dumps
         Map.entry("SERVER PROPERTIES", Paths.get("server.properties")),
@@ -54,7 +54,7 @@ final class DumpCommand {
 
     private static final String DUMP_PERM = BASE_PERM + ".dump";
 
-    CommandAPICommand command() {
+    public CommandAPICommand command() {
         return new CommandAPICommand("dump")
             .withHelp("Upload server & plugin configs and logs to mclo.gs.", "Upload server & plugin configs and logs to mclo.gs.")
             .withPermission(DUMP_PERM)

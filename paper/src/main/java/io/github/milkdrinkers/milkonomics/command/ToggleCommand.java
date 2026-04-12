@@ -10,7 +10,7 @@ import io.github.milkdrinkers.milkonomics.api.account.Account;
 import io.github.milkdrinkers.wordweaver.Translation;
 import org.bukkit.entity.Player;
 
-final class ToggleCommand {
+final class ToggleCommand extends Command {
     public ToggleCommand() {
     }
 

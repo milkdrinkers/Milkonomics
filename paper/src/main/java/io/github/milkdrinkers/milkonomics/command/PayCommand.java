@@ -15,7 +15,7 @@ import io.github.milkdrinkers.milkonomics.utility.Cfg;
 import io.github.milkdrinkers.wordweaver.Translation;
 import org.bukkit.entity.Player;
 
-final class PayCommand {
+final class PayCommand extends Command {
     private final AbstractMilkonomics plugin;
 
     public PayCommand(AbstractMilkonomics plugin) {
