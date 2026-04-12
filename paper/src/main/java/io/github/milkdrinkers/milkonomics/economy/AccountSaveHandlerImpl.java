@@ -27,7 +27,8 @@ public final class AccountSaveHandlerImpl implements Reloadable, AccountSaveHand
     @Override
     public void onEnable(AbstractMilkonomics plugin) {
         queue.clear();
-        task = plugin.getServer().getAsyncScheduler().runAtFixedRate(plugin, task -> flush(), 0L, 1, TimeUnit.SECONDS); // TODO Make flush interval configurable
+        task = plugin.getServer().getAsyncScheduler()
+            .runAtFixedRate(plugin, task -> flush(), 0L, 1, TimeUnit.SECONDS); // TODO Make flush interval configurable
     }
 
     /**
@@ -55,6 +56,6 @@ public final class AccountSaveHandlerImpl implements Reloadable, AccountSaveHand
         final List<AccountSnapshot> snapshots = List.copyOf(queue.values());
         snapshots.forEach(s -> queue.remove(s.uuid(), s)); // Drain original queue of flushed accounts
 
-        Queries.Economy.save(queue.values());
+        Queries.Economy.save(snapshots);
     }
 }
