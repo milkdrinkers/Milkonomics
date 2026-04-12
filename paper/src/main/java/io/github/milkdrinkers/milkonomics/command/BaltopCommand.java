@@ -1,14 +1,14 @@
 package io.github.milkdrinkers.milkonomics.command;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.CommandAPIPaper;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
+import io.github.milkdrinkers.milkonomics.api.MilkonomicsAPI;
 import io.github.milkdrinkers.milkonomics.api.account.Account;
-import io.github.milkdrinkers.milkonomics.utility.Cfg;
+import io.github.milkdrinkers.milkonomics.api.denomination.Denomination;
 import io.github.milkdrinkers.threadutil.Scheduler;
 import io.github.milkdrinkers.wordweaver.Translation;
 import net.kyori.adventure.text.Component;
@@ -33,9 +33,8 @@ final class BaltopCommand extends Command {
 
     private void executor(CommandSender sender, CommandArguments args) throws WrapperCommandSyntaxException {
         final List<Account> accounts = plugin.getAccountManager().getAccounts().stream().toList();
-        if (accounts.isEmpty()) {
-            throw CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.baltop.no-balances")).build());
-        }
+        if (accounts.isEmpty())
+            throw Result.fail(ColorParser.of(Translation.of("commands.baltop.no-balances")).build());
 
         Scheduler.async(() -> {
             final int pageLength = 10; // TODO config
@@ -52,20 +51,25 @@ final class BaltopCommand extends Command {
                 .sorted((a, b) -> b.get().compareTo(a.get()))
                 .toList();
 
-            Component message = ColorParser.of(Translation.as("commands.baltop.header"))
+            Component message = ColorParser.of(Translation.of("commands.baltop.header"))
                 .with("page", String.valueOf(page)).build();
+
+            final Denomination defaultDenomination = MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination();
 
             for (int i = 0; i < pageLength; i++) {
                 int index = (page - 1) * pageLength + i;
                 if (index >= sortedAccounts.size())
                     break;
                 message = message.appendNewline().append(
-                    ColorParser.of(Translation.as("commands.baltop.format"))
+                    ColorParser.of(Translation.of("commands.baltop.format"))
                         .with("rank", String.valueOf(index + 1))
                         .with("account", accounts.get(index).getName())
                         .with("balance", String.valueOf(sortedAccounts.get(index).get()))
-                        .with("prefix", Cfg.getDefaultDenominationCfg().prefix)
-                        .with("suffix", Cfg.getDefaultDenominationCfg().suffix)
+                        .with("prefix", defaultDenomination.prefix())
+                        .with("suffix", defaultDenomination.suffix())
+                        .with("symbol", defaultDenomination.symbol())
+                        .with("currency_name", defaultDenomination.displayName())
+                        .with("currency_name_plural", defaultDenomination.displayNamePlural())
                         .build()
                 );
             }

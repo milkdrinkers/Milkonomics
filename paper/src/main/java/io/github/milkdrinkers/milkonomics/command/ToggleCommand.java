@@ -1,7 +1,6 @@
 package io.github.milkdrinkers.milkonomics.command;
 
 import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.CommandAPIPaper;
 import dev.jorel.commandapi.exceptions.WrapperCommandSyntaxException;
 import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
@@ -22,13 +21,14 @@ final class ToggleCommand extends Command {
 
     public void executor(Player sender, CommandArguments args) throws WrapperCommandSyntaxException {
         final Account account = MilkonomicsAPI.getInstance().getAccountManager().getAccount(sender.getUniqueId()).orElseThrow(
-            () -> CommandAPIPaper.failWithAdventureComponent(ColorParser.of(Translation.as("commands.toggle-payments.no-data")).build())
+            () -> Result.fail(ColorParser.of(Translation.of("commands.toggle-payments.no-data")).build())
         );
 
+        account.setAcceptingTransactions(!account.isAcceptingTransactions());
         if (account.isAcceptingTransactions()) {
-            sender.sendMessage(ColorParser.of(Translation.as("commands.toggle-payments.accepting")).build());
+            sender.sendMessage(ColorParser.of(Translation.of("commands.toggle-payments.accepting")).build());
         } else {
-            sender.sendMessage(ColorParser.of(Translation.as("commands.toggle-payments.declining")).build());
+            sender.sendMessage(ColorParser.of(Translation.of("commands.toggle-payments.declining")).build());
         }
     }
 }
