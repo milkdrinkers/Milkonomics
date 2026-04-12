@@ -61,11 +61,11 @@ public interface VersionedConfig {
         };
     }
 
-    /**
-     * Validate the config after loading. This is useful for validating values that cannot be validated by the Configurate library, such as checking if a value is within a certain range or if a string matches a certain pattern.
-     * @throws ConfigValidationException if the config is invalid
-     */
-    @Exclude
-    default void validate() throws ConfigValidationException {
-    }
+//    /**
+//     * Validate the config after loading. This is useful for validating values that cannot be validated by the Configurate library, such as checking if a value is within a certain range or if a string matches a certain pattern.
+//     * @throws ConfigValidationException if the config is invalid
+//     */
+//    @Exclude
+//    default void validate() throws ConfigValidationException {
+//    }
 }

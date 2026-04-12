@@ -29,16 +29,16 @@ public class DatabaseConfig implements VersionedConfig {
         return Map.of();
     }
 
-    @Override
-    @Exclude
-    public void validate() throws ConfigValidationException {
-        if (messaging.pollingInterval >= messaging.cleanupInterval) {
-            throw new ConfigValidationException(
-                "messaging.polling-interval (" + messaging.pollingInterval + "ms) " +
-                    "must be less than messaging.cleanup-interval (" + messaging.cleanupInterval + "ms)"
-            );
-        }
-    }
+//    @Override
+//    @Exclude
+//    public void validate() throws ConfigValidationException {
+//        if (messaging.pollingInterval >= messaging.cleanupInterval) {
+//            throw new ConfigValidationException(
+//                "messaging.polling-interval (" + messaging.pollingInterval + "ms) " +
+//                    "must be less than messaging.cleanup-interval (" + messaging.cleanupInterval + "ms)"
+//            );
+//        }
+//    }
 
     @Comment("Database Settings")
     public Database database = new Database();

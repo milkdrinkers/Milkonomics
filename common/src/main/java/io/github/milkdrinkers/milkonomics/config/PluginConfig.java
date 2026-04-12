@@ -26,10 +26,10 @@ public class PluginConfig implements VersionedConfig {
         return Map.of();
     }
 
-    @Override
-    @Exclude
-    public void validate() throws ConfigValidationException {
-    }
+//    @Override
+//    @Exclude
+//    public void validate() throws ConfigValidationException {
+//    }
 
     @Comment("Update Checker Settings")
     public UpdateChecker updateChecker = new UpdateChecker();
