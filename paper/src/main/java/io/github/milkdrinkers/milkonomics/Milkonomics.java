@@ -10,6 +10,7 @@ import io.github.milkdrinkers.milkonomics.cooldown.CooldownHandler;
 import io.github.milkdrinkers.milkonomics.database.handler.DatabaseHandler;
 import io.github.milkdrinkers.milkonomics.economy.AccountManagerImpl;
 import io.github.milkdrinkers.milkonomics.economy.AccountSaveHandlerImpl;
+import io.github.milkdrinkers.milkonomics.economy.AccountSaveHandlerPaper;
 import io.github.milkdrinkers.milkonomics.economy.EconomyImpl;
 import io.github.milkdrinkers.milkonomics.economy.denomination.DenominationHandler;
 import io.github.milkdrinkers.milkonomics.hook.HookManager;
@@ -77,7 +78,7 @@ public class Milkonomics extends AbstractMilkonomics {
         schedulerHandler = new SchedulerHandler();
         cooldownHandler = new CooldownHandler();
         denominationHandler = new DenominationHandler();
-        accountSaveHandler = new AccountSaveHandlerImpl();
+        accountSaveHandler = new AccountSaveHandlerPaper();
         accountManager = new AccountManagerImpl();
         apiHandler = new MilkonomicsAPIProvider(this);
         economyProvider = new EconomyImpl(this, accountManager);

@@ -18,11 +18,6 @@ public class SchedulerHandler implements Reloadable {
     }
 
     @Override
-    public void onEnable(AbstractMilkonomics plugin) {
-
-    }
-
-    @Override
     public void onDisable(AbstractMilkonomics plugin) {
         if (Scheduler.isInitialized())
             Scheduler.shutdown(Duration.ofSeconds(60));
