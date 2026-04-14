@@ -4,6 +4,8 @@ import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import io.github.milkdrinkers.milkonomics.api.AccountSaveHandler;
 import io.github.milkdrinkers.milkonomics.api.DenominationManager;
 import io.github.milkdrinkers.milkonomics.api.MilkonomicsAPI;
+import io.github.milkdrinkers.milkonomics.api.cache.Cache;
+import io.github.milkdrinkers.milkonomics.cache.CachePaper;
 import io.github.milkdrinkers.milkonomics.command.CommandHandler;
 import io.github.milkdrinkers.milkonomics.config.ConfigHandler;
 import io.github.milkdrinkers.milkonomics.cooldown.CooldownHandler;
@@ -50,6 +52,7 @@ public class Milkonomics extends AbstractMilkonomics {
     private DenominationHandler denominationHandler;
     private AccountSaveHandlerImpl accountSaveHandler;
     private AccountManagerImpl accountManager;
+    private CachePaper cache;
     private MilkonomicsAPIProvider apiHandler;
     private EconomyImpl economyProvider;
 
@@ -80,6 +83,7 @@ public class Milkonomics extends AbstractMilkonomics {
         denominationHandler = new DenominationHandler();
         accountSaveHandler = new AccountSaveHandlerPaper();
         accountManager = new AccountManagerImpl();
+        cache = new CachePaper(this);
         apiHandler = new MilkonomicsAPIProvider(this);
         economyProvider = new EconomyImpl(this, accountManager);
 
@@ -98,6 +102,7 @@ public class Milkonomics extends AbstractMilkonomics {
             denominationHandler,
             accountSaveHandler,
             accountManager,
+            cache,
             apiHandler,
             economyProvider
         );
@@ -165,6 +170,11 @@ public class Milkonomics extends AbstractMilkonomics {
     @Override
     public @NonNull DenominationManager getDenominationHandler() {
         return denominationHandler;
+    }
+
+    @Override
+    public @NonNull Cache getCache() {
+        return cache;
     }
 
     @Override

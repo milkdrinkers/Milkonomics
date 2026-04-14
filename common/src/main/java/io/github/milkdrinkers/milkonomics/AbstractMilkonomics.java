@@ -58,4 +58,11 @@ public abstract class AbstractMilkonomics extends JavaPlugin {
      * @return the denomination handler
      */
     public abstract @NotNull io.github.milkdrinkers.milkonomics.api.DenominationManager getDenominationHandler();
+
+    /**
+     * Gets cache.
+     *
+     * @return the cache
+     */
+    public abstract @NotNull io.github.milkdrinkers.milkonomics.api.cache.Cache getCache();
 }

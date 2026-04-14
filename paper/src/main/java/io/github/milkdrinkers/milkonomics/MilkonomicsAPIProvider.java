@@ -5,6 +5,7 @@ import io.github.milkdrinkers.milkonomics.api.AccountSaveHandler;
 import io.github.milkdrinkers.milkonomics.api.DenominationManager;
 import io.github.milkdrinkers.milkonomics.api.MilkonomicsAPI;
 import io.github.milkdrinkers.milkonomics.api.account.Account;
+import io.github.milkdrinkers.milkonomics.api.cache.Cache;
 import net.milkbowl.vault.economy.Economy;
 
 class MilkonomicsAPIProvider extends MilkonomicsAPI implements Reloadable {
@@ -29,6 +30,11 @@ class MilkonomicsAPIProvider extends MilkonomicsAPI implements Reloadable {
     @Override
     public DenominationManager getDenominationManager() {
         return plugin.getDenominationHandler();
+    }
+
+    @Override
+    public Cache getCache() {
+        return plugin.getCache();
     }
 
     @Override

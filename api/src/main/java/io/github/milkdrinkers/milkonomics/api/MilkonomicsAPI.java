@@ -1,6 +1,7 @@
 package io.github.milkdrinkers.milkonomics.api;
 
 import io.github.milkdrinkers.milkonomics.api.account.Account;
+import io.github.milkdrinkers.milkonomics.api.cache.Cache;
 import org.jetbrains.annotations.ApiStatus;
 
 public abstract class MilkonomicsAPI implements VaultProvider {
@@ -50,4 +51,11 @@ public abstract class MilkonomicsAPI implements VaultProvider {
      * @return the denomination manager
      */
     public abstract DenominationManager getDenominationManager();
+
+    /**
+     * Gets the cache.
+     *
+     * @return the cache
+     */
+    public abstract Cache getCache();
 }
