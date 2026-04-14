@@ -7,6 +7,7 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 
+import java.time.Duration;
 import java.util.Map;
 
 @ConfigSerializable
@@ -56,5 +57,11 @@ public class PluginConfig implements VersionedConfig {
     public static class Baltop {
         @Comment("How many entries should each balance top page show?")
         public int entriesPerPage = 8;
+
+        @Comment("How many entries should be cached in total? (This determines how many placeholder entries will be available for the balance top)")
+        public int cachedEntries = 100;
+
+        @Comment("How long should the balance top be cached? (in milliseconds)")
+        public Duration cacheDuration = Duration.ofMinutes(5);
     }
 }

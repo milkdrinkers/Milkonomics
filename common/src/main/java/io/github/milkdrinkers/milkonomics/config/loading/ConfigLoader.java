@@ -2,6 +2,7 @@ package io.github.milkdrinkers.milkonomics.config.loading;
 
 import io.github.milkdrinkers.milkonomics.config.common.VersionedConfig;
 import io.github.milkdrinkers.milkonomics.config.typeserializer.BigDecimalSerializer;
+import io.github.milkdrinkers.milkonomics.config.typeserializer.DurationSerializer;
 import io.github.milkdrinkers.milkonomics.config.typeserializer.StringObjectMapSerializer;
 import io.leangen.geantyref.TypeToken;
 import org.jetbrains.annotations.NotNull;
@@ -26,6 +27,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -187,6 +189,7 @@ public class ConfigLoader {
                 .register(new LowercaseEnumSerializer())
                 .registerExact(stringObjectMapToken, new StringObjectMapSerializer())
                 .registerExact(BigDecimal.class, BigDecimalSerializer.INSTANCE)
+                .registerExact(Duration.class, DurationSerializer.INSTANCE)
                 .build();
 
             return YamlConfigurationLoader.builder()
