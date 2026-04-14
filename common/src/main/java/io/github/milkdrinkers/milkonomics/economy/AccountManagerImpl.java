@@ -17,7 +17,7 @@ public final class AccountManagerImpl extends AccountManager<Account> implements
     }
 
     @Override
-    public void onEnable(AbstractMilkonomics plugin) {
+    public void onLoad(AbstractMilkonomics plugin) {
         loadAccounts(Queries.Economy.load());
     }
 
