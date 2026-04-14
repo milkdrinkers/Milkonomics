@@ -6,6 +6,7 @@ import io.github.milkdrinkers.milkonomics.api.AccountManager;
 import io.github.milkdrinkers.milkonomics.api.account.Account;
 import io.github.milkdrinkers.milkonomics.database.Queries;
 import io.github.milkdrinkers.milkonomics.economy.account.AccountImpl;
+import org.jspecify.annotations.NonNull;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -26,7 +27,7 @@ public final class AccountManagerImpl extends AccountManager<Account> implements
     }
 
     @Override
-    protected Account newAccount(UUID uuid, String name, Map<String, BigDecimal> initialBalances) {
+    protected @NonNull Account newAccount(@NonNull UUID uuid, @NonNull String name, @NonNull Map<String, BigDecimal> initialBalances) {
         return new AccountImpl(
             uuid,
             name,

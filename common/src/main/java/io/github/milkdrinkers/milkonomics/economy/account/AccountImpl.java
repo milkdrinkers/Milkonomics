@@ -2,6 +2,7 @@ package io.github.milkdrinkers.milkonomics.economy.account;
 
 import io.github.milkdrinkers.milkonomics.api.account.Account;
 import io.github.milkdrinkers.milkonomics.api.account.AccountSnapshot;
+import org.jspecify.annotations.NonNull;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -13,7 +14,7 @@ public class AccountImpl extends Account {
     }
 
     @Override
-    public AccountSnapshot getSnapshot() {
+    public @NonNull AccountSnapshot getSnapshot() {
         return new io.github.milkdrinkers.milkonomics.economy.account.AccountSnapshot(
             getUUID(),
             getName(),

@@ -1,6 +1,7 @@
 package io.github.milkdrinkers.milkonomics.api.cache;
 
 import io.github.milkdrinkers.milkonomics.api.account.AccountSnapshot;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.List;
@@ -13,6 +14,7 @@ public interface Cache {
      * Get the cached balance top list. The list is ordered by balance in descending order.
      * @return the cached balance top list
      */
+    @NotNull
     @UnmodifiableView
     List<AccountSnapshot> getBalanceTop();
 }

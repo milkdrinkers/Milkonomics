@@ -5,6 +5,7 @@ import io.github.milkdrinkers.milkonomics.Reloadable;
 import io.github.milkdrinkers.milkonomics.api.account.AccountSnapshot;
 import io.github.milkdrinkers.milkonomics.api.cache.Cache;
 import io.github.milkdrinkers.milkonomics.database.Queries;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +24,7 @@ public abstract class CacheImpl implements Reloadable, Cache {
     }
 
     @Override
-    public List<AccountSnapshot> getBalanceTop() {
+    public @NonNull List<AccountSnapshot> getBalanceTop() {
         return List.copyOf(balanceTopCache);
     }
 

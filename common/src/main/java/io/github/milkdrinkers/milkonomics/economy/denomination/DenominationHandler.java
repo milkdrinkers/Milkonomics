@@ -5,8 +5,10 @@ import io.github.milkdrinkers.milkonomics.Reloadable;
 import io.github.milkdrinkers.milkonomics.api.denomination.Denomination;
 import io.github.milkdrinkers.milkonomics.config.DenominationConfig;
 import io.github.milkdrinkers.milkonomics.utility.Logger;
+import org.jspecify.annotations.NonNull;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -69,19 +71,19 @@ public class DenominationHandler implements Reloadable, io.github.milkdrinkers.m
         denominations.clear();
     }
 
-    public Denomination getDefaultDenomination() {
+    public @NonNull Denomination getDefaultDenomination() {
         return defaultDenomination.get();
     }
 
-    public Denomination getDenomination(String id) {
+    public Denomination getDenomination(@NonNull String id) {
         return denominations.get(id);
     }
 
-    public Map<String, Denomination> getAllDenominations() {
-        return denominations;
+    public @NonNull Map<String, Denomination> getAllDenominations() {
+        return Collections.unmodifiableMap(denominations);
     }
 
-    public Map<Denomination, BigDecimal> getDenominationsDefault() {
+    public @NonNull Map<Denomination, BigDecimal> getDenominationsDefault() {
         return getAllDenominations().values()
             .stream()
             .collect(
@@ -89,7 +91,7 @@ public class DenominationHandler implements Reloadable, io.github.milkdrinkers.m
             );
     }
 
-    public Map<String, BigDecimal> getDenominationsDefaults() {
+    public @NonNull Map<String, BigDecimal> getDenominationsDefaults() {
         return getDenominationsDefault().entrySet()
             .stream()
             .map(entry -> Map.entry(entry.getKey().id(), entry.getValue()))

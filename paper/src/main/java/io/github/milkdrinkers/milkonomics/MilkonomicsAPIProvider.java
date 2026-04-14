@@ -7,6 +7,7 @@ import io.github.milkdrinkers.milkonomics.api.MilkonomicsAPI;
 import io.github.milkdrinkers.milkonomics.api.account.Account;
 import io.github.milkdrinkers.milkonomics.api.cache.Cache;
 import net.milkbowl.vault.economy.Economy;
+import org.jspecify.annotations.NonNull;
 
 class MilkonomicsAPIProvider extends MilkonomicsAPI implements Reloadable {
     private final Milkonomics plugin;
@@ -18,27 +19,27 @@ class MilkonomicsAPIProvider extends MilkonomicsAPI implements Reloadable {
     }
 
     @Override
-    public AccountManager<Account> getAccountManager() {
+    public @NonNull AccountManager<Account> getAccountManager() {
         return plugin.getAccountManager();
     }
 
     @Override
-    public AccountSaveHandler getAccountSaveHandler() {
+    public @NonNull AccountSaveHandler getAccountSaveHandler() {
         return plugin.getAccountSaveHandler();
     }
 
     @Override
-    public DenominationManager getDenominationManager() {
+    public @NonNull DenominationManager getDenominationManager() {
         return plugin.getDenominationHandler();
     }
 
     @Override
-    public Cache getCache() {
+    public @NonNull Cache getCache() {
         return plugin.getCache();
     }
 
     @Override
-    public Economy getEconomy() {
+    public @NonNull Economy getEconomy() {
         return plugin.getEconomyProvider();
     }
 }

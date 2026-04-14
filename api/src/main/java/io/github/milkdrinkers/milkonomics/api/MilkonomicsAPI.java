@@ -3,7 +3,11 @@ package io.github.milkdrinkers.milkonomics.api;
 import io.github.milkdrinkers.milkonomics.api.account.Account;
 import io.github.milkdrinkers.milkonomics.api.cache.Cache;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
+/**
+ * The MilkonomicsAPI class is the main entry point for accessing the Milkonomics API.
+ */
 public abstract class MilkonomicsAPI implements VaultProvider {
     private static MilkonomicsAPI INSTANCE;
 
@@ -36,26 +40,26 @@ public abstract class MilkonomicsAPI implements VaultProvider {
      *
      * @return the account manager
      */
-    public abstract AccountManager<Account> getAccountManager();
+    public abstract @NotNull AccountManager<Account> getAccountManager();
 
     /**
      * Gets the account save handler.
      *
      * @return the account save handler
      */
-    public abstract AccountSaveHandler getAccountSaveHandler();
+    public abstract @NotNull AccountSaveHandler getAccountSaveHandler();
 
     /**
      * Gets the denomination manager.
      *
      * @return the denomination manager
      */
-    public abstract DenominationManager getDenominationManager();
+    public abstract @NotNull DenominationManager getDenominationManager();
 
     /**
      * Gets the cache.
      *
      * @return the cache
      */
-    public abstract Cache getCache();
+    public abstract @NotNull Cache getCache();
 }

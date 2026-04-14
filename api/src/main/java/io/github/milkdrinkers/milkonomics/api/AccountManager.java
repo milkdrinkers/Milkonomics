@@ -1,6 +1,9 @@
 package io.github.milkdrinkers.milkonomics.api;
 
 import io.github.milkdrinkers.milkonomics.api.account.Account;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnmodifiableView;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -27,7 +30,8 @@ public abstract class AccountManager<A extends Account> {
      * @return A new, unregistered account instance.
      * @apiNote Implementations should not register the account themselves.
      */
-    protected abstract A newAccount(UUID uuid, String name, Map<String, BigDecimal> initialBalances);
+    @ApiStatus.Internal
+    protected abstract @NotNull A newAccount(@NotNull UUID uuid, @NotNull String name, @NotNull Map<String, BigDecimal> initialBalances);
 
     /**
      * Looks up an account by UUID.
@@ -35,7 +39,7 @@ public abstract class AccountManager<A extends Account> {
      * @param uuid The UUID to look up.
      * @return An {@link Optional} containing the account, or empty if not found.
      */
-    public Optional<A> getAccount(UUID uuid) {
+    public @NotNull Optional<A> getAccount(@NotNull UUID uuid) {
         return Optional.ofNullable(accounts.get(uuid));
     }
 
@@ -45,7 +49,7 @@ public abstract class AccountManager<A extends Account> {
      * @param name The name to look up.
      * @return An {@link Optional} containing the account, or empty if not found.
      */
-    public Optional<A> getAccount(String name) {
+    public @NotNull Optional<A> getAccount(@NotNull String name) {
         final UUID uuid = accountLookup.get(name);
         return Optional.ofNullable(uuid != null ? accounts.get(uuid) : null);
     }
@@ -53,20 +57,22 @@ public abstract class AccountManager<A extends Account> {
     /**
      * Returns whether an account with the given UUID is registered.
      */
-    public boolean hasAccount(UUID uuid) {
+    public boolean hasAccount(@NotNull UUID uuid) {
         return accounts.containsKey(uuid);
     }
 
     /**
      * Returns whether an account with the given name is registered.
      */
-    public boolean hasAccount(String name) {
+    public boolean hasAccount(@NotNull String name) {
         return accountLookup.containsKey(name);
     }
 
     /**
      * Returns an unmodifiable view of all registered accounts.
      */
+    @NotNull
+    @UnmodifiableView
     public Collection<A> getAccounts() {
         return Collections.unmodifiableCollection(accounts.values());
     }
@@ -80,7 +86,7 @@ public abstract class AccountManager<A extends Account> {
      * @param initialBalances     The starting balances.
      * @return The newly created account, or the existing account if one already existed.
      */
-    public A createAccount(UUID uuid, String name, Map<String, BigDecimal> initialBalances) {
+    public @NotNull A createAccount(@NotNull UUID uuid, @NotNull String name, @NotNull Map<String, BigDecimal> initialBalances) {
         A existing = accounts.get(uuid);
         if (existing != null) {
             return existing;
@@ -107,7 +113,7 @@ public abstract class AccountManager<A extends Account> {
      *
      * @see #createAccount(UUID, String, Map)
      */
-    public A createAccount(UUID uuid, String name) {
+    public @NotNull A createAccount(@NotNull UUID uuid, @NotNull String name) {
         return createAccount(uuid, name, Map.of(MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination().id(), BigDecimal.ZERO));
     }
 
@@ -115,7 +121,8 @@ public abstract class AccountManager<A extends Account> {
      * Loads a collection of accounts into the manager, replacing any existing accounts with the same UUIDs.
      * @param accounts The accounts to load.
      */
-    protected void loadAccounts(Collection<A> accounts) {
+    @ApiStatus.Internal
+    protected void loadAccounts(@NotNull Collection<A> accounts) {
         writeLock.lock();
         try {
             for (A account : accounts) {
@@ -133,7 +140,7 @@ public abstract class AccountManager<A extends Account> {
      * @param uuid The UUID of the account to remove.
      * @return The removed account, or {@link Optional#empty()} if no account was found.
      */
-    public Optional<A> removeAccount(UUID uuid) {
+    public @NotNull Optional<A> removeAccount(@NotNull UUID uuid) {
         if (!accounts.containsKey(uuid)) {
             return Optional.empty();
         }
@@ -156,7 +163,7 @@ public abstract class AccountManager<A extends Account> {
      * @param name The name of the account to remove.
      * @return The removed account, or {@link Optional#empty()} if no account was found.
      */
-    public Optional<A> removeAccount(String name) {
+    public @NotNull Optional<A> removeAccount(@NotNull String name) {
         final UUID uuid = accountLookup.get(name);
         return uuid != null ? removeAccount(uuid) : Optional.empty();
     }
@@ -164,7 +171,8 @@ public abstract class AccountManager<A extends Account> {
     /**
      * Clears all accounts from the manager.
      */
-    public void clear() {
+    @ApiStatus.Internal
+    protected void clear() {
         writeLock.lock();
         try {
             accounts.clear();

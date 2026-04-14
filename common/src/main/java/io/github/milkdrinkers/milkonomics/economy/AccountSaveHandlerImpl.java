@@ -5,6 +5,7 @@ import io.github.milkdrinkers.milkonomics.Reloadable;
 import io.github.milkdrinkers.milkonomics.api.AccountSaveHandler;
 import io.github.milkdrinkers.milkonomics.api.account.AccountSnapshot;
 import io.github.milkdrinkers.milkonomics.database.Queries;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ public abstract class AccountSaveHandlerImpl implements Reloadable, AccountSaveH
     }
 
     @Override
-    public void queue(AccountSnapshot account) {
+    public void queue(@NonNull AccountSnapshot account) {
         queue.put(account.uuid(), account);
     }
 

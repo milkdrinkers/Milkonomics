@@ -1,5 +1,7 @@
 package io.github.milkdrinkers.milkonomics.api.account;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.math.BigDecimal;
 
 /**
@@ -7,14 +9,14 @@ import java.math.BigDecimal;
  */
 public interface AccountBalance {
     /**
-     * Gets the current balance of the account.
+     * Gets the current balance of the account using the default denomination.
      *
      * @return The current balance of the account.
      */
-    BigDecimal get();
+    @NotNull BigDecimal get();
 
     /**
-     * Gets the current balance of the account as a double. This is equivalent to {@link #get()}.
+     * Gets the current balance of the account as a double using the default denomination. This is equivalent to {@link #get()}.
      *
      * @return The current balance of the account as a double.
      */
@@ -23,15 +25,15 @@ public interface AccountBalance {
     }
 
     /**
-     * Sets the balance of the account to the specified value.
+     * Sets the balance of the account to the specified value using the default denomination.
      *
      * @param amount The new balance of the account. Must be non-negative.
      * @return True if the balance was successfully set, false otherwise.
      */
-    boolean set(BigDecimal amount);
+    boolean set(@NotNull BigDecimal amount);
 
     /**
-     * Sets the balance of the account to the specified value.
+     * Sets the balance of the account to the specified value using the default denomination.
      *
      * @param amount The new balance of the account. Must be non-negative.
      * @return True if the balance was successfully set, false otherwise.
@@ -41,15 +43,15 @@ public interface AccountBalance {
     }
 
     /**
-     * Checks if the account has at least the specified amount of money.
+     * Checks if the account has at least the specified amount of money using the default denomination.
      *
      * @param amount The amount to check for. Must be non-negative.
      * @return True if the account has at least the specified amount of money, false otherwise.
      */
-    boolean has(BigDecimal amount);
+    boolean has(@NotNull BigDecimal amount);
 
     /**
-     * Checks if the account has at least the specified amount of money.
+     * Checks if the account has at least the specified amount of money using the default denomination.
      *
      * @param amount The amount to check for. Must be non-negative.
      * @return True if the account has at least the specified amount of money, false otherwise.
@@ -59,15 +61,15 @@ public interface AccountBalance {
     }
 
     /**
-     * Withdraws the specified amount of money from the account. The account must have at least the specified amount of money for this to succeed.
+     * Withdraws the specified amount of money from the account using the default denomination. The account must have at least the specified amount of money for this to succeed.
      *
      * @param amount The amount to withdraw. Must be non-negative.
      * @return True if the withdrawal was successful, false otherwise.
      */
-    boolean withdraw(BigDecimal amount);
+    boolean withdraw(@NotNull BigDecimal amount);
 
     /**
-     * Withdraws the specified amount of money from the account. The account must have at least the specified amount of money for this to succeed.
+     * Withdraws the specified amount of money from the account using the default denomination. The account must have at least the specified amount of money for this to succeed.
      *
      * @param amount The amount to withdraw. Must be non-negative.
      * @return True if the withdrawal was successful, false otherwise.
@@ -78,15 +80,15 @@ public interface AccountBalance {
     }
 
     /**
-     * Deposits the specified amount of money into the account. The account must be able to accept the specified amount of money for this to succeed (e.g. it must not exceed the maximum balance).
+     * Deposits the specified amount of money into the account using the default denomination. The account must be able to accept the specified amount of money for this to succeed (e.g. it must not exceed the maximum balance).
      *
      * @param amount The amount to deposit. Must be non-negative.
      * @return True if the deposit was successful, false otherwise.
      */
-    boolean deposit(BigDecimal amount);
+    boolean deposit(@NotNull BigDecimal amount);
 
     /**
-     * Deposits the specified amount of money into the account. The account must be able to accept the specified amount of money for this to succeed (e.g. it must not exceed the maximum balance).
+     * Deposits the specified amount of money into the account using the default denomination. The account must be able to accept the specified amount of money for this to succeed (e.g. it must not exceed the maximum balance).
      *
      * @param amount The amount to deposit. Must be non-negative.
      * @return True if the deposit was successful, false otherwise.
@@ -101,5 +103,5 @@ public interface AccountBalance {
      *
      * @return A snapshot of the account's current state.
      */
-    AccountSnapshot getSnapshot();
+    @NotNull AccountSnapshot getSnapshot();
 }
