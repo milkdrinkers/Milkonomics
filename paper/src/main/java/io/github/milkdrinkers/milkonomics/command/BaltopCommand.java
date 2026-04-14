@@ -7,7 +7,7 @@ import dev.jorel.commandapi.executors.CommandArguments;
 import io.github.milkdrinkers.colorparser.paper.ColorParser;
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomics.api.MilkonomicsAPI;
-import io.github.milkdrinkers.milkonomics.api.account.Account;
+import io.github.milkdrinkers.milkonomics.api.account.AccountSnapshot;
 import io.github.milkdrinkers.milkonomics.api.denomination.Denomination;
 import io.github.milkdrinkers.milkonomics.database.Queries;
 import io.github.milkdrinkers.threadutil.Scheduler;
@@ -57,7 +57,7 @@ final class BaltopCommand extends Command {
             .execute();
     }
 
-    private Component render(int page, List<Account> accounts) {
+    private Component render(int page, List<AccountSnapshot> accounts) {
         final Denomination d = MilkonomicsAPI.getInstance().getDenominationManager().getDefaultDenomination();
         final int prevPage = Math.max(1, page - 1);
         final int nextPage = page + 1;
@@ -67,15 +67,15 @@ final class BaltopCommand extends Command {
             .build();
 
         for (int i = 0; i < accounts.size(); i++) {
-            final Account account = accounts.get(i);
+            final AccountSnapshot account = accounts.get(i);
             final int rank = (page - 1) * plugin.getConfigHandler().getConfig().balanceTop.entriesPerPage + i + 1;
 
             message = message.appendNewline().append(
                 ColorParser.of(Translation.of("commands.baltop.format"))
                     .with("rank", String.valueOf(rank))
-                    .with("account", account.getName())
-                    .with("balance", String.valueOf(account.get()))
-                    .with("balance_formatted", String.valueOf(d.format(account.get())))
+                    .with("account", account.name())
+                    .with("balance", String.valueOf(account.balances().get(d.id())))
+                    .with("balance_formatted", String.valueOf(d.format(account.balances().get(d.id()))))
                     .with("prefix", d.prefix())
                     .with("suffix", d.suffix())
                     .with("symbol", d.symbol())

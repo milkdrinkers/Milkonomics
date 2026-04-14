@@ -1,6 +1,5 @@
 package io.github.milkdrinkers.milkonomics.database;
 
-import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomics.api.MilkonomicsAPI;
 import io.github.milkdrinkers.milkonomics.api.account.Account;
 import io.github.milkdrinkers.milkonomics.api.account.AccountSnapshot;
@@ -307,7 +306,7 @@ public final class Queries {
     }
 
     public static final class Baltop {
-        public static List<Account> get(final int pageSize, final String denominationId, int page) {
+        public static List<AccountSnapshot> get(final int pageSize, final String denominationId, int page) {
             final int safePage = Math.max(1, page);
             final int offset = (safePage - 1) * pageSize;
 
@@ -327,7 +326,7 @@ public final class Queries {
                     .offset(offset)
                     .fetch()
                     .stream()
-                    .map(r -> (Account) new AccountImpl(
+                    .map(r -> (io.github.milkdrinkers.milkonomics.api.account.AccountSnapshot) new io.github.milkdrinkers.milkonomics.economy.account.AccountSnapshot(
                         UUIDUtil.fromBytes(r.get(ACCOUNTS.UUID)),
                         r.get(ACCOUNTS.NAME),
                         Map.of(denominationId, r.get(ACCOUNTS_BALANCE.BALANCE)),
