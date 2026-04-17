@@ -4,7 +4,7 @@ paper-run = "1.21.11"
 crate = "4.0.0-RC.5"
 commandapi = "11.2.0"
 flyway = "12.3.0"
-jooq = "3.21.1"
+jooq = "3.21.2"
 configurate = "4.2.0-GeyserMC-SNAPSHOT"
 
 [libraries]
