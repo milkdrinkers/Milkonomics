@@ -28,16 +28,16 @@ public class DatabaseConfig implements VersionedConfig {
         return Map.of();
     }
 
-//    @Override
-//    @Exclude
-//    public void validate() throws ConfigValidationException {
-//        if (messaging.pollingInterval >= messaging.cleanupInterval) {
-//            throw new ConfigValidationException(
-//                "messaging.polling-interval (" + messaging.pollingInterval + "ms) " +
-//                    "must be less than messaging.cleanup-interval (" + messaging.cleanupInterval + "ms)"
-//            );
-//        }
-//    }
+    @Override
+    @Exclude
+    public void validate() throws ConfigValidationException {
+        if (messaging.pollingInterval >= messaging.cleanupInterval) {
+            throw new ConfigValidationException(
+                "messaging.polling-interval (" + messaging.pollingInterval + "ms) " +
+                    "must be less than messaging.cleanup-interval (" + messaging.cleanupInterval + "ms)"
+            );
+        }
+    }
 
     @Comment("Database Settings")
     public Database database = new Database();
@@ -76,9 +76,9 @@ public class DatabaseConfig implements VersionedConfig {
             }
 
             @Comment("A list of connection parameters, you can include more by adding them on a new line")
-            public Map<String, Object> connectionProperties = defualtValues();
+            public Map<String, Object> connectionProperties = defaultValues();
 
-            private Map<String, Object> defualtValues() {
+            private Map<String, Object> defaultValues() {
                 final Map<String, Object> map = new HashMap<>();
                 map.put("useSSL", false);
                 map.put("cachePrepStmts", true);

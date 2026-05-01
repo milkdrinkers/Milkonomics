@@ -26,10 +26,16 @@ public class DenominationConfig implements VersionedConfig {
         return Map.of();
     }
 
-//    @Override
-//    @Exclude
-//    public void validate() throws ConfigValidationException {
-//    }
+    @Override
+    @Exclude
+    public void validate() throws ConfigValidationException {
+        if (id == null || id.isBlank()) {
+            throw new ConfigValidationException("denomination 'id' must not be blank");
+        }
+        if (decimalPlaces < 0) {
+            throw new ConfigValidationException("denomination 'decimal-places' must be >= 0, got: " + decimalPlaces);
+        }
+    }
 
     @Comment("The unique identifier for this denomination, for example 'dollar' or 'euro'. This should be lowercase, without spaces, and must be unique.")
     public String id = "dollar";
