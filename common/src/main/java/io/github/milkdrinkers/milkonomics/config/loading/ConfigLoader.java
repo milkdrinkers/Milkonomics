@@ -1,6 +1,6 @@
 package io.github.milkdrinkers.milkonomics.config.loading;
 
-import io.github.milkdrinkers.milkonomics.config.common.VersionedConfig;
+import io.github.milkdrinkers.milkonomics.config.VersionedConfig;
 import io.github.milkdrinkers.milkonomics.config.typeserializer.BigDecimalSerializer;
 import io.github.milkdrinkers.milkonomics.config.typeserializer.DurationSerializer;
 import io.github.milkdrinkers.milkonomics.config.typeserializer.StringObjectMapSerializer;

@@ -1,6 +1,5 @@
 package io.github.milkdrinkers.milkonomics.config;
 
-import io.github.milkdrinkers.milkonomics.config.common.VersionedConfig;
 import io.github.milkdrinkers.milkonomics.config.exception.ConfigValidationException;
 import io.github.milkdrinkers.milkonomics.database.handler.DatabaseType;
 import io.github.milkdrinkers.milkonomics.messaging.broker.BrokerType;

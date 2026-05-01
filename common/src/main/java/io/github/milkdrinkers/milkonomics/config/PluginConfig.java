@@ -1,6 +1,5 @@
 package io.github.milkdrinkers.milkonomics.config;
 
-import io.github.milkdrinkers.milkonomics.config.common.VersionedConfig;
 import io.github.milkdrinkers.milkonomics.config.exception.ConfigValidationException;
 import org.spongepowered.configurate.interfaces.meta.Exclude;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
