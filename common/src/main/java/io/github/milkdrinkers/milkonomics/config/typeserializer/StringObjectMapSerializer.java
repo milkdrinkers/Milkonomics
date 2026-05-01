@@ -1,9 +1,12 @@
 package io.github.milkdrinkers.milkonomics.config.typeserializer;
 
+import io.leangen.geantyref.TypeToken;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +16,30 @@ import java.util.Map;
  *
  * @author darksaid98
  */
-public class StringObjectMapSerializer implements TypeSerializer<Map<String, Object>> {
+public final class StringObjectMapSerializer implements TypeSerializer<Map<String, Object>> {
+    public static final StringObjectMapSerializer INSTANCE = new StringObjectMapSerializer();
+    public static final TypeToken<Map<String, Object>> TYPE_TOKEN = new TypeToken<>() {
+        @Override
+        public Type getType() {
+            return new ParameterizedType() {
+                @Override
+                public Type @NotNull [] getActualTypeArguments() {
+                    return new Type[]{String.class, Object.class};
+                }
+
+                @Override
+                public @NotNull Type getRawType() {
+                    return Map.class;
+                }
+
+                @Override
+                public Type getOwnerType() {
+                    return null;
+                }
+            };
+        }
+    };
+
     @Override
     public Map<String, Object> deserialize(Type type, ConfigurationNode node) {
         final Map<String, Object> result = new HashMap<>();
@@ -37,6 +63,7 @@ public class StringObjectMapSerializer implements TypeSerializer<Map<String, Obj
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void serialize(Type type, Map<String, Object> obj, ConfigurationNode node) throws SerializationException {
         if (obj == null)
             return;
@@ -50,7 +77,6 @@ public class StringObjectMapSerializer implements TypeSerializer<Map<String, Obj
             }
 
             if (value instanceof Map) {
-                // noinspection unchecked
                 serialize(type, (Map<String, Object>) value, node.node(entry.getKey()));
             } else {
                 node.node(entry.getKey()).set(value);
