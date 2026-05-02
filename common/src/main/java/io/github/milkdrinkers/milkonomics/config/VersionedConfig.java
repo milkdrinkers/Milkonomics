@@ -1,6 +1,9 @@
 package io.github.milkdrinkers.milkonomics.config;
 
 import io.github.milkdrinkers.milkonomics.config.exception.ConfigValidationException;
+import io.github.milkdrinkers.milkonomics.config.migration.Migration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 import org.spongepowered.configurate.interfaces.meta.Exclude;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.transformation.ConfigurationTransformation;
@@ -9,53 +12,105 @@ import java.util.Map;
 
 /**
  * Base interface for all versioned configuration files.
- * <p>
- * Implementors should override {@link #migrations()} to provide version-to-version migrations,
- * and may override {@link #validate()} to enforce constraints on loaded values.
+ *
+ * <p>Implement {@link #migrations()} to declare version-to-version migrations,
+ * and optionally override {@link #validate()} to enforce constraints on loaded values.
+ *
+ * <p>Minimal example:
+ * <pre>{@code
+ * @ConfigSerializable
+ * public class MyConfig implements VersionedConfig {
+ *     public int configVersion = 1;
+ *
+ *     @Override public int configVersion() { return configVersion; }
+ *
+ *     @Override
+ *     public Map<Integer, Migration> migrations() {
+ *         return Map.of(
+ *             2, Migration.builder()
+ *                 .rename(NodePath.path("old-key"), "newKey")
+ *                 .delete(NodePath.path("removed-key"))
+ *                 .build()
+ *         );
+ *     }
+ *
+ *     @Override
+ *     public void validate() throws ConfigValidationException {
+ *         if (someValue < 0) throw new ConfigValidationException("someValue must be >= 0");
+ *     }
+ * }
+ * }</pre>
  */
 public interface VersionedConfig {
+
+    /**
+     * The current version stored in the config file. Configurate uses this to determine
+     * which migrations need to be applied when loading an older file.
+     *
+     * <p>Implementations must declare a {@code public int configVersion} field <em>with that
+     * exact name</em> and return it here. The default {@link #migrator()} looks up the version
+     * key {@code "configVersion"} in the YAML node, if the field is named anything else,
+     * migrations will silently never fire. Start versioning at {@code 1}; version {@code 0}
+     * and negative values are treated as "no version" by Configurate's versioned transformer.
+     *
+     * @return the version number read from disk
+     */
     @Comment("Do not change this value!")
     @SuppressWarnings("unused")
     int configVersion();
 
     /**
-     * Provides a map of version-to-transformation migrations.
-     * The key is the <em>target</em> version; the value is the {@link ConfigurationTransformation}
-     * that upgrades a node from the previous version to that version.
+     * Declares the migrations used to upgrade older config files to newer versions.
      *
-     * <p>Example — rename a key when migrating from v1 to v2:
+     * <p>Each entry maps a <em>target</em> version to the {@link Migration} that produces it.
+     * Migrations are applied in ascending version order, so a file at version 1 receiving
+     * migrations for versions 2 and 3 will have both applied in sequence.
+     *
+     * <p>Keep each migration self-contained and scoped to the config class it lives in,
+     * that keeps the history easy to follow as the format evolves.
+     *
+     * <p>Example:
      * <pre>{@code
      * @Override
-     * public Map<Integer, ConfigurationTransformation> migrations() {
+     * public Map<Integer, Migration> migrations() {
      *     return Map.of(
-     *         2, ConfigurationTransformation.builder()
-     *             .addAction(NodePath.path("old-key"), MigrationUtil.renameAndMove("new-key"))
+     *         2, Migration.builder()
+     *             .rename(NodePath.path("update-checker"), "updateChecker")
+     *             .build(),
+     *         3, Migration.builder()
+     *             .delete(NodePath.path("deprecated-flag"))
+     *             .move(NodePath.path("language"), "settings")
      *             .build()
      *     );
      * }
      * }</pre>
      *
-     * @return map of target version → transformation
+     * @return an unmodifiable map of target version → migration; empty by default
      */
     @Exclude
-    default Map<Integer, ConfigurationTransformation> migrations() {
+    @NotNull
+    @Unmodifiable
+    default Map<Integer, Migration> migrations() {
         return Map.of();
     }
 
     /**
      * Builds the versioned migrator used by {@link io.github.milkdrinkers.milkonomics.config.loading.ConfigLoader}
-     * to upgrade on-disk config nodes before deserialization.
-     * <p>
-     * Override {@link #migrations()} rather than this method.
+     * to upgrade on-disk nodes before deserialization.
      *
-     * @return a {@link ConfigurationTransformation.Versioned} built from {@link #migrations()}
+     * <p>The version key is hard-coded to {@code "configVersion"}, which must match the field
+     * name declared in your implementation. Override this method only if you need a different
+     * key name; otherwise override {@link #migrations()} instead.
+     *
+     * @return a {@link ConfigurationTransformation.Versioned} assembled from {@link #migrations()}
      */
     @Exclude
+    @NotNull
     default ConfigurationTransformation.Versioned migrator() {
         final ConfigurationTransformation.VersionedBuilder builder = ConfigurationTransformation.versionedBuilder()
             .versionKey("configVersion");
 
-        for (Map.Entry<Integer, ConfigurationTransformation> entry : migrations().entrySet()) {
+        for (Map.Entry<Integer, Migration> entry : migrations().entrySet()) {
             builder.addVersion(entry.getKey(), entry.getValue());
         }
 
@@ -63,12 +118,11 @@ public interface VersionedConfig {
     }
 
     /**
-     * Validates the config after loading.
-     * <p>
-     * Override this method and throw {@link ConfigValidationException} when a value is invalid.
-     * The loader will propagate the exception and treat the config as failed.
+     * Validates the config after loading. Throw {@link ConfigValidationException} for any
+     * field value that is unacceptable, the loader will propagate it and treat the config
+     * as failed.
      *
-     * @throws ConfigValidationException if any field value is unacceptable
+     * @throws ConfigValidationException if any field value is invalid
      */
     @Exclude
     default void validate() throws ConfigValidationException {

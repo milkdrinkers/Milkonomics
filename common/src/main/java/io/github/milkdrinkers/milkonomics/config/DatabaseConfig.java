@@ -1,12 +1,13 @@
 package io.github.milkdrinkers.milkonomics.config;
 
 import io.github.milkdrinkers.milkonomics.config.exception.ConfigValidationException;
+import io.github.milkdrinkers.milkonomics.config.migration.Migration;
 import io.github.milkdrinkers.milkonomics.database.handler.DatabaseType;
 import io.github.milkdrinkers.milkonomics.messaging.broker.BrokerType;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.interfaces.meta.Exclude;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
-import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +25,7 @@ public class DatabaseConfig implements VersionedConfig {
 
     @Override
     @Exclude
-    public Map<Integer, ConfigurationTransformation> migrations() {
+    public @NotNull Map<Integer, Migration> migrations() {
         return Map.of();
     }
 
