@@ -1,324 +1,346 @@
 package io.github.milkdrinkers.milkonomics.config.loading;
 
-import io.github.milkdrinkers.milkonomics.config.common.VersionedConfig;
+import io.github.milkdrinkers.milkonomics.config.VersionedConfig;
+import io.github.milkdrinkers.milkonomics.config.exception.ConfigValidationException;
 import io.github.milkdrinkers.milkonomics.config.typeserializer.BigDecimalSerializer;
 import io.github.milkdrinkers.milkonomics.config.typeserializer.DurationSerializer;
+import io.github.milkdrinkers.milkonomics.config.typeserializer.LowercaseEnumSerializer;
 import io.github.milkdrinkers.milkonomics.config.typeserializer.StringObjectMapSerializer;
-import io.leangen.geantyref.TypeToken;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.ConfigurateException;
-import org.spongepowered.configurate.ConfigurationNode;
-import org.spongepowered.configurate.ConfigurationVisitor;
 import org.spongepowered.configurate.interfaces.InterfaceDefaultOptions;
-import org.spongepowered.configurate.serialize.ScalarSerializer;
-import org.spongepowered.configurate.serialize.Scalars;
-import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializerCollection;
+import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 import org.spongepowered.configurate.yaml.NodeStyle;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Locale;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
+/**
+ * Fluent builder that loads, migrates, and validates a {@link VersionedConfig} from a YAML file.
+ *
+ * <p>Typical usage:
+ * <pre>{@code
+ * MyConfig cfg = new ConfigLoader()
+ *     .withLogger(logger)
+ *     .withDirectory()
+ *     .withPath(dataFolder.resolve("config.yml"))
+ *     .withHeader("My Plugin Configuration")
+ *     .build(MyConfig.class);
+ * }</pre>
+ *
+ * <p>Use {@link #buildOrThrow(Class)} at plugin startup where a bad config should halt
+ * initialization rather than silently returning {@code null}.
+ * The raw node tree is accessible via {@link #getNode()} after a successful load.
+ */
 public class ConfigLoader {
-    private Consumer<CommentedConfigurationNode> transformer;
-    private File file;
-    private String header = "";
+    private @Nullable Consumer<CommentedConfigurationNode> transformer;
+    private final List<Consumer<TypeSerializerCollection.Builder>> extraSerializers = new ArrayList<>();
+    private @Nullable File file;
+    private @NotNull String header = "";
+    private @NotNull NodeStyle nodeStyle = NodeStyle.BLOCK;
+    private int indent = 2;
     private boolean createDirectory = false;
-    private Logger logger;
+    private @Nullable Logger logger;
 
     @VisibleForTesting
-    CommentedConfigurationNode configurationNode;
+    @Nullable CommentedConfigurationNode configurationNode;
 
     @VisibleForTesting
-    ConfigLoader(Path path) {
+    ConfigLoader(@NotNull Path path) {
         this.file = path.toFile();
     }
 
     public ConfigLoader() {
     }
 
+    /**
+     * Instructs the loader to create the parent directory of the config file if it does not exist.
+     *
+     * @return this loader
+     */
+    @Contract("-> this")
+    @NotNull
     public ConfigLoader withDirectory() {
         createDirectory = true;
         return this;
     }
 
-    public ConfigLoader withTransformer() throws NoSuchMethodException {
-        // TODO implement
-        throw new NoSuchMethodException("Not yet implemented");
-    }
-
-    public ConfigLoader withLogger(Logger logger) {
-        this.logger = logger;
-        return this;
-    }
-
-    public ConfigLoader withPath(Path path) {
+    /**
+     * Sets the path to the YAML config file.
+     *
+     * @param path path to the file; the file does not need to exist yet
+     * @return this loader
+     */
+    @Contract("_ -> this")
+    @NotNull
+    public ConfigLoader withPath(@NotNull Path path) {
         this.file = path.toFile();
         return this;
     }
 
-    public ConfigLoader withFile(File file) {
+    /**
+     * Sets the config file. Equivalent to calling {@link #withPath(Path)} via {@link File#toPath()}.
+     *
+     * @param file the YAML file
+     * @return this loader
+     */
+    @Contract("_ -> this")
+    @NotNull
+    public ConfigLoader withFile(@NotNull File file) {
         return withPath(file.toPath());
     }
 
-    public ConfigLoader withHeader(String header) {
+    /**
+     * Sets the block comment written at the very top of the YAML file.
+     *
+     * @param header the header text; may contain newlines
+     * @return this loader
+     */
+    @Contract("_ -> this")
+    @NotNull
+    public ConfigLoader withHeader(@NotNull String header) {
         this.header = header;
         return this;
     }
 
     /**
-     * @return null if the config failed to load.
+     * Registers an additional type serializer for use during loading and saving.
+     *
+     * <p>Example:
+     * <pre>{@code
+     * .withSerializer(b -> b.registerExact(MyType.class, MyTypeSerializer.INSTANCE))
+     * }</pre>
+     *
+     * @param serializer a consumer that registers one or more serializers on the provided builder
+     * @return this loader
+     */
+    @Contract("_ -> this")
+    @NotNull
+    public ConfigLoader withSerializer(@NotNull Consumer<TypeSerializerCollection.Builder> serializer) {
+        extraSerializers.add(serializer);
+        return this;
+    }
+
+    /**
+     * Registers a post-load transformer that runs against the root node after migrations
+     * and after the file has been saved back to disk.
+     *
+     * <p>Changes made by the transformer are intentionally <em>not</em> persisted, this is
+     * meant for injecting runtime-only values such as derived fields or environment overrides
+     * that should never appear in the config file itself.
+     *
+     * @param transformer a consumer that receives and may modify the root node
+     * @return this loader
+     */
+    @Contract("_ -> this")
+    @NotNull
+    public ConfigLoader withTransformer(@NotNull Consumer<CommentedConfigurationNode> transformer) {
+        this.transformer = transformer;
+        return this;
+    }
+
+    /**
+     * Overrides the YAML node style used when writing the file.
+     * Defaults to {@link NodeStyle#BLOCK}.
+     *
+     * @param nodeStyle the node style to apply
+     * @return this loader
+     */
+    @Contract("_ -> this")
+    @NotNull
+    public ConfigLoader withNodeStyle(@NotNull NodeStyle nodeStyle) {
+        this.nodeStyle = nodeStyle;
+        return this;
+    }
+
+    /**
+     * Overrides the YAML indentation width.
+     * Defaults to {@code 2} spaces.
+     *
+     * @param indent number of spaces per indentation level; must be positive
+     * @return this loader
+     */
+    @Contract("_ -> this")
+    @NotNull
+    public ConfigLoader withIndent(int indent) {
+        this.indent = indent;
+        return this;
+    }
+
+    /**
+     * Sets the logger used for error and warning output during loading.
+     *
+     * @param logger the SLF4J logger to write to
+     * @return this loader
+     */
+    @Contract("_ -> this")
+    @NotNull
+    public ConfigLoader withLogger(@NotNull Logger logger) {
+        this.logger = logger;
+        return this;
+    }
+
+    /**
+     * Loads, migrates, and validates the config file, returning {@code null} on failure.
+     *
+     * <p>Both IO errors and validation failures are caught and logged at {@code ERROR} level
+     * (if a logger is set), and {@code null} is returned in both cases. To distinguish
+     * between the two, or to let the exception propagate, use {@link #buildOrThrow(Class)}.
+     *
+     * @param configClass the config class to deserialize into
+     * @param <T>         a type implementing {@link VersionedConfig}
+     * @return the loaded config instance, or {@code null} if loading failed
      */
     @Nullable
-    public <T extends VersionedConfig> T build(Class<T> configClass) {
+    public <T extends VersionedConfig> T build(@NotNull Class<T> configClass) {
         try {
-            return new Loader().loadInternal(configClass);
+            return loadInternal(configClass);
+        } catch (ConfigValidationException e) {
+            if (logger != null)
+                logger.error("Config validation failed for {}: {}", configClass.getSimpleName(), e.getMessage());
+            return null;
         } catch (IOException e) {
             if (logger != null)
-                logger.error("Failed to load config file of type: {}", configClass.getSimpleName(), e);
+                logger.error("Failed to load config {}", configClass.getSimpleName(), e);
             return null;
         }
     }
 
-    private class Loader {
-        private <T extends VersionedConfig> T loadInternal(Class<T> configClass) throws ConfigurateException {
-            if (createDirectory) {
-                if (!file.getParentFile().exists()) {
-                    if (!file.getParentFile().mkdirs()) {
-                        if (logger != null)
-                            logger.error("Failed to create directory for config file at {}", file.getAbsolutePath());
-                    }
-                }
-            }
+    /**
+     * Loads, migrates, and validates the config file, throwing on failure instead of returning null.
+     *
+     * <p>Prefer this at plugin startup where a broken config should halt initialization.
+     *
+     * @param configClass the config class to deserialize into
+     * @param <T>         a type implementing {@link VersionedConfig}
+     * @return the loaded config instance, never {@code null}
+     * @throws ConfigValidationException if the loaded values fail validation
+     * @throws IOException               if the file cannot be read or deserialized
+     */
+    @NotNull
+    public <T extends VersionedConfig> T buildOrThrow(@NotNull Class<T> configClass) throws IOException {
+        return loadInternal(configClass);
+    }
 
-            final YamlConfigurationLoader loader = createLoader(file);
+    /**
+     * Returns the raw {@link CommentedConfigurationNode} from the most recent successful
+     * {@link #build} or {@link #buildOrThrow} call, or {@code null} if no load has occurred yet.
+     *
+     * <p>Use this when strongly-typed config fields are not enough, for example, to read
+     * a dynamic sub-section by key at runtime without declaring it as a field.
+     *
+     * @return the root configuration node, or {@code null}
+     */
+    @Nullable
+    public CommentedConfigurationNode getNode() {
+        return configurationNode;
+    }
 
-            final CommentedConfigurationNode node = loader.load();
-            final boolean originallyEmpty = !file.exists() || node.isNull();
+    @VisibleForTesting
+    @NotNull
+    CommentedConfigurationNode loadConfigurationNode(@NotNull Class<? extends VersionedConfig> configClass) throws ConfigurateException {
+        loadInternal(configClass);
+        //noinspection DataFlowIssue, loadInternal always sets configurationNode before returning
+        return configurationNode.copy();
+    }
 
-//            ConfigurationTransformation.Versioned migrations;
-//            try {
-//                // noinspection unchecked
-//                final Function<Class<? extends VersionedConfig>, ConfigurationTransformation.Versioned> migrateFunc = (Function<Class<? extends VersionedConfig>, ConfigurationTransformation.Versioned>) configClass.getMethod("migrator").invoke(new Object());
-//                migrations = migrateFunc.apply(configClass);
-//            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-//                throw new RuntimeException(e);
-//            }
-//
-//            final int currentVersion = migrations.version(node);
-//            migrations.apply(node);
-//            final int newVersion = migrations.version(node);
+    @NotNull
+    private <T extends VersionedConfig> T loadInternal(@NotNull Class<T> configClass) throws ConfigurateException {
+        if (file == null)
+            throw new ConfigurateException("No config file path set, call withPath() or withFile() before build()");
 
-            T config = node.get(configClass);
-
-            // Serialize the instance to ensure strict field ordering. Additionally, if we serialized back
-            // to the old node, existing nodes would only have their value changed, keeping their position
-            // at the top of the ordered map, forcing all new nodes to the bottom (regardless of field order).
-            // For that reason, we must also create a new node.
-            final CommentedConfigurationNode newRoot = CommentedConfigurationNode.root(loader.defaultOptions());
-            newRoot.set(config);
-
-            if (originallyEmpty /*|| currentVersion != newVersion*/) {
-                // Only copy comments over if the file already existed
-//                if (!originallyEmpty) {
-//                    ConfigurationCommentMover.moveComments(node, newRoot);
-//                }
-
-                loader.save(newRoot);
-            }
-
-            // We transform AFTER saving so that these specific transformations aren't applied to file.
-            if (transformer != null) {
-                transformer.accept(newRoot);
-                config = newRoot.get(configClass);
-            }
-
-            // For testing
-//            this.configurationNode = newRoot;
-
-//            if (config != null)
-//                config.validate();
-
-            return config;
-        }
-
-        @VisibleForTesting
-        CommentedConfigurationNode loadConfigurationNode(Class<? extends VersionedConfig> configClass) throws ConfigurateException {
-            loadInternal(configClass);
-            return configurationNode.copy();
-        }
-
-        private YamlConfigurationLoader createLoader(File file) {
-            final TypeToken<Map<String, Object>> stringObjectMapToken = new TypeToken<>() { // Used to serialize/deserialize Map<String, Object> objects
-                @Override
-                public Type getType() {
-                    return new ParameterizedType() {
-                        @Override
-                        public Type @NotNull [] getActualTypeArguments() {
-                            return new Type[]{String.class, Object.class};
-                        }
-
-                        @Override
-                        public @NotNull Type getRawType() {
-                            return Map.class;
-                        }
-
-                        @Override
-                        public Type getOwnerType() {
-                            return null;
-                        }
-                    };
-                }
-            };
-
-            final TypeSerializerCollection serializers = TypeSerializerCollection.defaults().childBuilder()
-                .register(new LowercaseEnumSerializer())
-                .registerExact(stringObjectMapToken, new StringObjectMapSerializer())
-                .registerExact(BigDecimal.class, BigDecimalSerializer.INSTANCE)
-                .registerExact(Duration.class, DurationSerializer.INSTANCE)
-                .build();
-
-            return YamlConfigurationLoader.builder()
-                .file(file)
-                .indent(2)
-                .nodeStyle(NodeStyle.BLOCK)
-                .defaultOptions(options -> InterfaceDefaultOptions.addTo(options, builder -> {
-                        })
-                        .shouldCopyDefaults(false) // If we use ConfigurationNode#get(type, default), do not write the default back to the node.
-                        .header(header)
-                        .serializers(builder -> {
-                            builder.registerAll(serializers);
-                        })
-                )
-                .build();
-        }
-
-        /**
-         * Copyright (c) 2024 GeyserMC. <a href="http://geysermc.org">geysermc.org</a>
-         * <p>
-         * Permission is hereby granted, free of charge, to any person obtaining a copy
-         * of this software and associated documentation files (the "Software"), to deal
-         * in the Software without restriction, including without limitation the rights
-         * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-         * copies of the Software, and to permit persons to whom the Software is
-         * furnished to do so, subject to the following conditions:
-         * <p>
-         * The above copyright notice and this permission notice shall be included in
-         * all copies or substantial portions of the Software.
-         * <p>
-         * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-         * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-         * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-         * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-         * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-         * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-         * THE SOFTWARE.
-         * <p>
-         * Ensures enum values are written to lowercase. {@link Scalars#ENUM} will read enum values in any case.
-         *
-         * @author GeyserMC
-         * @link <a href="https://github.com/GeyserMC/Geyser">Github</a>
-         */
-        private static final class LowercaseEnumSerializer extends ScalarSerializer<Enum<?>> {
-            LowercaseEnumSerializer() {
-                super(new TypeToken<>() {
-                });
-            }
-
-            @Override
-            public Enum<?> deserialize(Type type, Object obj) throws SerializationException {
-                return Scalars.ENUM.deserialize(type, obj);
-            }
-
-            @Override
-            protected Object serialize(Enum<?> item, Predicate<Class<?>> typeSupported) {
-                return item.name().toLowerCase(Locale.ROOT);
+        if (createDirectory && !file.getParentFile().exists()) {
+            if (!file.getParentFile().mkdirs()) {
+                if (logger != null)
+                    logger.error("Failed to create directory for config file at {}", file.getAbsolutePath());
             }
         }
 
-        /**
-         * Copyright (c) 2024 GeyserMC. <a href="http://geysermc.org">geysermc.org</a>
-         * <p>
-         * Permission is hereby granted, free of charge, to any person obtaining a copy
-         * of this software and associated documentation files (the "Software"), to deal
-         * in the Software without restriction, including without limitation the rights
-         * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-         * copies of the Software, and to permit persons to whom the Software is
-         * furnished to do so, subject to the following conditions:
-         * <p>
-         * The above copyright notice and this permission notice shall be included in
-         * all copies or substantial portions of the Software.
-         * <p>
-         * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-         * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-         * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-         * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-         * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-         * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-         * THE SOFTWARE.
-         * <p>
-         * Moves comments from a different node and puts them on this node.
-         *
-         * @author GeyserMC
-         * @link <a href="https://github.com/GeyserMC/Geyser">Github</a>
-         */
-        private record ConfigurationCommentMover(
-            CommentedConfigurationNode otherRoot) implements ConfigurationVisitor.Stateless<RuntimeException> {
-            private ConfigurationCommentMover(@NotNull CommentedConfigurationNode otherRoot) {
-                this.otherRoot = otherRoot;
+        final YamlConfigurationLoader loader = createLoader(file);
+        final CommentedConfigurationNode node = loader.load();
+        final boolean originallyEmpty = !file.exists() || node.isNull();
+
+        // Apply migrations using a blank instance to obtain the migrator.
+        // Skipped gracefully if there are no migrations defined, or if the class
+        // cannot be instantiated (e.g. interfaces).
+        int currentVersion = -1;
+        int newVersion = -1;
+        try {
+            final T blank = configClass.getDeclaredConstructor().newInstance();
+            if (!blank.migrations().isEmpty()) {
+                final ConfigurationTransformation.Versioned migrator = blank.migrator();
+                currentVersion = migrator.version(node);
+                migrator.apply(node);
+                newVersion = migrator.version(node);
             }
-
-            @Override
-            public void enterNode(final ConfigurationNode node) {
-                if (!(node instanceof CommentedConfigurationNode destination)) {
-                    throw new IllegalStateException(node.path() + " is not a CommentedConfigurationNode"); // Should not occur because all nodes in a tree are the same type, and our static method below ensures this visitor is only used on CommentedConfigurationNodes
-                }
-
-                final CommentedConfigurationNode source = otherRoot.node(node.path()); // Node with the same path
-
-                moveSingle(source, destination);
-            }
-
-            private static void moveSingle(@NotNull CommentedConfigurationNode source, @NotNull CommentedConfigurationNode destination) {
-                final String comment = source.comment();
-                if (comment != null) {
-                    destination.comment(comment);
-                }
-            }
-
-            /**
-             * Moves comments from a source node and its children to a destination node and its children (of a different tree), overriding if necessary.
-             * Comments are only moved to the destination node and its children which exist.
-             * Comments are only moved to and from nodes with the exact same path.
-             *
-             * @param source      the source of the comments, which must be the topmost parent of a tree.
-             * @param destination the destination of the comments, any node in a different tree.
-             */
-            public static void moveComments(@NotNull CommentedConfigurationNode source, @NotNull CommentedConfigurationNode destination) {
-                if (source.parent() != null) {
-                    throw new IllegalArgumentException("source is not the base of the tree it is within: " + source.path());
-                }
-
-                if (source.isNull()) { // It has no value(s), but may still have a comment on it. Don't bother traversing the whole destination tree.
-                    moveSingle(source, destination);
-                } else {
-                    destination.visit(new ConfigurationCommentMover(source));
-                }
-            }
+        } catch (ReflectiveOperationException e) {
+            if (logger != null)
+                logger.warn("Could not instantiate {} to apply migrations, skipping", configClass.getSimpleName());
         }
+
+        T config = node.get(configClass);
+        if (config == null)
+            throw new ConfigurateException("Deserialization returned null for " + configClass.getSimpleName());
+
+        // Re-serialize into a fresh root to enforce strict field ordering.
+        // (Updating the old node in-place would push new fields to the bottom.)
+        final CommentedConfigurationNode newRoot = CommentedConfigurationNode.root(loader.defaultOptions());
+        newRoot.set(config);
+
+        if (originallyEmpty || currentVersion != newVersion) {
+            loader.save(newRoot);
+        }
+
+        // Transformer runs after saving so its changes are intentionally not persisted.
+        if (transformer != null) {
+            transformer.accept(newRoot);
+            config = newRoot.get(configClass);
+            if (config == null)
+                throw new ConfigurateException("Deserialization returned null after transformer for " + configClass.getSimpleName());
+        }
+
+        configurationNode = newRoot;
+
+        config.validate();
+
+        return config;
+    }
+
+    @NotNull
+    private YamlConfigurationLoader createLoader(@NotNull File file) {
+        final TypeSerializerCollection.Builder serializerBuilder = TypeSerializerCollection.defaults().childBuilder()
+            .register(LowercaseEnumSerializer.INSTANCE)
+            .registerExact(StringObjectMapSerializer.TYPE_TOKEN, StringObjectMapSerializer.INSTANCE)
+            .registerExact(BigDecimal.class, BigDecimalSerializer.INSTANCE)
+            .registerExact(Duration.class, DurationSerializer.INSTANCE);
+
+        for (Consumer<TypeSerializerCollection.Builder> extra : extraSerializers) {
+            extra.accept(serializerBuilder);
+        }
+
+        return YamlConfigurationLoader.builder()
+            .file(file)
+            .indent(indent)
+            .nodeStyle(nodeStyle)
+            .defaultOptions(options -> InterfaceDefaultOptions.addTo(options, builder -> {
+                    })
+                    .shouldCopyDefaults(false)
+                    .header(header)
+                    .serializers(builder -> builder.registerAll(serializerBuilder.build()))
+            )
+            .build();
     }
 }

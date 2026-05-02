@@ -1,13 +1,13 @@
 package io.github.milkdrinkers.milkonomics.config;
 
-import io.github.milkdrinkers.milkonomics.config.common.VersionedConfig;
 import io.github.milkdrinkers.milkonomics.config.exception.ConfigValidationException;
+import io.github.milkdrinkers.milkonomics.config.migration.Migration;
 import io.github.milkdrinkers.milkonomics.database.handler.DatabaseType;
 import io.github.milkdrinkers.milkonomics.messaging.broker.BrokerType;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.configurate.interfaces.meta.Exclude;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
-import org.spongepowered.configurate.transformation.ConfigurationTransformation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,20 +25,20 @@ public class DatabaseConfig implements VersionedConfig {
 
     @Override
     @Exclude
-    public Map<Integer, ConfigurationTransformation> migrations() {
+    public @NotNull Map<Integer, Migration> migrations() {
         return Map.of();
     }
 
-//    @Override
-//    @Exclude
-//    public void validate() throws ConfigValidationException {
-//        if (messaging.pollingInterval >= messaging.cleanupInterval) {
-//            throw new ConfigValidationException(
-//                "messaging.polling-interval (" + messaging.pollingInterval + "ms) " +
-//                    "must be less than messaging.cleanup-interval (" + messaging.cleanupInterval + "ms)"
-//            );
-//        }
-//    }
+    @Override
+    @Exclude
+    public void validate() throws ConfigValidationException {
+        if (messaging.pollingInterval >= messaging.cleanupInterval) {
+            throw new ConfigValidationException(
+                "messaging.polling-interval (" + messaging.pollingInterval + "ms) " +
+                    "must be less than messaging.cleanup-interval (" + messaging.cleanupInterval + "ms)"
+            );
+        }
+    }
 
     @Comment("Database Settings")
     public Database database = new Database();
@@ -77,9 +77,9 @@ public class DatabaseConfig implements VersionedConfig {
             }
 
             @Comment("A list of connection parameters, you can include more by adding them on a new line")
-            public Map<String, Object> connectionProperties = defualtValues();
+            public Map<String, Object> connectionProperties = defaultValues();
 
-            private Map<String, Object> defualtValues() {
+            private Map<String, Object> defaultValues() {
                 final Map<String, Object> map = new HashMap<>();
                 map.put("useSSL", false);
                 map.put("cachePrepStmts", true);
