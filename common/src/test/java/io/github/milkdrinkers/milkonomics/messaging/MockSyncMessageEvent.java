@@ -1,16 +1,16 @@
 package io.github.milkdrinkers.milkonomics.messaging;
 
 import io.github.milkdrinkers.milkonomics.event.MockEvent;
-import io.github.milkdrinkers.milkonomics.messaging.message.IncomingMessage;
+import io.github.milkdrinkers.milkonomics.messaging.message.Message;
 
 public class MockSyncMessageEvent extends MockEvent {
-    private final IncomingMessage<?, ?> message;
+    private final Message<?> message;
 
-    public MockSyncMessageEvent(IncomingMessage<?, ?> message) {
+    public MockSyncMessageEvent(Message<?> message) {
         this.message = message;
     }
 
-    public IncomingMessage<?, ?> getMessage() {
+    public Message<?> getMessage() {
         return message;
     }
 }

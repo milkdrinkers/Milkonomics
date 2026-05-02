@@ -1,13 +1,14 @@
 package io.github.milkdrinkers.milkonomics.messaging.adapter.receiver;
 
-import io.github.milkdrinkers.milkonomics.messaging.message.IncomingMessage;
+import io.github.milkdrinkers.milkonomics.messaging.message.Message;
 
 import java.util.function.Consumer;
 
 /**
- * Defines platform specific behavior when receiving a message from the message broker.
+ * Platform-specific handler for messages received from the broker.
+ * Subclasses decide how to dispatch the message (e.g., fire a Bukkit event, post to a queue).
  */
-public abstract class ReceiverAdapter implements Consumer<IncomingMessage<?, ?>> {
+public abstract class ReceiverAdapter implements Consumer<Message<?>> {
     @Override
-    public abstract void accept(final IncomingMessage<?, ?> message);
+    public abstract void accept(final Message<?> message);
 }

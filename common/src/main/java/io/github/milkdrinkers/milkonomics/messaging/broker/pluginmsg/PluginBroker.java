@@ -3,7 +3,6 @@ package io.github.milkdrinkers.milkonomics.messaging.broker.pluginmsg;
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomics.messaging.MessageConsumer;
 import io.github.milkdrinkers.milkonomics.messaging.broker.AbstractBroker;
-import io.github.milkdrinkers.milkonomics.messaging.broker.MessagingUtils;
 import io.github.milkdrinkers.milkonomics.messaging.config.MessagingConfig;
 import io.github.milkdrinkers.milkonomics.messaging.message.BidirectionalMessage;
 import io.github.milkdrinkers.milkonomics.messaging.message.OutgoingMessage;
@@ -33,7 +32,7 @@ public final class PluginBroker extends AbstractBroker implements PluginMessageL
 
     @Override
     public <T> void send(@NotNull OutgoingMessage<T> message) {
-        send(MessagingUtils.ByteUtil.to(message));
+        send(message.encode());
     }
 
     /**
@@ -53,7 +52,7 @@ public final class PluginBroker extends AbstractBroker implements PluginMessageL
     }
 
     private void receive(byte[] messageBytes) {
-        final BidirectionalMessage<?> message = MessagingUtils.ByteUtil.from(messageBytes);
+        final BidirectionalMessage<?> message = BidirectionalMessage.from(messageBytes);
         getMessageConsumer().consumeMessage(message);
     }
 

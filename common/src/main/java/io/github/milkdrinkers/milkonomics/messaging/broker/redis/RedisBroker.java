@@ -40,7 +40,7 @@ public final class RedisBroker extends AbstractBroker {
 
     @Override
     public <T> void send(@NotNull OutgoingMessage<T> message) {
-        client.publish(channelName, message.encode());
+        client.publish(channelName, message.encodeAsString());
     }
 
     @Override

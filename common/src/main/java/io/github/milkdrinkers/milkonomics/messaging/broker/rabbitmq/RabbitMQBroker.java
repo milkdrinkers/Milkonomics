@@ -5,7 +5,6 @@ import com.rabbitmq.client.Delivery;
 import io.github.milkdrinkers.milkonomics.messaging.MessageConsumer;
 import io.github.milkdrinkers.milkonomics.messaging.adapter.task.TaskAdapter;
 import io.github.milkdrinkers.milkonomics.messaging.broker.AbstractBroker;
-import io.github.milkdrinkers.milkonomics.messaging.broker.MessagingUtils;
 import io.github.milkdrinkers.milkonomics.messaging.config.MessagingConfig;
 import io.github.milkdrinkers.milkonomics.messaging.message.BidirectionalMessage;
 import io.github.milkdrinkers.milkonomics.messaging.message.OutgoingMessage;
@@ -34,7 +33,7 @@ public final class RabbitMQBroker extends AbstractBroker {
     public RabbitMQBroker(MessageConsumer messageConsumer, String name, TaskAdapter task) {
         super(messageConsumer);
         this.name = name;
-        this.exchangeName = "%s".formatted(name.toLowerCase());
+        this.exchangeName = name.toLowerCase();
         this.routingKey = "%s:message".formatted(name.toLowerCase());
         this.task = task;
         this.subscriber = new Subscriber();
@@ -42,7 +41,7 @@ public final class RabbitMQBroker extends AbstractBroker {
 
     @Override
     public <T> void send(@NotNull OutgoingMessage<T> message) throws IOException {
-        client.publish(exchangeName, routingKey, MessagingUtils.ByteUtil.to(message));
+        client.publish(exchangeName, routingKey, message.encode());
     }
 
     @Override
@@ -74,7 +73,7 @@ public final class RabbitMQBroker extends AbstractBroker {
     private final class Subscriber implements DeliverCallback {
         @Override
         public void handle(String consumerTag, Delivery delivery) {
-            final BidirectionalMessage<?> message = MessagingUtils.ByteUtil.from(delivery.getBody());
+            final BidirectionalMessage<?> message = BidirectionalMessage.from(delivery.getBody());
             getMessageConsumer().consumeMessage(message);
         }
     }

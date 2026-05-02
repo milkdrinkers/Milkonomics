@@ -1,11 +1,11 @@
 package io.github.milkdrinkers.milkonomics.messaging;
 
-import com.google.gson.annotations.SerializedName;
 import io.github.milkdrinkers.milkonomics.event.MockEventListener;
 import io.github.milkdrinkers.milkonomics.event.MockEventSystem;
 import io.github.milkdrinkers.milkonomics.messaging.config.MessagingConfig;
 import io.github.milkdrinkers.milkonomics.messaging.message.BidirectionalMessage;
-import io.github.milkdrinkers.milkonomics.messaging.message.IncomingMessage;
+import io.github.milkdrinkers.milkonomics.messaging.message.Message;
+import io.github.milkdrinkers.milkonomics.messaging.message.MessageCodec;
 import io.github.milkdrinkers.milkonomics.utility.Messaging;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
@@ -43,6 +43,11 @@ abstract class AbstractMessagingTest {
         return testConfig;
     }
 
+    @BeforeAll
+    void registerCodecs() {
+        BidirectionalMessage.registerCodec(TestMessage.CODEC);
+    }
+
     @BeforeEach
     void beforeEachTest() {
     }
@@ -57,11 +62,12 @@ abstract class AbstractMessagingTest {
         Messaging.getHandler().doShutdown(); // Shut down the message broker after all tests have been run
     }
 
-    private record TestMessage(@SerializedName("data") String data) {
-        @Override
-        public String data() {
-            return data;
-        }
+    private record TestMessage(String data) {
+        static final MessageCodec<TestMessage> CODEC = MessageCodec.of(
+            TestMessage.class,
+            (v, out) -> out.writeUTF(v.data()),
+            in -> new TestMessage(in.readUTF())
+        );
     }
 
     @Test
@@ -91,7 +97,7 @@ abstract class AbstractMessagingTest {
         logger.info("Created message with UUID: {} for test: {} #{}", message.getUUID(), testInfo.getDisplayName(), repetitionInfo.getCurrentRepetition());
 
         final CountDownLatch receiveLatch = new CountDownLatch(1);
-        final AtomicReference<IncomingMessage<?, ?>> receivedMessage = new AtomicReference<>();
+        final AtomicReference<Message<?>> receivedMessage = new AtomicReference<>();
 
         final MockEventListener listener = (event) -> {
             if (event instanceof MockSyncMessageEvent incomingMessage) {
@@ -135,7 +141,7 @@ abstract class AbstractMessagingTest {
         logger.info("Created message with UUID: {} for test: {} #{}", message.getUUID(), testInfo.getDisplayName(), repetitionInfo.getCurrentRepetition());
 
         final CountDownLatch receiveLatch = new CountDownLatch(1);
-        final AtomicReference<IncomingMessage<?, ?>> receivedMessage = new AtomicReference<>();
+        final AtomicReference<Message<?>> receivedMessage = new AtomicReference<>();
 
         final MockEventListener listener = (event) -> {
             if (event instanceof MockSyncMessageEvent incomingMessage) {

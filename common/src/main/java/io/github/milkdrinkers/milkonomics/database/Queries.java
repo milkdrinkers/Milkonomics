@@ -10,7 +10,7 @@ import io.github.milkdrinkers.milkonomics.database.schema.tables.records.Account
 import io.github.milkdrinkers.milkonomics.database.schema.tables.records.CooldownsRecord;
 import io.github.milkdrinkers.milkonomics.economy.account.AccountImpl;
 import io.github.milkdrinkers.milkonomics.messaging.message.BidirectionalMessage;
-import io.github.milkdrinkers.milkonomics.messaging.message.IncomingMessage;
+import io.github.milkdrinkers.milkonomics.messaging.message.Message;
 import io.github.milkdrinkers.milkonomics.messaging.message.OutgoingMessage;
 import io.github.milkdrinkers.milkonomics.utility.DB;
 import io.github.milkdrinkers.milkonomics.utility.Logger;
@@ -80,7 +80,7 @@ public final class Queries {
                     .insertInto(MESSAGING, MESSAGING.TIMESTAMP, MESSAGING.MESSAGE)
                     .values(
                         currentLocalDateTime(),
-                        val(message.encode())
+                        val(message.encodeAsString())
                     )
                     .returningResult(MESSAGING.ID)
                     .fetchOptional(0, Integer.class);
@@ -97,7 +97,7 @@ public final class Queries {
          * @param cleanupInterval the configured cleanup interval
          * @return the messages
          */
-        public static Map<Integer, IncomingMessage<?, ?>> receive(int latestSyncId, long cleanupInterval) {
+        public static Map<Integer, Message<?>> receive(int latestSyncId, long cleanupInterval) {
             try (
                 Connection con = DB.getConnection()
             ) {

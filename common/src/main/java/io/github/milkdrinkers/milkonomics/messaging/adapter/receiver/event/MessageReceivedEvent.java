@@ -1,26 +1,26 @@
 package io.github.milkdrinkers.milkonomics.messaging.adapter.receiver.event;
 
-import io.github.milkdrinkers.milkonomics.messaging.message.IncomingMessage;
+import io.github.milkdrinkers.milkonomics.messaging.message.Message;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Fired when a message is received by the message broker. This event allows you to react to the incoming messages on the main thread.
+ * Fired on the main thread when a message arrives from the broker.
  *
- * @implNote This event will never be fired during the Bukkit servers {@link JavaPlugin#onLoad()} or {@link JavaPlugin#onDisable()}.
+ * @implNote This event will never fire during {@link JavaPlugin#onLoad()} or {@link JavaPlugin#onDisable()}.
  */
 @SuppressWarnings("unused")
 public class MessageReceivedEvent extends Event {
     private static final HandlerList HANDLER_LIST = new HandlerList();
-    private final IncomingMessage<?, ?> message;
+    private final Message<?> message;
 
-    public MessageReceivedEvent(final IncomingMessage<?, ?> message) {
+    public MessageReceivedEvent(final Message<?> message) {
         this.message = message;
     }
 
-    public IncomingMessage<?, ?> getMessage() {
+    public Message<?> getMessage() {
         return message;
     }
 

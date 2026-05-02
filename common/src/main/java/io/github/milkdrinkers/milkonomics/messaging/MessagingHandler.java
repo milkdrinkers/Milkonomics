@@ -18,7 +18,7 @@ import io.github.milkdrinkers.milkonomics.messaging.caching.CacheSet;
 import io.github.milkdrinkers.milkonomics.messaging.config.MessagingConfig;
 import io.github.milkdrinkers.milkonomics.messaging.exception.MessagingEnablingException;
 import io.github.milkdrinkers.milkonomics.messaging.exception.MessagingInitializationException;
-import io.github.milkdrinkers.milkonomics.messaging.message.IncomingMessage;
+import io.github.milkdrinkers.milkonomics.messaging.message.Message;
 import io.github.milkdrinkers.milkonomics.messaging.message.OutgoingMessage;
 import io.github.milkdrinkers.milkonomics.utility.DB;
 import org.jetbrains.annotations.NotNull;
@@ -209,7 +209,7 @@ public final class MessagingHandler extends AbstractService implements Reloadabl
     }
 
     @Override
-    public void consumeMessage(final IncomingMessage<?, ?> message) {
+    public void consumeMessage(final Message<?> message) {
         if (!isStarted() || receivedMessageIds == null || receivedMessageIds.contains(message.getUUID()))
             return;
 
@@ -248,9 +248,6 @@ public final class MessagingHandler extends AbstractService implements Reloadabl
         return new Builder();
     }
 
-    /**
-     * The type Messaging handler builder.
-     */
     public static class Builder {
         private boolean testing = false;
         private Logger logger;
@@ -262,78 +259,37 @@ public final class MessagingHandler extends AbstractService implements Reloadabl
         private Builder() {
         }
 
-        /**
-         * With testing messaging handler builder.
-         *
-         * @param testing the testing state
-         * @return the messaging handler builder
-         */
         public Builder withTesting(boolean testing) {
             this.testing = testing;
             return this;
         }
 
-        /**
-         * With logger messaging handler builder.
-         *
-         * @param logger the logger
-         * @return the messaging handler builder
-         */
         public Builder withLogger(Logger logger) {
             this.logger = logger;
             return this;
         }
 
-        /**
-         * With implementation name handler builder.
-         *
-         * @param implementationName the name of this implementation
-         * @return the messaging handler builder
-         */
         public Builder withName(String implementationName) {
             this.implementationName = implementationName;
             return this;
         }
 
-        /**
-         * With taskAdapter handler builder.
-         *
-         * @param taskAdapter the taskAdapter of this implementation
-         * @return the messaging handler builder
-         */
         public Builder withTaskAdapter(TaskAdapter taskAdapter) {
             this.taskAdapter = taskAdapter;
             return this;
         }
 
-        /**
-         * With receiverAdapter handler builder.
-         *
-         * @param receiverAdapter the receiverAdapter of this implementation
-         * @return the messaging handler builder
-         */
         public Builder withReceiverAdapter(ReceiverAdapter receiverAdapter) {
             this.receiverAdapter = receiverAdapter;
             return this;
         }
 
-        /**
-         * With messaging config messaging handler builder.
-         *
-         * @param config the messaging config
-         * @return the messaging handler builder
-         */
         @TestOnly
         public Builder withConfig(@NotNull MessagingConfig config) {
             this.config = config;
             return this;
         }
 
-        /**
-         * Build messaging handler.
-         *
-         * @return the messaging handler
-         */
         public MessagingHandler build() {
             if (implementationName == null)
                 implementationName = "";

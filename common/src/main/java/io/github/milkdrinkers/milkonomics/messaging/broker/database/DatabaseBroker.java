@@ -5,7 +5,7 @@ import io.github.milkdrinkers.milkonomics.messaging.MessageConsumer;
 import io.github.milkdrinkers.milkonomics.messaging.adapter.task.TaskAdapter;
 import io.github.milkdrinkers.milkonomics.messaging.broker.AbstractBroker;
 import io.github.milkdrinkers.milkonomics.messaging.config.MessagingConfig;
-import io.github.milkdrinkers.milkonomics.messaging.message.IncomingMessage;
+import io.github.milkdrinkers.milkonomics.messaging.message.Message;
 import io.github.milkdrinkers.milkonomics.messaging.message.OutgoingMessage;
 import org.jetbrains.annotations.NotNull;
 
@@ -76,11 +76,11 @@ public final class DatabaseBroker extends AbstractBroker {
         try {
             lock.readLock().lock();
             final int oldId = latestSyncId.get();
-            final Map<Integer, IncomingMessage<?, ?>> messages = Queries.Sync.receive(oldId, config.cleanupInterval());
+            final Map<Integer, Message<?>> messages = Queries.Sync.receive(oldId, config.cleanupInterval());
 
             // Consume messages and update the latest id
             int newId = oldId;
-            for (Map.Entry<Integer, IncomingMessage<?, ?>> message : messages.entrySet()) {
+            for (Map.Entry<Integer, Message<?>> message : messages.entrySet()) {
                 final int messageId = message.getKey();
                 newId = Math.max(newId, messageId);
                 getMessageConsumer().consumeMessage(message.getValue());

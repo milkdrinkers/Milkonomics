@@ -1,41 +1,70 @@
 package io.github.milkdrinkers.milkonomics.messaging.message;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.gson.*;
-import com.google.gson.annotations.SerializedName;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Type;
+import java.io.*;
+import java.util.Base64;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * A message that can be both sent and received over any configured broker, carrying a typed payload.
+ *
+ * <p>Payload types must have a {@link MessageCodec} registered before the first send or receive.
+ * Common types ({@code String}, {@code Integer}, {@code Long}, {@code Double}, {@code Boolean},
+ * {@code UUID}) are pre-registered. For custom types, define a codec as a static constant on the
+ * payload class and register it at plugin startup:
+ * <pre>{@code
+ * record BalanceUpdate(UUID playerId, BigDecimal newBalance) {
+ *     static final MessageCodec<BalanceUpdate> CODEC = MessageCodec.of(
+ *         BalanceUpdate.class,
+ *         (v, out) -> { CodecHelper.writeUUID(out, v.playerId()); out.writeUTF(v.newBalance().toPlainString()); },
+ *         in -> new BalanceUpdate(CodecHelper.readUUID(in), new BigDecimal(in.readUTF()))
+ *     );
+ * }
+ *
+ * // At startup:
+ * BidirectionalMessage.registerCodec(BalanceUpdate.CODEC);
+ *
+ * // Sending:
+ * BidirectionalMessage.<BalanceUpdate>builder()
+ *     .channelId("balance-update")
+ *     .payload(new BalanceUpdate(playerId, newBalance))
+ *     .build();
+ * }</pre>
+ *
+ * <p><b>Wire format</b> (binary, produced by {@link #encode()}):
+ * <ol>
+ *   <li>UUID — two 8-byte longs (most significant bits first)</li>
+ *   <li>Channel ID — modified UTF-8 string</li>
+ *   <li>Payload class name — modified UTF-8 string (used to look up the codec on decode)</li>
+ *   <li>Payload — whatever bytes the registered codec writes</li>
+ * </ol>
+ * Text-based transports (Redis, database) use {@link #encodeAsString()}, which wraps
+ * the binary format in standard Base64.
+ *
+ * @param <T> the payload type
+ */
 @SuppressWarnings("unused")
-public class BidirectionalMessage<T> implements OutgoingMessage<T>, IncomingMessage<T, BidirectionalMessage<T>> {
-    private static final Gson GSON = new GsonBuilder()
-        .registerTypeAdapter(BidirectionalMessage.class, new MessageDeserializer())
-        .registerTypeAdapter(Class.class, new ClassTypeAdapter())
-        .create();
+public final class BidirectionalMessage<T> implements OutgoingMessage<T> {
+    private static final Map<String, MessageCodec<?>> CODECS = new ConcurrentHashMap<>();
 
-    @SerializedName("uuid")
+    static {
+        registerCodec(MessageCodecs.STRING);
+        registerCodec(MessageCodecs.INTEGER);
+        registerCodec(MessageCodecs.LONG);
+        registerCodec(MessageCodecs.DOUBLE);
+        registerCodec(MessageCodecs.BOOLEAN);
+        registerCodec(MessageCodecs.UUID);
+    }
+
     private final UUID uuid;
-
-    @SerializedName("type")
-    private final String messageType = "custom";
-
-    @SerializedName("channel")
     private final String channelId;
+    private final @NotNull T payload;
+    private final @NotNull Class<T> payloadType;
 
-    @SerializedName("payload")
-    private final @NotNull T payload; // Generic payload that can be any object
-
-    @SerializedName("payloadType")
-    private final @NotNull Class<T> payloadType; // Store the class for deserialization
-
-    public BidirectionalMessage(
-        @JsonProperty("uuid") UUID uuid,
-        @JsonProperty("channel") String channelId,
-        @JsonProperty("payload") @NotNull T payload,
-        @JsonProperty("payloadType") @NotNull Class<T> payloadType
-    ) {
+    private BidirectionalMessage(UUID uuid, String channelId, @NotNull T payload, @NotNull Class<T> payloadType) {
         this.uuid = uuid;
         this.channelId = channelId;
         this.payload = payload;
@@ -62,53 +91,121 @@ public class BidirectionalMessage<T> implements OutgoingMessage<T>, IncomingMess
         return payloadType;
     }
 
+    /**
+     * Encodes this message to bytes for binary-capable transports.
+     * See the class-level javadoc for the wire format specification.
+     *
+     * @return the encoded message bytes
+     * @throws IllegalStateException if no codec is registered for the payload type
+     * @throws RuntimeException      if encoding fails due to an I/O error
+     */
     @Override
-    public @NotNull String encode() {
-        return GSON.toJson(this);
-    }
-
-    @Override
-    public @NotNull BidirectionalMessage<T> decode(final String json) {
-        return from(json);
+    public byte[] encode() {
+        final MessageCodec<T> codec = requireCodec(payloadType);
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (final DataOutputStream out = new DataOutputStream(baos)) {
+            out.writeLong(uuid.getMostSignificantBits());
+            out.writeLong(uuid.getLeastSignificantBits());
+            out.writeUTF(channelId);
+            out.writeUTF(payloadType.getName());
+            codec.encode(payload, out);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to encode message " + uuid, e);
+        }
+        return baos.toByteArray();
     }
 
     /**
-     * Creates a new {@link BidirectionalMessage} instance from a JSON string.
+     * Decodes a message from bytes previously produced by {@link #encode()}.
      *
-     * @param json the JSON string representing the message
-     * @return a new MessageImpl instance
-     * @see #decode(String)
+     * @param data the encoded bytes
+     * @param <T>  the expected payload type
+     * @return the decoded message
+     * @throws IllegalStateException if no codec is registered for the payload type in the data
+     * @throws RuntimeException      if decoding fails due to an I/O error or corrupt data
      */
     @SuppressWarnings("unchecked")
-    public static <T> @NotNull BidirectionalMessage<T> from(final String json) {
-        return (BidirectionalMessage<T>) GSON.fromJson(json, BidirectionalMessage.class);
+    public static <T> @NotNull BidirectionalMessage<T> from(byte[] data) {
+        try (final DataInputStream in = new DataInputStream(new ByteArrayInputStream(data))) {
+            final UUID uuid = new UUID(in.readLong(), in.readLong());
+            final String channelId = in.readUTF();
+            final String className = in.readUTF();
+
+            final MessageCodec<T> codec = (MessageCodec<T>) CODECS.get(className);
+            if (codec == null)
+                throw new IllegalStateException("No codec registered for payload type '" + className + "'. Call BidirectionalMessage.registerCodec() first.");
+
+            final T payload = codec.decode(in);
+            return new BidirectionalMessage<>(uuid, channelId, payload, codec.type());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to decode message", e);
+        }
     }
 
     /**
-     * Creates a new builder for constructing a {@link BidirectionalMessage}.
+     * Decodes a message from a Base64 string previously produced by {@link #encodeAsString()}.
+     * Used by text-based transports (Redis, database).
      *
-     * @return a new builder instance
+     * @param encoded a Base64-encoded message string
+     * @param <T>     the expected payload type
+     * @return the decoded message
      */
-    public static <T> Builder<T> builder() {
+    public static <T> @NotNull BidirectionalMessage<T> from(@NotNull String encoded) {
+        return from(Base64.getDecoder().decode(encoded));
+    }
+
+    /**
+     * Registers a codec for a payload type. Any existing registration for the same type
+     * is silently replaced, so callers can override built-in codecs if needed.
+     *
+     * <p>Registration is global and thread-safe. Codecs should be registered once at
+     * plugin startup, before any messages of that type are sent or received.
+     *
+     * @param codec the codec to register
+     */
+    public static void registerCodec(@NotNull MessageCodec<?> codec) {
+        CODECS.put(codec.type().getName(), codec);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> @NotNull MessageCodec<T> requireCodec(@NotNull Class<T> type) {
+        final MessageCodec<T> codec = (MessageCodec<T>) CODECS.get(type.getName());
+        if (codec == null)
+            throw new IllegalStateException("No codec registered for payload type '" + type.getName() + "'. Call BidirectionalMessage.registerCodec() before sending.");
+        return codec;
+    }
+
+    /**
+     * Returns a new builder for constructing a {@link BidirectionalMessage}.
+     *
+     * @param <T> the payload type; inferred from the {@link Builder#payload(Object)} call
+     * @return a new builder
+     */
+    public static <T> @NotNull Builder<T> builder() {
         return new Builder<>();
     }
 
     /**
-     * Builder class for constructing a {@link BidirectionalMessage}.
+     * Fluent builder for a {@link BidirectionalMessage}.
+     *
+     * <p>A codec must be registered for the payload type before {@link #build()} is called.
+     * The check happens eagerly in {@code build()} so you get a clear error at construction
+     * time rather than on the first attempted send.
+     *
+     * @param <T> the payload type
      */
-    public static class Builder<T> {
+    public static final class Builder<T> {
         private UUID uuid;
         private String channelId;
         private T payload;
 
-        private Builder() {
-        }
+        private Builder() {}
 
         /**
-         * Sets the UUID for the message.
+         * Sets the message UUID. If omitted, a random UUID is generated on {@link #build()}.
          *
-         * @param uuid the UUID to set
-         * @return this builder instance
+         * @param uuid the UUID to use
+         * @return this builder
          */
         public Builder<T> uuid(@NotNull UUID uuid) {
             this.uuid = uuid;
@@ -116,10 +213,10 @@ public class BidirectionalMessage<T> implements OutgoingMessage<T>, IncomingMess
         }
 
         /**
-         * Sets the channel ID for the message.
+         * Sets the channel this message will be published on.
          *
-         * @param channelId the channel ID to set
-         * @return this builder instance
+         * @param channelId the channel identifier; must not be null or empty
+         * @return this builder
          */
         public Builder<T> channelId(@NotNull String channelId) {
             this.channelId = channelId;
@@ -127,10 +224,11 @@ public class BidirectionalMessage<T> implements OutgoingMessage<T>, IncomingMess
         }
 
         /**
-         * Sets the payload for the message.
+         * Sets the payload. The runtime class of the value is used to look up
+         * the registered {@link MessageCodec} when {@link #build()} is called.
          *
-         * @param payload the payload to set, must not be null or empty
-         * @return this builder instance
+         * @param payload the payload value; must not be null
+         * @return this builder
          */
         public Builder<T> payload(@NotNull T payload) {
             this.payload = payload;
@@ -138,10 +236,12 @@ public class BidirectionalMessage<T> implements OutgoingMessage<T>, IncomingMess
         }
 
         /**
-         * Builds a new {@link BidirectionalMessage} instance with the provided parameters.
+         * Builds the message, verifying that all required fields are set and that
+         * a codec exists for the payload type.
          *
-         * @return a new MessageImpl instance
-         * @throws IllegalStateException if channelId or payload is null or empty
+         * @return a new {@link BidirectionalMessage}
+         * @throws IllegalStateException if {@code channelId} or {@code payload} is missing,
+         *                               or no codec is registered for the payload type
          */
         @SuppressWarnings("unchecked")
         public BidirectionalMessage<T> build() {
@@ -149,69 +249,14 @@ public class BidirectionalMessage<T> implements OutgoingMessage<T>, IncomingMess
                 uuid = UUID.randomUUID();
 
             if (channelId == null || channelId.isEmpty())
-                throw new IllegalStateException("Channel ID cannot be null or empty in a message");
+                throw new IllegalStateException("Channel ID must be set before building a message");
 
             if (payload == null)
-                throw new IllegalStateException("Payload cannot be null or empty in a message");
+                throw new IllegalStateException("Payload must be set before building a message");
 
-            return new BidirectionalMessage<>(uuid, channelId, payload, (Class<T>) payload.getClass());
-        }
-    }
-
-    /**
-     * Custom deserializer for Gson to create instances of MessageImpl.
-     */
-    private static class MessageDeserializer implements JsonDeserializer<BidirectionalMessage<?>> {
-        @Override
-        public BidirectionalMessage<?> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            final JsonObject jsonObject = json.getAsJsonObject();
-            final Builder<Object> builder = BidirectionalMessage.builder();
-
-            if (jsonObject.has("uuid") && !jsonObject.get("uuid").isJsonNull())
-                builder.uuid(UUID.fromString(jsonObject.get("uuid").getAsString()));
-
-            if (jsonObject.has("channel") && !jsonObject.get("channel").isJsonNull())
-                builder.channelId(jsonObject.get("channel").getAsString());
-
-            if (jsonObject.has("payload") && !jsonObject.get("payload").isJsonNull()) {
-                final JsonElement payloadElement = jsonObject.get("payload");
-
-                Object payload;
-                if (jsonObject.has("payloadType") && !jsonObject.get("payloadType").isJsonNull()) {
-                    try {
-                        final String payloadTypeName = jsonObject.get("payloadType").getAsString();
-                        payload = GSON.fromJson(payloadElement, Class.forName(payloadTypeName));
-                    } catch (Exception e) {
-                        payload = GSON.fromJson(payloadElement, Object.class);
-                    }
-                } else {
-                    payload = GSON.fromJson(payloadElement, Object.class);
-                }
-
-                builder.payload(payload);
-            }
-
-            return builder.build();
-        }
-    }
-
-    /**
-     * Custom type adapter for Class objects to serialize/deserialize as class names.
-     */
-    private static class ClassTypeAdapter implements JsonSerializer<Class<?>>, JsonDeserializer<Class<?>> {
-        @Override
-        public JsonElement serialize(Class<?> src, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(src.getName());
-        }
-
-        @Override
-        public Class<?> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-            throws JsonParseException {
-            try {
-                return Class.forName(json.getAsString());
-            } catch (ClassNotFoundException e) {
-                throw new JsonParseException("Cannot find class: " + json.getAsString(), e);
-            }
+            final Class<T> type = (Class<T>) payload.getClass();
+            requireCodec(type); // Fail fast — clearer here than on the first encode call
+            return new BidirectionalMessage<>(uuid, channelId, payload, type);
         }
     }
 }

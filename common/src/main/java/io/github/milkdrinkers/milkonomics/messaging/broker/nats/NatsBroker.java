@@ -2,7 +2,6 @@ package io.github.milkdrinkers.milkonomics.messaging.broker.nats;
 
 import io.github.milkdrinkers.milkonomics.messaging.MessageConsumer;
 import io.github.milkdrinkers.milkonomics.messaging.broker.AbstractBroker;
-import io.github.milkdrinkers.milkonomics.messaging.broker.MessagingUtils;
 import io.github.milkdrinkers.milkonomics.messaging.config.MessagingConfig;
 import io.github.milkdrinkers.milkonomics.messaging.message.BidirectionalMessage;
 import io.github.milkdrinkers.milkonomics.messaging.message.OutgoingMessage;
@@ -36,7 +35,7 @@ public final class NatsBroker extends AbstractBroker {
 
     @Override
     public <T> void send(@NotNull OutgoingMessage<T> message) {
-        connection.publish(channelName, MessagingUtils.ByteUtil.to(message));
+        connection.publish(channelName, message.encode());
     }
 
     @Override
@@ -91,7 +90,7 @@ public final class NatsBroker extends AbstractBroker {
     private final class Handler implements MessageHandler {
         @Override
         public void onMessage(io.nats.client.Message msg) {
-            final BidirectionalMessage<?> message = MessagingUtils.ByteUtil.from(msg.getData());
+            final BidirectionalMessage<?> message = BidirectionalMessage.from(msg.getData());
             getMessageConsumer().consumeMessage(message);
         }
     }

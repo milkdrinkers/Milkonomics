@@ -1,15 +1,15 @@
 package io.github.milkdrinkers.milkonomics.messaging;
 
-import io.github.milkdrinkers.milkonomics.messaging.message.IncomingMessage;
+import io.github.milkdrinkers.milkonomics.messaging.message.Message;
 
 /**
- * A class with the capability of receiving incoming messages.
+ * Implemented by anything that can receive and handle messages from the broker.
  */
 public interface MessageConsumer {
     /**
-     * Handle receiving a message
+     * Called when a message arrives from the broker.
      *
-     * @param message the message
+     * @param message the received message
      */
-    void consumeMessage(final IncomingMessage<?, ?> message);
+    void consumeMessage(final Message<?> message);
 }
