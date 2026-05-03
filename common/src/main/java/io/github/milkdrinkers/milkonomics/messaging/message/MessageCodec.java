@@ -25,7 +25,7 @@ import java.io.IOException;
  * }
  * }</pre>
  *
- * <p>Implementations must be symmetric — every byte written by {@link #encode} must be read back
+ * <p>Implementations must be symmetric: every byte written by {@link #encode} must be read back
  * by {@link #decode} in the same order.
  *
  * @param <T> the payload type this codec handles

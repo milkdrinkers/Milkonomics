@@ -11,7 +11,7 @@ import java.util.UUID;
  * Static helpers for writing and reading common types inside composite {@link MessageCodec} lambdas.
  *
  * <p>These are useful when a payload type contains fields that don't map to a single
- * {@link DataOutput} primitive — for example, a {@link UUID} which requires two {@code long} writes.
+ * {@link DataOutput} primitive, such as a {@link UUID} which requires two {@code long} writes.
  * Use them inside {@link MessageCodec#of} lambdas to keep encoder/decoder pairs concise:
  * <pre>{@code
  * record PlayerUpdate(UUID playerId, String name) {

@@ -2,8 +2,13 @@ package io.github.milkdrinkers.milkonomics.messaging.broker.redis;
 
 import io.github.milkdrinkers.milkonomics.messaging.config.Address;
 import io.github.milkdrinkers.milkonomics.messaging.config.MessagingConfig;
+import io.github.milkdrinkers.milkonomics.messaging.config.SslContextBuilder;
+import io.github.milkdrinkers.milkonomics.messaging.exception.MessagingInitializationException;
 import redis.clients.jedis.*;
 
+import javax.net.ssl.SSLContext;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.stream.Collectors;
 
 /**
@@ -31,27 +36,35 @@ final class RedisClient {
             case "token" -> configBuilder.password(config.authToken());
         }
 
-        if (config.ssl())
+        final MessagingConfig.SslConfig ssl = config.ssl();
+        if (ssl.enabled()) {
             configBuilder.ssl(true);
+            try {
+                final SSLContext sslCtx = SslContextBuilder.build(ssl);
+                if (sslCtx != null) {
+                    configBuilder.sslSocketFactory(sslCtx.getSocketFactory());
+                }
+            } catch (GeneralSecurityException | IOException e) {
+                throw new MessagingInitializationException("Failed to configure SSL for Redis", e);
+            }
+
+            if (!ssl.verifyHostname()) {
+                configBuilder.hostnameVerifier(SslContextBuilder.hostnameVerifier(ssl));
+            }
+        }
 
         final DefaultJedisClientConfig jedisClientConfig = configBuilder.build();
 
         if (config.addressList().isSingle()) {
             final Address address = config.addressList().getFirst();
             return new JedisPooled(
-                new HostAndPort(
-                    address.host(),
-                    address.getPort().orElse(6379)
-                ),
+                new HostAndPort(address.host(), address.getPort().orElse(6379)),
                 jedisClientConfig
             );
         } else {
             return new JedisCluster(
                 config.addressList().getAll().stream()
-                    .map(address -> new HostAndPort(
-                        address.host(),
-                        address.getPort().orElse(6379)
-                    ))
+                    .map(address -> new HostAndPort(address.host(), address.getPort().orElse(6379)))
                     .collect(Collectors.toSet()),
                 jedisClientConfig
             );

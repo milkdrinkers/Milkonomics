@@ -7,7 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Config object for messaging services
+ * Runtime configuration snapshot for the messaging system. Built once at startup from
+ * {@link DatabaseConfig} via {@link #fromConfig(DatabaseConfig)}, or constructed directly
+ * in tests via {@link #builder()}.
  */
 @SuppressWarnings("unused")
 public record MessagingConfig(
@@ -20,27 +22,41 @@ public record MessagingConfig(
     String password,
     String authMethod,
     String authToken,
-    boolean ssl,
+    SslConfig ssl,
     RabbitMqConfig rabbitMq,
     NatsConfig nats
 ) {
+    /**
+     * TLS/SSL settings. When {@link #enabled} is {@code false} the remaining fields are ignored.
+     *
+     * <p>Certificate files must be in PEM format. The private key must be PKCS#8
+     * ({@code -----BEGIN PRIVATE KEY-----}), not the traditional PKCS#1 format
+     * ({@code -----BEGIN RSA PRIVATE KEY-----}). Convert with:
+     * <pre>{@code openssl pkcs8 -topk8 -nocrypt -in key.pem -out key.pkcs8.pem}</pre>
+     */
+    public record SslConfig(
+        boolean enabled,
+        String certPath,
+        String keyPath,
+        String caPath,
+        boolean verifyServerCert,
+        boolean verifyHostname
+    ) {
+        static final SslConfig DISABLED = new SslConfig(false, "", "", "", true, true);
+    }
+
     public record RabbitMqConfig(
         String virtualHost
-    ) {
-    }
+    ) {}
 
     public record NatsConfig(
         String nkeySeedPath,
         String jwtFilePath,
         String credentialsPath
-    ) {
-    }
+    ) {}
 
     /**
-     * Gets messaging config from file.
-     *
-     * @param cfg the cfg
-     * @return the messaging config from file
+     * Builds a {@link MessagingConfig} from the plugin's {@link DatabaseConfig}.
      */
     public static MessagingConfig fromConfig(DatabaseConfig cfg) {
         return MessagingConfig.builder()
@@ -48,20 +64,19 @@ public record MessagingConfig(
             .withPollingInterval(cfg.messaging.pollingInterval)
             .withCleanupInterval(cfg.messaging.cleanupInterval)
             .withBroker(cfg.messaging.type)
-            .withAddresses(cfg.messaging.address)
+            .withAddresses(cfg.messaging.addresses)
             .withUsername(cfg.messaging.username)
             .withPassword(cfg.messaging.password)
             .withAuthMethod(cfg.messaging.advanced.authMethod)
             .withAuthToken(cfg.messaging.advanced.authToken)
-            .withSSL(cfg.messaging.advanced.ssl.enabled)
-//            .withSsl(
-//                cfg.getOrDefault("messaging.advanced.ssl.enabled", false),
-//                cfg.getString("messaging.advanced.ssl.cert-path"),
-//                cfg.getString("messaging.advanced.ssl.key-path"),
-//                cfg.getString("messaging.advanced.ssl.ca-path"),
-//                cfg.getOrDefault("messaging.advanced.ssl.verify-server-cert", true),
-//                cfg.getOrDefault("messaging.advanced.ssl.verify-hostname", true)
-//            )
+            .withSSL(
+                cfg.messaging.advanced.ssl.enabled,
+                cfg.messaging.advanced.ssl.certPath,
+                cfg.messaging.advanced.ssl.keyPath,
+                cfg.messaging.advanced.ssl.caPath,
+                cfg.messaging.advanced.ssl.verifyServerCert,
+                cfg.messaging.advanced.ssl.verifyHostname
+            )
             .withRabbitMq(cfg.messaging.advanced.rabbitmq.virtualHost)
             .withNats(
                 cfg.messaging.advanced.nats.nkeySeedPath,
@@ -71,23 +86,14 @@ public record MessagingConfig(
             .build();
     }
 
-    /**
-     * Get a config builder instance.
-     *
-     * @return builder instance
-     */
     public static Builder builder() {
         return new Builder();
     }
 
-    /**
-     * The type Messaging config builder.
-     */
     public static final class Builder {
         private static final Logger LOGGER = LoggerFactory.getLogger(MessagingConfig.class);
 
-        private Builder() {
-        }
+        private Builder() {}
 
         private @Nullable Boolean enabled;
         private @Nullable Long pollingInterval;
@@ -98,7 +104,7 @@ public record MessagingConfig(
         private @Nullable String password;
         private @Nullable String authMethod;
         private @Nullable String authToken;
-        private boolean ssl;
+        private @Nullable SslConfig ssl;
         private @Nullable RabbitMqConfig rabbitMq;
         private @Nullable NatsConfig nats;
 
@@ -147,16 +153,20 @@ public record MessagingConfig(
             return this;
         }
 
+        /**
+         * Convenience overload for tests that only need to toggle SSL on or off
+         * without providing certificate paths.
+         */
         public Builder withSSL(boolean enabled) {
-            this.ssl = enabled;
+            this.ssl = enabled ? new SslConfig(true, "", "", "", true, true) : SslConfig.DISABLED;
             return this;
         }
 
-//        public Builder withSSL(boolean enabled, String certPath, String keyPath,
-//                               String caPath, boolean verifyServerCert, boolean verifyHostname) {
-//            this.ssl = new SslConfig(enabled, certPath, keyPath, caPath, verifyServerCert, verifyHostname);
-//            return this;
-//        }
+        public Builder withSSL(boolean enabled, String certPath, String keyPath,
+                               String caPath, boolean verifyServerCert, boolean verifyHostname) {
+            this.ssl = new SslConfig(enabled, certPath, keyPath, caPath, verifyServerCert, verifyHostname);
+            return this;
+        }
 
         public Builder withRabbitMq(String virtualHost) {
             this.rabbitMq = new RabbitMqConfig(virtualHost);
@@ -173,14 +183,14 @@ public record MessagingConfig(
                 enabled = false;
 
             if (pollingInterval == null)
-                pollingInterval = 1000L; // Default to 1 second
+                pollingInterval = 1000L;
 
             if (cleanupInterval == null)
-                cleanupInterval = 30000L; // Default to 30 seconds
+                cleanupInterval = 30000L;
 
             if (cleanupInterval < 10000L) {
                 LOGGER.warn("Messaging \"cleanup-interval\" was set to less than the minimum 10000ms ({}ms), using default.", cleanupInterval);
-                cleanupInterval = 10000L; // Minimum cleanup interval of 10 seconds
+                cleanupInterval = 10000L;
             }
 
             if (pollingInterval > cleanupInterval / 3) {
@@ -208,6 +218,9 @@ public record MessagingConfig(
 
             if (authToken == null)
                 authToken = "";
+
+            if (ssl == null)
+                ssl = SslConfig.DISABLED;
 
             if (rabbitMq == null)
                 rabbitMq = new RabbitMqConfig("/");

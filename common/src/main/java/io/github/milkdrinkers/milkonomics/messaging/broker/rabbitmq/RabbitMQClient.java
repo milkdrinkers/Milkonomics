@@ -2,10 +2,14 @@ package io.github.milkdrinkers.milkonomics.messaging.broker.rabbitmq;
 
 import com.rabbitmq.client.*;
 import io.github.milkdrinkers.milkonomics.messaging.config.MessagingConfig;
+import io.github.milkdrinkers.milkonomics.messaging.config.SslContextBuilder;
+import io.github.milkdrinkers.milkonomics.messaging.exception.MessagingInitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -32,18 +36,45 @@ final class RabbitMQClient {
     private ConnectionFactory createConnectionFactory(MessagingConfig config) {
         final ConnectionFactory factory = new ConnectionFactory();
         factory.setVirtualHost(config.rabbitMq().virtualHost());
-
         factory.setConnectionTimeout(10000);
         factory.setRequestedHeartbeat(5);
         factory.setNetworkRecoveryInterval(5000);
         factory.setAutomaticRecoveryEnabled(true);
         factory.setTopologyRecoveryEnabled(true);
 
-        //noinspection SwitchStatementWithTooFewBranches
         switch (config.authMethod()) {
             case "password" -> {
                 factory.setUsername(config.username());
                 factory.setPassword(config.password());
+            }
+            case "token" -> {
+                // RabbitMQ token auth: authenticate with a token as the password
+                factory.setUsername(config.username().isEmpty() ? "guest" : config.username());
+                factory.setPassword(config.authToken());
+            }
+            // "certificate" auth relies on mTLS; the broker maps the certificate's CN to a RabbitMQ user.
+            // No username or password is needed here.
+        }
+
+        final MessagingConfig.SslConfig ssl = config.ssl();
+        if (ssl.enabled()) {
+            try {
+                final SSLContext sslCtx = SslContextBuilder.build(ssl);
+                if (sslCtx != null) {
+                    factory.useSslProtocol(sslCtx);
+                } else {
+                    factory.useSslProtocol(); // system default
+                }
+
+                // Hostname verification is off by default in the RabbitMQ client.
+                // Call enableHostnameVerification() only when the user wants it on.
+                if (ssl.verifyHostname()) {
+                    factory.enableHostnameVerification();
+                }
+            } catch (GeneralSecurityException | IOException e) {
+                throw new MessagingInitializationException("Failed to configure SSL for RabbitMQ", e);
+            } catch (Exception e) {
+                throw new MessagingInitializationException("Unexpected error configuring SSL for RabbitMQ", e);
             }
         }
 
@@ -60,13 +91,12 @@ final class RabbitMQClient {
     }
 
     /**
-     * Checks if there is a healthy connection and reconnects if there isn't
+     * Checks if there is a healthy connection and reconnects if there isn't.
      *
      * @param firstStartup whether this is the first time executing this method
      * @return whether we are now successfully connected
      */
     public boolean connect(boolean firstStartup) {
-        // Skip if connection is already healthy
         if (isConnectionHealthy())
             return true;
 
@@ -83,15 +113,11 @@ final class RabbitMQClient {
         final String queue = channel.queueDeclare("", QUEUE_DURABLE, QUEUE_EXCLUSIVE, QUEUE_AUTO_DELETE, null).getQueue();
         channel.exchangeDeclare(exchangeName, BuiltinExchangeType.TOPIC, QUEUE_DURABLE, QUEUE_AUTO_DELETE, null);
         channel.queueBind(queue, exchangeName, routingKey);
-        channel.basicConsume(queue, true, callback, tag -> {
-        });
+        channel.basicConsume(queue, true, callback, tag -> {});
     }
 
     /**
-     * Shuts down this client by closing all channels/connections
-     *
-     * @throws IOException      thrown if an error is encountered
-     * @throws TimeoutException thrown if we fail to shut down
+     * Shuts down this client by closing all channels and connections.
      */
     public void close() throws IOException, TimeoutException {
         if (channel != null)
@@ -130,11 +156,9 @@ final class RabbitMQClient {
         try {
             connection = connectionFactory.newConnection(
                 config.addressList().getAll().stream()
-                    .map(address -> {
-                        if (address.port() != null)
-                            return new Address(address.host(), address.port());
-                        return new Address(address.host());
-                    })
+                    .map(address -> address.port() != null
+                        ? new Address(address.host(), address.port())
+                        : new Address(address.host()))
                     .toArray(Address[]::new)
             );
             channel = connection.createChannel();

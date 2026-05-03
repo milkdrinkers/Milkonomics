@@ -86,7 +86,7 @@ public final class AddressList {
             .map(String::trim)
             .filter(s -> !s.isEmpty())
             .map(Address::parse)
-            .collect(Collectors.toList());
+            .toList();
 
         if (parsedAddresses.isEmpty())
             return single(DEFAULT_HOST);
@@ -147,7 +147,7 @@ public final class AddressList {
     public @NotNull List<String> toConnectionStrings() {
         return addresses.stream()
             .map(Address::toConnectionString)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override

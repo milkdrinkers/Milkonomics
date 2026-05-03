@@ -10,12 +10,13 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Comment;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @ConfigSerializable
 public class DatabaseConfig implements VersionedConfig {
     @Comment("Do not change this value!")
-    public int configVersion = 1;
+    public int configVersion = 2;
 
     @Override
     @Exclude
@@ -26,7 +27,19 @@ public class DatabaseConfig implements VersionedConfig {
     @Override
     @Exclude
     public @NotNull Map<Integer, Migration> migrations() {
-        return Map.of();
+        return Map.of(
+            2, Migration.builder()
+                // messaging.address (String) was replaced with messaging.addresses (List<String>)
+                // to support clusters. Migrate the old single-address string into a list.
+                .withTransform(root -> {
+                    final String oldAddress = root.node("messaging", "address").getString();
+                    if (oldAddress != null && !oldAddress.isEmpty()) {
+                        root.node("messaging", "addresses").setList(String.class, List.of(oldAddress));
+                    }
+                    root.node("messaging", "address").set(null);
+                })
+                .build()
+        );
     }
 
     @Override
@@ -102,7 +115,7 @@ public class DatabaseConfig implements VersionedConfig {
 
     @ConfigSerializable
     public static class Messaging {
-        @Comment("Enable or disable the message broker\nThis is only required if you are running the plugin on a server network")
+        @Comment("Enable or disable the message broker\nOnly required when running on a server network (BungeeCord, Velocity, etc.)")
         public boolean enabled = false;
 
         @Comment("How often to poll for new messages (in milliseconds)\nMust be less than cleanup-interval, ideally 1/3 or less")
@@ -114,8 +127,10 @@ public class DatabaseConfig implements VersionedConfig {
         @Comment("Available broker types: \"database\", \"plugin\", \"redis\", \"rabbitmq\", \"nats\"")
         public BrokerType type = BrokerType.DATABASE;
 
-        @Comment("Connection settings (redis, rabbitmq, nats)")
-        public String address = "localhost:6379";
+        @Comment("One or more broker addresses. A plain string works for a single broker; use a YAML list for clusters:\n  - node1:6379\n  - node2:6379\nDefault port varies by broker: Redis 6379, RabbitMQ 5672, NATS 4222")
+        public List<String> addresses = List.of("localhost:6379");
+
+        @Comment("Authentication credentials (used with auth-method: \"password\")")
         public String username = "";
         public String password = "";
 
@@ -124,10 +139,21 @@ public class DatabaseConfig implements VersionedConfig {
 
         @ConfigSerializable
         public static class Advanced {
-            @Comment("Authentication method: \"password\", \"certificate\", \"token\"")
+            @Comment(
+                "Authentication method. Supported values per broker:\n" +
+                "  Redis:    \"password\" (username + password or password-only)\n" +
+                "            \"token\"    (Redis AUTH token)\n" +
+                "  RabbitMQ: \"password\" (PLAIN mechanism)\n" +
+                "            \"token\"    (token as password)\n" +
+                "            \"certificate\" (mutual TLS, no credentials needed; cert CN maps to a RabbitMQ user)\n" +
+                "  NATS:     \"password\" (username + password)\n" +
+                "            \"token\"    (auth token)\n" +
+                "            \"nkey\"     (NKey seed file, optionally paired with a JWT file)\n" +
+                "            \"credentials\" (combined JWT + NKey .creds file)"
+            )
             public String authMethod = "password";
 
-            @Comment("Token authentication (JWT, API keys, Redis AUTH tokens)")
+            @Comment("Auth token used with auth-method: \"token\" (JWT, API key, Redis AUTH token, etc.)")
             public String authToken = "";
 
             @Comment("SSL/TLS configuration")
@@ -135,18 +161,27 @@ public class DatabaseConfig implements VersionedConfig {
 
             @ConfigSerializable
             public static class SSL {
+                @Comment("Enable TLS/SSL for the broker connection")
                 public boolean enabled = false;
 
-                @Comment("Client certificate (.crt, .pem)")
+                @Comment("Path to the client certificate in PEM format (.crt or .pem)\nRequired for mutual TLS (auth-method: \"certificate\") and optional for TLS identity")
                 public String certPath = "";
 
-                @Comment("Private key (.key, .pem)")
+                @Comment(
+                    "Path to the client private key in PKCS#8 PEM format (.pem)\n" +
+                    "Required alongside cert-path for mutual TLS.\n" +
+                    "If you have a PKCS#1 key (-----BEGIN RSA PRIVATE KEY-----), convert it first:\n" +
+                    "  openssl pkcs8 -topk8 -nocrypt -in key.pem -out key.pkcs8.pem"
+                )
                 public String keyPath = "";
 
-                @Comment("Certificate Authority (.crt, .pem)")
+                @Comment("Path to the Certificate Authority file in PEM format (.crt or .pem)\nCA bundles (multiple certificates in one file) are supported.\nLeave empty to use the JVM's built-in trust store.")
                 public String caPath = "";
 
+                @Comment("Verify the server's TLS certificate against the trust store\nDisable only in development, not in production")
                 public boolean verifyServerCert = true;
+
+                @Comment("Verify that the server hostname matches the certificate CN/SAN\nDisable only when connecting via IP address or with a wildcard certificate")
                 public boolean verifyHostname = true;
             }
 
@@ -155,6 +190,7 @@ public class DatabaseConfig implements VersionedConfig {
 
             @ConfigSerializable
             public static class RabbitMQ {
+                @Comment("The RabbitMQ virtual host to connect to")
                 public String virtualHost = "/";
             }
 
@@ -163,13 +199,13 @@ public class DatabaseConfig implements VersionedConfig {
 
             @ConfigSerializable
             public static class Nats {
-                @Comment("NKey seed file for cryptographic auth")
+                @Comment("Path to the NKey seed file, used with auth-method: \"nkey\"")
                 public String nkeySeedPath = "";
 
-                @Comment("JWT token file")
+                @Comment("Path to the JWT token file, used with auth-method: \"nkey\" alongside nkey-seed-path.\nOmit for challenge-only NKey auth (no user JWT).")
                 public String jwtFilePath = "";
 
-                @Comment("Combined JWT + NKey credentials file")
+                @Comment("Path to a combined credentials file (.creds) containing both JWT and NKey\nUsed with auth-method: \"credentials\"")
                 public String credentialsPath = "";
             }
         }

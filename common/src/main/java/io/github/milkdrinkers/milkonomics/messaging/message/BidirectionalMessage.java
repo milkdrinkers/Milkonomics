@@ -36,10 +36,10 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p><b>Wire format</b> (binary, produced by {@link #encode()}):
  * <ol>
- *   <li>UUID — two 8-byte longs (most significant bits first)</li>
- *   <li>Channel ID — modified UTF-8 string</li>
- *   <li>Payload class name — modified UTF-8 string (used to look up the codec on decode)</li>
- *   <li>Payload — whatever bytes the registered codec writes</li>
+ *   <li>UUID: two 8-byte longs (most significant bits first)</li>
+ *   <li>Channel ID: modified UTF-8 string</li>
+ *   <li>Payload class name: modified UTF-8 string (used to look up the codec on decode)</li>
+ *   <li>Payload: whatever bytes the registered codec writes</li>
  * </ol>
  * Text-based transports (Redis, database) use {@link #encodeAsString()}, which wraps
  * the binary format in standard Base64.
@@ -255,7 +255,7 @@ public final class BidirectionalMessage<T> implements OutgoingMessage<T> {
                 throw new IllegalStateException("Payload must be set before building a message");
 
             final Class<T> type = (Class<T>) payload.getClass();
-            requireCodec(type); // Fail fast — clearer here than on the first encode call
+            requireCodec(type); // validate before returning so failures surface at construction time
             return new BidirectionalMessage<>(uuid, channelId, payload, type);
         }
     }

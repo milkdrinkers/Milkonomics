@@ -3,6 +3,8 @@ package io.github.milkdrinkers.milkonomics.messaging.broker.nats;
 import io.github.milkdrinkers.milkonomics.messaging.MessageConsumer;
 import io.github.milkdrinkers.milkonomics.messaging.broker.AbstractBroker;
 import io.github.milkdrinkers.milkonomics.messaging.config.MessagingConfig;
+import io.github.milkdrinkers.milkonomics.messaging.config.SslContextBuilder;
+import io.github.milkdrinkers.milkonomics.messaging.exception.MessagingInitializationException;
 import io.github.milkdrinkers.milkonomics.messaging.message.BidirectionalMessage;
 import io.github.milkdrinkers.milkonomics.messaging.message.OutgoingMessage;
 import io.nats.client.*;
@@ -10,7 +12,9 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 
@@ -45,30 +49,9 @@ public final class NatsBroker extends AbstractBroker {
             .maxReconnects(Integer.MAX_VALUE)
             .connectionName(name);
 
-        if (config.addressList().isSingle()) {
-            builder.server("nats://%s".formatted(config.addressList().getFirst()));
-        } else {
-            builder.servers(
-                config.addressList().getAll().stream()
-                    .map("nats://%s"::formatted)
-                    .toArray(String[]::new)
-            );
-        }
-
-        switch (config.authMethod().toLowerCase()) {
-            case "password" -> {
-                if (!config.username().isEmpty() || !config.password().isEmpty())
-                    builder.userInfo(config.username(), config.password());
-            }
-            case "token" -> {
-                if (!config.authToken().isEmpty())
-                    builder.token(config.authToken().toCharArray());
-            }
-        }
-
-        if (config.ssl()) {
-            builder.secure();
-        }
+        configureAddresses(builder, config);
+        configureAuth(builder, config);
+        configureSsl(builder, config);
 
         connection = Nats.connect(builder.build());
         dispatcher = connection.createDispatcher(new Handler()).subscribe(channelName);
@@ -80,12 +63,65 @@ public final class NatsBroker extends AbstractBroker {
             connection.closeDispatcher(dispatcher);
             connection.close();
         } catch (InterruptedException e) {
-            LOGGER.error("Exception while closing Nats connection", e);
+            LOGGER.error("Exception while closing NATS connection", e);
+        }
+    }
+
+    private void configureAddresses(Options.Builder builder, MessagingConfig config) {
+        if (config.addressList().isSingle()) {
+            builder.server("nats://%s".formatted(config.addressList().getFirst()));
+        } else {
+            builder.servers(
+                config.addressList().getAll().stream()
+                    .map("nats://%s"::formatted)
+                    .toArray(String[]::new)
+            );
+        }
+    }
+
+    private void configureAuth(Options.Builder builder, MessagingConfig config) {
+        switch (config.authMethod().toLowerCase()) {
+            case "password" -> {
+                if (!config.username().isEmpty() || !config.password().isEmpty())
+                    builder.userInfo(config.username(), config.password());
+            }
+            case "token" -> {
+                if (!config.authToken().isEmpty())
+                    builder.token(config.authToken().toCharArray());
+            }
+            case "nkey" -> {
+                // Separate JWT + NKey files. Pass null for jwtFile for challenge-only (no JWT) auth.
+                final String jwtFile = config.nats().jwtFilePath().isEmpty() ? null : config.nats().jwtFilePath();
+                if (!config.nats().nkeySeedPath().isEmpty())
+                    builder.authHandler(Nats.credentials(jwtFile, config.nats().nkeySeedPath()));
+            }
+            case "credentials" -> {
+                // Single combined credentials file (JWT + NKey seed in one file)
+                if (!config.nats().credentialsPath().isEmpty())
+                    builder.authHandler(Nats.credentials(config.nats().credentialsPath()));
+            }
+        }
+    }
+
+    private void configureSsl(Options.Builder builder, MessagingConfig config) {
+        final MessagingConfig.SslConfig ssl = config.ssl();
+        if (!ssl.enabled())
+            return;
+
+        try {
+            final SSLContext sslCtx = SslContextBuilder.build(ssl);
+            if (sslCtx != null) {
+                builder.sslContext(sslCtx);
+            } else {
+                builder.secure(); // use JVM default SSL
+            }
+        } catch (GeneralSecurityException | IOException e) {
+            throw new MessagingInitializationException("Failed to configure SSL for NATS", e);
         }
     }
 
     /**
-     * Subscriber that defines handling of incoming messages
+     * Handles incoming messages from the NATS subscription.
      */
     private final class Handler implements MessageHandler {
         @Override

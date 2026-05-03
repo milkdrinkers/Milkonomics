@@ -5,6 +5,7 @@ import io.github.milkdrinkers.milkonomics.config.exception.ConfigValidationExcep
 import io.github.milkdrinkers.milkonomics.config.typeserializer.BigDecimalSerializer;
 import io.github.milkdrinkers.milkonomics.config.typeserializer.DurationSerializer;
 import io.github.milkdrinkers.milkonomics.config.typeserializer.LowercaseEnumSerializer;
+import io.github.milkdrinkers.milkonomics.config.typeserializer.StringListSerializer;
 import io.github.milkdrinkers.milkonomics.config.typeserializer.StringObjectMapSerializer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -323,6 +324,7 @@ public class ConfigLoader {
     private YamlConfigurationLoader createLoader(@NotNull File file) {
         final TypeSerializerCollection.Builder serializerBuilder = TypeSerializerCollection.defaults().childBuilder()
             .register(LowercaseEnumSerializer.INSTANCE)
+            .registerExact(StringListSerializer.TYPE_TOKEN, StringListSerializer.INSTANCE)
             .registerExact(StringObjectMapSerializer.TYPE_TOKEN, StringObjectMapSerializer.INSTANCE)
             .registerExact(BigDecimal.class, BigDecimalSerializer.INSTANCE)
             .registerExact(Duration.class, DurationSerializer.INSTANCE);
