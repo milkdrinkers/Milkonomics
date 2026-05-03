@@ -48,10 +48,10 @@ public interface VersionedConfig {
      * which migrations need to be applied when loading an older file.
      *
      * <p>Implementations must declare a {@code public int configVersion} field <em>with that
-     * exact name</em> and return it here. The default {@link #migrator()} looks up the version
-     * key {@code "configVersion"} in the YAML node, if the field is named anything else,
-     * migrations will silently never fire. Start versioning at {@code 1}; version {@code 0}
-     * and negative values are treated as "no version" by Configurate's versioned transformer.
+     * exact name</em> and return it here. Configurate serializes this field as {@code config-version}
+     * in YAML (kebab-case), and the default {@link #migrator()} uses that same key to track
+     * versions on disk. Start versioning at {@code 1}; version {@code 0} and negative values
+     * are treated as "no version" by Configurate's versioned transformer.
      *
      * @return the version number read from disk
      */
@@ -98,9 +98,9 @@ public interface VersionedConfig {
      * Builds the versioned migrator used by {@link io.github.milkdrinkers.milkonomics.config.loading.ConfigLoader}
      * to upgrade on-disk nodes before deserialization.
      *
-     * <p>The version key is hard-coded to {@code "configVersion"}, which must match the field
-     * name declared in your implementation. Override this method only if you need a different
-     * key name; otherwise override {@link #migrations()} instead.
+     * <p>The version key is hard-coded to {@code "config-version"}, which is the kebab-case
+     * form Configurate writes for a field named {@code configVersion}. Override this method
+     * only if you need a different key; otherwise override {@link #migrations()} instead.
      *
      * @return a {@link ConfigurationTransformation.Versioned} assembled from {@link #migrations()}
      */
@@ -108,7 +108,7 @@ public interface VersionedConfig {
     @NotNull
     default ConfigurationTransformation.Versioned migrator() {
         final ConfigurationTransformation.VersionedBuilder builder = ConfigurationTransformation.versionedBuilder()
-            .versionKey("configVersion");
+            .versionKey("config-version");
 
         for (Map.Entry<Integer, Migration> entry : migrations().entrySet()) {
             builder.addVersion(entry.getKey(), entry.getValue());

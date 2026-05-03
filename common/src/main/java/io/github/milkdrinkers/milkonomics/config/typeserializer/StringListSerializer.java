@@ -10,7 +10,6 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Serializer for {@code List<String>} that accepts either a plain scalar string or a YAML list.
@@ -21,6 +20,7 @@ import java.util.stream.Collectors;
  */
 public final class StringListSerializer implements TypeSerializer<List<String>> {
     public static final StringListSerializer INSTANCE = new StringListSerializer();
+
     public static final TypeToken<List<String>> TYPE_TOKEN = new TypeToken<>() {
         @Override
         public Type getType() {
@@ -49,7 +49,7 @@ public final class StringListSerializer implements TypeSerializer<List<String>> 
             return node.childrenList().stream()
                 .map(n -> n.getString(""))
                 .filter(s -> !s.isEmpty())
-                .collect(Collectors.toList());
+                .toList();
         }
 
         final String scalar = node.getString();
@@ -65,6 +65,15 @@ public final class StringListSerializer implements TypeSerializer<List<String>> 
             node.raw(null);
             return;
         }
-        node.setList(String.class, obj);
+
+        if (obj.size() == 1) {
+            node.raw(obj.getFirst());
+            return;
+        }
+
+        node.raw(null);
+        for (final String value : obj) {
+            node.appendListNode().raw(value);
+        }
     }
 }

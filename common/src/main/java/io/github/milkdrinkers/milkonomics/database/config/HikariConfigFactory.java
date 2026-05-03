@@ -91,6 +91,8 @@ public final class HikariConfigFactory {
         hikariConfig.setIsolateInternalQueries(true);
         hikariConfig.setConnectionInitSql(databaseType.getConnectionInitSql());
 
+        DatabaseSslApplicator.apply(hikariConfig, config);
+
         return hikariConfig;
     }
 }

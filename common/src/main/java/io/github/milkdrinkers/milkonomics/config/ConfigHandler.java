@@ -3,6 +3,8 @@ package io.github.milkdrinkers.milkonomics.config;
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomics.Reloadable;
 import io.github.milkdrinkers.milkonomics.config.loading.ConfigLoader;
+import io.github.milkdrinkers.milkonomics.config.typeserializer.StringListSerializer;
+import io.github.milkdrinkers.milkonomics.config.typeserializer.StringObjectMapSerializer;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -54,6 +56,10 @@ public class ConfigHandler implements Reloadable {
             .withDirectory()
             .withPath(configDir.resolve("database.yml"))
             .withHeader("")
+            .withSerializer(b -> {
+                b.registerExact(StringListSerializer.TYPE_TOKEN, StringListSerializer.INSTANCE)
+                    .registerExact(StringObjectMapSerializer.TYPE_TOKEN, StringObjectMapSerializer.INSTANCE);
+            })
             .build(DatabaseConfig.class);
 
         denominationConfigs = loadDenominations(plugin);

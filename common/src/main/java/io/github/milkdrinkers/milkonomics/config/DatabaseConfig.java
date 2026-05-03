@@ -16,7 +16,7 @@ import java.util.Map;
 @ConfigSerializable
 public class DatabaseConfig implements VersionedConfig {
     @Comment("Do not change this value!")
-    public int configVersion = 2;
+    public int configVersion = 1;
 
     @Override
     @Exclude
@@ -27,19 +27,7 @@ public class DatabaseConfig implements VersionedConfig {
     @Override
     @Exclude
     public @NotNull Map<Integer, Migration> migrations() {
-        return Map.of(
-            2, Migration.builder()
-                // messaging.address (String) was replaced with messaging.addresses (List<String>)
-                // to support clusters. Migrate the old single-address string into a list.
-                .withTransform(root -> {
-                    final String oldAddress = root.node("messaging", "address").getString();
-                    if (oldAddress != null && !oldAddress.isEmpty()) {
-                        root.node("messaging", "addresses").setList(String.class, List.of(oldAddress));
-                    }
-                    root.node("messaging", "address").set(null);
-                })
-                .build()
-        );
+        return Map.of();
     }
 
     @Override
@@ -79,6 +67,37 @@ public class DatabaseConfig implements VersionedConfig {
 
             @Comment("Configure the HikariCP connection pool")
             public ConnectionPool connectionPool = new ConnectionPool();
+
+            @Comment("SSL/TLS configuration for the database connection.\nOnly applies to MySQL and MariaDB; ignored for SQLite and H2.")
+            public SSL ssl = new SSL();
+
+            @ConfigSerializable
+            public static class SSL {
+                @Comment("Enable TLS/SSL for the database connection")
+                public boolean enabled = false;
+
+                @Comment(
+                    "How to verify the server's identity:\n" +
+                        "  \"require\"          encrypt without validating the server certificate\n" +
+                        "  \"verify-ca\"        encrypt and verify the server certificate against the configured CA\n" +
+                        "  \"verify-identity\"  additionally check that the hostname matches the certificate\n" +
+                        "Note: when this section is enabled, any useSSL property in connection-properties is ignored."
+                )
+                public String mode = "require";
+
+                @Comment("Path to the Certificate Authority certificate in PEM format.\nRequired when mode is \"verify-ca\" or \"verify-identity\".")
+                public String caPath = "";
+
+                @Comment("Path to the client certificate in PEM format.\nOnly required for mutual TLS (mTLS).")
+                public String certPath = "";
+
+                @Comment(
+                    "Path to the client private key in PKCS#8 PEM format.\n" +
+                        "Only required for mutual TLS alongside cert-path.\n" +
+                        "Convert a PKCS#1 key with: openssl pkcs8 -topk8 -nocrypt -in key.pem -out key.pkcs8.pem"
+                )
+                public String keyPath = "";
+            }
 
             @ConfigSerializable
             public static class ConnectionPool {
@@ -141,15 +160,15 @@ public class DatabaseConfig implements VersionedConfig {
         public static class Advanced {
             @Comment(
                 "Authentication method. Supported values per broker:\n" +
-                "  Redis:    \"password\" (username + password or password-only)\n" +
-                "            \"token\"    (Redis AUTH token)\n" +
-                "  RabbitMQ: \"password\" (PLAIN mechanism)\n" +
-                "            \"token\"    (token as password)\n" +
-                "            \"certificate\" (mutual TLS, no credentials needed; cert CN maps to a RabbitMQ user)\n" +
-                "  NATS:     \"password\" (username + password)\n" +
-                "            \"token\"    (auth token)\n" +
-                "            \"nkey\"     (NKey seed file, optionally paired with a JWT file)\n" +
-                "            \"credentials\" (combined JWT + NKey .creds file)"
+                    "  Redis:    \"password\" (username + password or password-only)\n" +
+                    "            \"token\"    (Redis AUTH token)\n" +
+                    "  RabbitMQ: \"password\" (PLAIN mechanism)\n" +
+                    "            \"token\"    (token as password)\n" +
+                    "            \"certificate\" (mutual TLS, no credentials needed; cert CN maps to a RabbitMQ user)\n" +
+                    "  NATS:     \"password\" (username + password)\n" +
+                    "            \"token\"    (auth token)\n" +
+                    "            \"nkey\"     (NKey seed file, optionally paired with a JWT file)\n" +
+                    "            \"credentials\" (combined JWT + NKey .creds file)"
             )
             public String authMethod = "password";
 
@@ -169,9 +188,9 @@ public class DatabaseConfig implements VersionedConfig {
 
                 @Comment(
                     "Path to the client private key in PKCS#8 PEM format (.pem)\n" +
-                    "Required alongside cert-path for mutual TLS.\n" +
-                    "If you have a PKCS#1 key (-----BEGIN RSA PRIVATE KEY-----), convert it first:\n" +
-                    "  openssl pkcs8 -topk8 -nocrypt -in key.pem -out key.pkcs8.pem"
+                        "Required alongside cert-path for mutual TLS.\n" +
+                        "If you have a PKCS#1 key (-----BEGIN RSA PRIVATE KEY-----), convert it first:\n" +
+                        "  openssl pkcs8 -topk8 -nocrypt -in key.pem -out key.pkcs8.pem"
                 )
                 public String keyPath = "";
 

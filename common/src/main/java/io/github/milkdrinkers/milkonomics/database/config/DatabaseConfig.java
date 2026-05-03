@@ -37,6 +37,21 @@ public class DatabaseConfig {
     // JDBC properties
     private final Map<String, Object> connectionProperties;
 
+    private final SslConfig sslConfig;
+
+    /**
+     * Immutable SSL/TLS configuration snapshot for the database connection.
+     */
+    public record SslConfig(
+        boolean enabled,
+        String mode,
+        String caPath,
+        String certPath,
+        String keyPath
+    ) {
+        static final SslConfig DISABLED = new SslConfig(false, "require", "", "", "");
+    }
+
     /**
      * Instantiates a new Database config.
      *
@@ -55,6 +70,7 @@ public class DatabaseConfig {
      * @param keepAliveTime        the keep alive time
      * @param connectionTimeout    the connection timeout
      * @param connectionProperties the connection properties
+     * @param sslConfig            the SSL configuration
      */
     private DatabaseConfig(
         DatabaseType databaseType,
@@ -71,7 +87,8 @@ public class DatabaseConfig {
         long maxLifeTime,
         long keepAliveTime,
         long connectionTimeout,
-        Map<String, Object> connectionProperties
+        Map<String, Object> connectionProperties,
+        SslConfig sslConfig
     ) {
         this.databaseType = databaseType;
         this.tablePrefix = tablePrefix;
@@ -88,6 +105,7 @@ public class DatabaseConfig {
         this.keepAliveTime = keepAliveTime;
         this.connectionTimeout = connectionTimeout;
         this.connectionProperties = connectionProperties;
+        this.sslConfig = sslConfig;
     }
 
     /**
@@ -227,6 +245,15 @@ public class DatabaseConfig {
     }
 
     /**
+     * Gets the SSL configuration.
+     *
+     * @return the SSL config
+     */
+    public SslConfig getSslConfig() {
+        return sslConfig;
+    }
+
+    /**
      * Gets connection properties.
      *
      * @return the connection properties
@@ -258,6 +285,13 @@ public class DatabaseConfig {
             .withKeepAliveTime(cfg.database.advanced.connectionPool.keepalivetime)
             .withConnectionTimeout(cfg.database.advanced.connectionPool.connectiontimeout)
             .withConnectionProperties(cfg.database.advanced.connectionProperties)
+            .withSslConfig(new SslConfig(
+                cfg.database.advanced.ssl.enabled,
+                cfg.database.advanced.ssl.mode,
+                cfg.database.advanced.ssl.caPath,
+                cfg.database.advanced.ssl.certPath,
+                cfg.database.advanced.ssl.keyPath
+            ))
             .build();
     }
 
@@ -296,6 +330,7 @@ public class DatabaseConfig {
         private @Nullable Long connectionTimeout;
 
         private @Nullable Map<String, Object> connectionProperties;
+        private @Nullable SslConfig sslConfig;
 
         /**
          * With database type database config builder.
@@ -463,6 +498,17 @@ public class DatabaseConfig {
         }
 
         /**
+         * With SSL config database config builder.
+         *
+         * @param sslConfig the SSL configuration
+         * @return the database config builder
+         */
+        public Builder withSslConfig(SslConfig sslConfig) {
+            this.sslConfig = sslConfig;
+            return this;
+        }
+
+        /**
          * Build database config.
          *
          * @return the database config
@@ -525,7 +571,10 @@ public class DatabaseConfig {
                 }
             }
 
-            return new DatabaseConfig(databaseType, tablePrefix, path, host, port, database, username, password, repair, maxPoolSize, minIdle, maxLifeTime, keepAliveTime, connectionTimeout, connectionProperties);
+            if (sslConfig == null)
+                sslConfig = SslConfig.DISABLED;
+
+            return new DatabaseConfig(databaseType, tablePrefix, path, host, port, database, username, password, repair, maxPoolSize, minIdle, maxLifeTime, keepAliveTime, connectionTimeout, connectionProperties, sslConfig);
         }
     }
 }
