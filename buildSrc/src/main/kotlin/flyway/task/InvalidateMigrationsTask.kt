@@ -20,14 +20,6 @@ abstract class InvalidateMigrationsTask : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val trackedClasspathMigrations: ConfigurableFileCollection
 
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val trackedBuildScripts: ConfigurableFileCollection
-
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val trackedBuildLogic: ConfigurableFileCollection
-
     @get:Input
     abstract val checksumFileName: Property<String>
 
@@ -42,8 +34,6 @@ abstract class InvalidateMigrationsTask : DefaultTask() {
         val migrationState = buildString {
             appendFileStates("filesystem", trackedFilesystemMigrations.files)
             appendFileStates("classpath", trackedClasspathMigrations.files)
-            appendFileStates("buildscript", trackedBuildScripts.files)
-            appendFileStates("buildlogic", trackedBuildLogic.files)
         }
 
         outputFile.writeText(migrationState)

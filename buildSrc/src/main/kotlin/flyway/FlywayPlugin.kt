@@ -145,32 +145,6 @@ abstract class FlywayPlugin : Plugin<Project> {
                 )
             }
 
-            trackedBuildScripts.from(
-                project.rootProject.allprojects.map { it.buildFile }
-            )
-            trackedBuildScripts.from(
-                project.rootProject.files(
-                    "settings.gradle.kts",
-                    "settings.gradle",
-                    "gradle/libs.versions.toml"
-                ).filter { it.exists() }
-            )
-            trackedBuildScripts.from(
-                project.files(
-                    "settings.gradle.kts",
-                    "settings.gradle",
-                    "gradle/libs.versions.toml"
-                ).filter { it.exists() }
-            )
-
-            trackedBuildLogic.from(
-                project.rootProject.fileTree("buildSrc/src/main/kotlin") {
-                    include("**/*.kt")
-                }
-            )
-            trackedBuildLogic.from(
-                project.rootProject.files("build.gradle.kts", "build.gradle").filter { it.exists() }
-            )
         }
     }
 
@@ -183,7 +157,7 @@ abstract class FlywayPlugin : Plugin<Project> {
     ): TaskProvider<FlywayMigrateTask> {
         return project.tasks.register<FlywayMigrateTask>(FLYWAY_MIGRATE_TASK) {
             group = PLUGIN_GROUP
-            description = "Run Flyway migrations (configuration cache compatible)"
+            description = "Run Flyway migrations"
 
             // Dependencies
             dependsOn(invalidateMigrationsTask)
