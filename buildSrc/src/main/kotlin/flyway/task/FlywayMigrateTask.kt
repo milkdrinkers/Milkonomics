@@ -122,6 +122,9 @@ abstract class FlywayMigrateTask : DefaultTask() {
     abstract val enableRdbmsSpecificMigrations: Property<Boolean>
 
     @get:Input
+    abstract val rdbmsLocations: ListProperty<String>
+
+    @get:Input
     @get:Optional
     abstract val buildDirectoryPath: Property<String>
 

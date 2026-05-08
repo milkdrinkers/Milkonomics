@@ -44,6 +44,7 @@ abstract class FlywayPluginExtension(project: Project) {
     val callbacks: ListProperty<String> = project.objects.listProperty()
     val target: Property<String> = project.objects.property()
     val enableRdbmsSpecificMigrations: Property<Boolean> = project.objects.property<Boolean>().convention(false)
+    val rdbmsLocations: ListProperty<String> = project.objects.listProperty<String>().convention(listOf())
 
     init {
         schemas.convention(listOf("PUBLIC"))
@@ -57,6 +58,8 @@ abstract class FlywayPluginExtension(project: Project) {
      */
     internal fun applyTo(task: AssimilateMigrationsTask) {
         task.sqlMigrationSuffixes.set(sqlMigrationSuffixes)
+        task.enableRdbmsSpecificMigrations.set(enableRdbmsSpecificMigrations)
+        task.rdbmsLocations.set(rdbmsLocations)
     }
 
     /**
@@ -92,6 +95,7 @@ abstract class FlywayPluginExtension(project: Project) {
         task.sqlMigrationSeparator.set(sqlMigrationSeparator)
         task.sqlMigrationSuffixes.set(sqlMigrationSuffixes)
         task.enableRdbmsSpecificMigrations.set(enableRdbmsSpecificMigrations)
+        task.rdbmsLocations.set(rdbmsLocations)
         task.callbacks.set(callbacks)
         task.target.set(target)
     }

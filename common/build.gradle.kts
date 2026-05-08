@@ -123,6 +123,7 @@ flyway {
     baselineOnMigrate = true
     cleanDisabled = false
     enableRdbmsSpecificMigrations = true
+    rdbmsLocations = listOf("h2", "sqlite", "mysql", "mariadb")
     locations = listOf(
         "filesystem:${project.layout.projectDirectory}/src/main/resources/db/migration/",
         "classpath:${mainPackage.replace(".", "/")}/database/migration/migrations"

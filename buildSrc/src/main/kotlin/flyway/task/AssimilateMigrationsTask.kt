@@ -3,6 +3,7 @@ package flyway.task
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import java.io.File
 
@@ -22,12 +23,19 @@ abstract class AssimilateMigrationsTask : DefaultTask() {
     @get:Input
     abstract val sqlMigrationSuffixes: ListProperty<String>
 
+    @get:Input
+    abstract val enableRdbmsSpecificMigrations: Property<Boolean>
+
+    @get:Input
+    abstract val rdbmsLocations: ListProperty<String>
+
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
 
     init {
         resourceMigrationDir.convention(project.layout.projectDirectory.dir("src/main/resources/db/migration"))
         sqlMigrationSuffixes.convention(listOf(".sql"))
+        rdbmsLocations.convention(listOf())
         outputDir.convention(project.layout.buildDirectory.dir("generated/flyway/assimilatedMigrations"))
     }
 
@@ -54,13 +62,27 @@ abstract class AssimilateMigrationsTask : DefaultTask() {
         logger.info("Found ${commonMigrations.size} common migrations")
 
         // Process each specific directory
-        val rdbmsDirectories = inputDir.listFiles { file -> file.isDirectory } ?: emptyArray()
-
-        rdbmsDirectories.forEach { rdbmsDir ->
-            processRdbmsDirectory(rdbmsDir, commonMigrations, outputDir)
+        val explicitLocations = rdbmsLocations.get()
+        if (enableRdbmsSpecificMigrations.get() && explicitLocations.isEmpty()) {
+            logger.error("Cannot find rdbmsLocations: \"flyway.rdbmsLocations\" must be set when \"flyway.enableRdbmsSpecificMigrations\" is enabled")
+            return
         }
 
-        logger.info("Assimilated migrations for ${rdbmsDirectories.size} RDBMS types")
+        if (enableRdbmsSpecificMigrations.get()) {
+            val rdbmsDirectories: List<File> = explicitLocations.map { inputDir.resolve(it) }
+
+            rdbmsDirectories.forEach { rdbmsDir ->
+                processRdbmsDirectory(rdbmsDir, commonMigrations, outputDir)
+            }
+
+            logger.info("Assimilated migrations for ${rdbmsDirectories.size} RDBMS types")
+        } else {
+            commonMigrations.values.forEach { source ->
+                source.copyTo(outputDir.resolve(source.name), overwrite = true)
+            }
+
+            logger.info("Assimilated ${commonMigrations.size} migrations")
+        }
     }
 
     /**
@@ -72,9 +94,13 @@ abstract class AssimilateMigrationsTask : DefaultTask() {
         outputDir: File
     ) {
         val rdbmsName = rdbmsDir.name
-        val specificMigrations = (rdbmsDir.listFiles { file -> file.isFile } ?: emptyArray())
-            .filter { sqlMigrationSuffixes.get().any { s -> it.extension == s.removePrefix(".") } }
-            .associateBy { it.name }
+        val specificMigrations = if (rdbmsDir.exists()) {
+            (rdbmsDir.listFiles { file -> file.isFile } ?: emptyArray())
+                .filter { sqlMigrationSuffixes.get().any { s -> it.extension == s.removePrefix(".") } }
+                .associateBy { it.name }
+        } else {
+            emptyMap()
+        }
 
         val allVersions = (commonMigrations.keys + specificMigrations.keys).toSet()
         val rdbmsOutputDir = outputDir.resolve(rdbmsName)
