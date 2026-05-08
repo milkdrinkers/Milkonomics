@@ -114,9 +114,6 @@ abstract class FlywayPlugin : Plugin<Project> {
             description = "Assimilate RDBMS-specific and common migrations into a unified structure that can be used by Flyway."
 
             extension.applyTo(this)
-
-            resourceMigrationDir.set(project.layout.projectDirectory.dir("src/main/resources/db/migration"))
-            outputDir.set(project.layout.buildDirectory.dir("tmp/assimilateMigrations"))
         }
     }
 

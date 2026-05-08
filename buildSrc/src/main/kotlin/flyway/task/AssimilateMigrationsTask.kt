@@ -26,7 +26,9 @@ abstract class AssimilateMigrationsTask : DefaultTask() {
     abstract val outputDir: DirectoryProperty
 
     init {
+        resourceMigrationDir.convention(project.layout.projectDirectory.dir("src/main/resources/db/migration"))
         sqlMigrationSuffixes.convention(listOf(".sql"))
+        outputDir.convention(project.layout.buildDirectory.dir("generated/flyway/assimilatedMigrations"))
     }
 
     @TaskAction
