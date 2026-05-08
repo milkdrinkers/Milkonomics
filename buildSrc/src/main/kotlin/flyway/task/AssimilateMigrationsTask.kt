@@ -1,9 +1,8 @@
 package flyway.task
 
+import flyway.FlywayConfig
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import java.io.File
 
@@ -16,27 +15,19 @@ import java.io.File
  * 3. Copy non-clashing common migrations to the temp dir (Common migrations are overridden by RDBMS specific migrations)
  */
 abstract class AssimilateMigrationsTask : DefaultTask() {
+    @get:Nested
+    abstract val config: FlywayConfig
+
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val resourceMigrationDir: DirectoryProperty
-
-    @get:Input
-    abstract val sqlMigrationSuffixes: ListProperty<String>
-
-    @get:Input
-    abstract val enableRdbmsSpecificMigrations: Property<Boolean>
-
-    @get:Input
-    abstract val rdbmsLocations: ListProperty<String>
 
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
 
     init {
         resourceMigrationDir.convention(project.layout.projectDirectory.dir("src/main/resources/db/migration"))
-        sqlMigrationSuffixes.convention(listOf(".sql"))
-        rdbmsLocations.convention(listOf())
-        outputDir.convention(project.layout.buildDirectory.dir("generated/flyway/assimilatedMigrations"))
+        outputDir.convention(project.layout.buildDirectory.dir("tmp/flyway/assimilateMigrations"))
     }
 
     @TaskAction
@@ -56,19 +47,19 @@ abstract class AssimilateMigrationsTask : DefaultTask() {
 
         // Get all common migrations from the resource directory
         val commonMigrations = (inputDir.listFiles { file -> file.isFile } ?: emptyArray())
-            .filter { sqlMigrationSuffixes.get().any { s -> it.extension == s.removePrefix(".") } }
+            .filter { config.sqlMigrationSuffixes.get().any { s -> it.extension == s.removePrefix(".") } }
             .associateBy { it.name }
 
         logger.info("Found ${commonMigrations.size} common migrations")
 
         // Process each specific directory
-        val explicitLocations = rdbmsLocations.get()
-        if (enableRdbmsSpecificMigrations.get() && explicitLocations.isEmpty()) {
+        val explicitLocations = config.rdbmsLocations.get()
+        if (config.enableRdbmsSpecificMigrations.get() && explicitLocations.isEmpty()) {
             logger.error("Cannot find rdbmsLocations: \"flyway.rdbmsLocations\" must be set when \"flyway.enableRdbmsSpecificMigrations\" is enabled")
             return
         }
 
-        if (enableRdbmsSpecificMigrations.get()) {
+        if (config.enableRdbmsSpecificMigrations.get()) {
             val rdbmsDirectories: List<File> = explicitLocations.map { inputDir.resolve(it) }
 
             rdbmsDirectories.forEach { rdbmsDir ->
@@ -96,7 +87,7 @@ abstract class AssimilateMigrationsTask : DefaultTask() {
         val rdbmsName = rdbmsDir.name
         val specificMigrations = if (rdbmsDir.exists()) {
             (rdbmsDir.listFiles { file -> file.isFile } ?: emptyArray())
-                .filter { sqlMigrationSuffixes.get().any { s -> it.extension == s.removePrefix(".") } }
+                .filter { config.sqlMigrationSuffixes.get().any { s -> it.extension == s.removePrefix(".") } }
                 .associateBy { it.name }
         } else {
             emptyMap()

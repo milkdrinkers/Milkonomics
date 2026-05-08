@@ -28,7 +28,7 @@ abstract class FlywayPlugin : Plugin<Project> {
         private const val EXTENSION_NAME = "flyway"
         private const val ASSIMILATE_MIGRATIONS_TASK = "assimilateMigrations"
         private const val MIGRATION_PATH = "db/migration"
-        private const val TEMP_MIGRATION_PATH = "tmp/assimilateMigrations/"
+        private const val TEMP_MIGRATION_PATH = "tmp/flyway/assimilateMigrations/"
         private const val INVALIDATE_MIGRATIONS_TASK = "invalidateMigrations"
         private const val PROCESS_RESOURCES_TASK = "processResources"
         private const val FLYWAY_MIGRATE_TASK = "flywayMigrate"
@@ -45,7 +45,7 @@ abstract class FlywayPlugin : Plugin<Project> {
             isCanBeResolved = true
         }
 
-        val extension = project.extensions.create(EXTENSION_NAME, FlywayPluginExtension::class.java, project)
+        val extension = project.extensions.create(EXTENSION_NAME, FlywayPluginExtension::class.java)
 
         val hasProcessResources = project.tasks.names.contains(PROCESS_RESOURCES_TASK)
         val hasJooqCodegen = project.tasks.names.contains(JOOQ_CODEGEN_TASK)
@@ -113,7 +113,7 @@ abstract class FlywayPlugin : Plugin<Project> {
             group = PLUGIN_GROUP
             description = "Assimilate RDBMS-specific and common migrations into a unified structure that can be used by Flyway."
 
-            extension.applyTo(this)
+            config.wireConventionsFrom(extension)
         }
     }
 
@@ -125,7 +125,7 @@ abstract class FlywayPlugin : Plugin<Project> {
             // Set defaults
             checksumFileName.convention("migration-state.txt")
             outputFile.convention(
-                project.layout.buildDirectory.file("tmp/invalidateMigrations/migration-state.txt")
+                project.layout.buildDirectory.file("tmp/flyway/invalidateMigrations/migration-state.txt")
             )
 
             // Configure file collections
@@ -191,7 +191,7 @@ abstract class FlywayPlugin : Plugin<Project> {
                 dependsOn(assimilateMigrationsTask)
             }
 
-            extension.applyTo(this)
+            config.wireConventionsFrom(extension)
 
             // Set JDBC driver classpath
             driverClasspath.from(flywayDriverConfig)
