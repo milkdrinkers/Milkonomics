@@ -13,7 +13,9 @@ import java.io.File
  * 1. Create temp dir for parsed flyway migrations
  * 2. Copy RDBMS specific migrations to the temp dir
  * 3. Copy non-clashing common migrations to the temp dir (Common migrations are overridden by RDBMS specific migrations)
+ * @author darksaid98
  */
+@CacheableTask
 abstract class AssimilateMigrationsTask : DefaultTask() {
     @get:Nested
     abstract val config: FlywayConfig

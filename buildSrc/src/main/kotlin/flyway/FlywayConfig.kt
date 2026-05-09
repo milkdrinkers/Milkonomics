@@ -6,73 +6,105 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
+/**
+ * The base configuration for Flyway tasks and plugin extension.
+ * @author darksaid98
+ */
 abstract class FlywayConfig {
     @get:Input
     abstract val url: Property<String>
+
     @get:Input
     @get:Optional
     abstract val driver: Property<String>
+
     @get:Input
     abstract val user: Property<String>
+
     @get:Input
     abstract val password: Property<String>
+
     @get:Input
     abstract val schemas: ListProperty<String>
+
     @get:Input
     @get:Optional
     abstract val defaultSchema: Property<String>
+
     @get:Input
     abstract val locations: ListProperty<String>
+
     @get:Input
     abstract val placeholders: MapProperty<String, String>
+
     @get:Input
     abstract val placeholderPrefix: Property<String>
+
     @get:Input
     abstract val placeholderSuffix: Property<String>
+
     @get:Input
     abstract val placeholderReplacement: Property<Boolean>
+
     @get:Input
     abstract val validateMigrationNaming: Property<Boolean>
+
     @get:Input
     abstract val validateOnMigrate: Property<Boolean>
+
     @get:Input
     abstract val baselineOnMigrate: Property<Boolean>
+
     @get:Input
     abstract val baselineVersion: Property<String>
+
     @get:Input
     abstract val baselineDescription: Property<String>
+
     @get:Input
     abstract val outOfOrder: Property<Boolean>
+
     @get:Input
     abstract val mixed: Property<Boolean>
+
     @get:Input
     abstract val groupMigrations: Property<Boolean>
-    @get:Input
-    abstract val cleanOnValidationError: Property<Boolean>
+
     @get:Input
     abstract val cleanDisabled: Property<Boolean>
+
     @get:Input
     abstract val table: Property<String>
+
     @get:Input
     @get:Optional
     abstract val tablespace: Property<String>
+
     @get:Input
     abstract val encoding: Property<String>
+
     @get:Input
     abstract val sqlMigrationPrefix: Property<String>
+
     @get:Input
     abstract val repeatableSqlMigrationPrefix: Property<String>
+
     @get:Input
     abstract val sqlMigrationSeparator: Property<String>
+
     @get:Input
     abstract val sqlMigrationSuffixes: ListProperty<String>
+
     @get:Input
     abstract val callbacks: ListProperty<String>
+
     @get:Input
     @get:Optional
     abstract val target: Property<String>
+
     @get:Input
     abstract val enableRdbmsSpecificMigrations: Property<Boolean>
+
     @get:Input
     abstract val rdbmsLocations: ListProperty<String>
 
@@ -92,7 +124,6 @@ abstract class FlywayConfig {
         outOfOrder.convention(false)
         mixed.convention(false)
         groupMigrations.convention(false)
-        cleanOnValidationError.convention(false)
         cleanDisabled.convention(true)
         table.convention("flyway_schema_history")
         encoding.convention("UTF-8")
@@ -124,7 +155,6 @@ abstract class FlywayConfig {
         outOfOrder.convention(source.outOfOrder)
         mixed.convention(source.mixed)
         groupMigrations.convention(source.groupMigrations)
-        cleanOnValidationError.convention(source.cleanOnValidationError)
         cleanDisabled.convention(source.cleanDisabled)
         table.convention(source.table)
         tablespace.convention(source.tablespace)

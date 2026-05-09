@@ -2,7 +2,6 @@ package flyway
 
 import flyway.task.AssimilateMigrationsTask
 import flyway.task.FlywayMigrateTask
-import flyway.task.InvalidateMigrationsTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -29,7 +28,6 @@ class FlywayPlugin : Plugin<Project> {
         private const val ASSIMILATE_MIGRATIONS_TASK = "assimilateMigrations"
         private const val MIGRATION_PATH = "db/migration"
         private const val TEMP_MIGRATION_PATH = "tmp/flyway/assimilateMigrations/"
-        private const val INVALIDATE_MIGRATIONS_TASK = "invalidateMigrations"
         private const val PROCESS_RESOURCES_TASK = "processResources"
         private const val FLYWAY_MIGRATE_TASK = "flywayMigrate"
         private const val JOOQ_CODEGEN_TASK = "jooqCodegen"
@@ -57,15 +55,12 @@ class FlywayPlugin : Plugin<Project> {
             null
         }
 
-        // Register invalidate migrations task
-        val invalidateMigrationsTask = registerInvalidateMigrationsTask(project)
-
         // Register custom Flyway migrate task
-        val flywayMigrateTask = registerFlywayMigrateTask(project, extension, flywayDriverConfig, assimilateMigrationsTask, invalidateMigrationsTask)
+        val flywayMigrateTask = registerFlywayMigrateTask(project, extension, flywayDriverConfig, assimilateMigrationsTask)
 
         // Configure jOOQ codegen
         if (hasJooqCodegen) {
-            configureJooqCodegen(project, flywayMigrateTask, invalidateMigrationsTask)
+            configureJooqCodegen(project, flywayMigrateTask)
         } else {
             project.logger.info("flyway.FlywayPlugin: $JOOQ_CODEGEN_TASK task not found, skipping jOOQ configuration")
         }
@@ -108,50 +103,16 @@ class FlywayPlugin : Plugin<Project> {
         }
     }
 
-    private fun registerInvalidateMigrationsTask(project: Project): TaskProvider<InvalidateMigrationsTask> {
-        return project.tasks.register<InvalidateMigrationsTask>(INVALIDATE_MIGRATIONS_TASK) {
-            group = PLUGIN_GROUP
-            description = "Invalidate Flyway cache based on migration state"
-
-            // Set defaults
-            checksumFileName.convention("migration-state.txt")
-            outputFile.convention(
-                project.layout.buildDirectory.file("tmp/flyway/invalidateMigrations/migration-state.txt")
-            )
-
-            // Configure file collections
-            trackedFilesystemMigrations.from(
-                project.fileTree(project.layout.projectDirectory.dir("src/main/resources/db/migration")) {
-                    include("**/*.sql")
-                }
-            )
-
-            val mainPackage = project.findProperty("mainPackage") as? String
-            if (mainPackage != null) {
-                val classpathDir = "src/main/java/${mainPackage.replace('.', '/')}/database/migration/migrations"
-                trackedClasspathMigrations.from(
-                    project.fileTree(project.layout.projectDirectory.dir(classpathDir)) {
-                        include("**/*.java", "**/*.kt")
-                    }
-                )
-            }
-
-        }
-    }
-
     private fun registerFlywayMigrateTask(
         project: Project,
         extension: FlywayPluginExtension,
         flywayDriverConfig: Configuration,
         assimilateMigrationsTask: TaskProvider<AssimilateMigrationsTask>?,
-        invalidateMigrationsTask: TaskProvider<InvalidateMigrationsTask>
     ): TaskProvider<FlywayMigrateTask> {
         return project.tasks.register<FlywayMigrateTask>(FLYWAY_MIGRATE_TASK) {
             group = PLUGIN_GROUP
             description = "Run Flyway migrations"
 
-            // Dependencies
-            dependsOn(invalidateMigrationsTask)
             assimilateMigrationsTask?.let { dependsOn(it) }
 
             config.wireConventionsFrom(extension)
@@ -159,8 +120,26 @@ class FlywayPlugin : Plugin<Project> {
             // Set JDBC driver classpath
             driverClasspath.from(flywayDriverConfig)
 
-            // Connect migration state file
-            migrationStateFile.set(invalidateMigrationsTask.flatMap { it.outputFile })
+            // Set SQL migrations, filessource or assimilated output if present
+            locations.from(
+                project.fileTree(project.layout.projectDirectory.dir("src/main/resources/db/migration")) {
+                    include("**/*.sql")
+                }
+            )
+            assimilateMigrationsTask?.let { task ->
+                locations.from(task.flatMap { it.outputDir })
+            }
+
+            // Classpath-based Java/Kotlin migration classes
+            val mainPackage = project.findProperty("mainPackage") as? String
+            if (mainPackage != null) {
+                val classpathDir = "src/main/java/${mainPackage.replace('.', '/')}/database/migration/migrations"
+                locationsClasspath.from(
+                    project.fileTree(project.layout.projectDirectory.dir(classpathDir)) {
+                        include("**/*.java", "**/*.kt")
+                    }
+                )
+            }
         }
     }
 
@@ -200,13 +179,9 @@ class FlywayPlugin : Plugin<Project> {
     private fun configureJooqCodegen(
         project: Project,
         flywayMigrateTask: TaskProvider<FlywayMigrateTask>,
-        invalidateMigrationsTask: TaskProvider<InvalidateMigrationsTask>
     ) {
         project.tasks.named(JOOQ_CODEGEN_TASK) {
             dependsOn(flywayMigrateTask)
-
-            // Track migration-state.txt to invalidate cache
-            inputs.files(invalidateMigrationsTask.flatMap { it.outputFile })
 
             // Track database dir as input
             inputs.files(flywayMigrateTask.flatMap { it.databaseDirectory })

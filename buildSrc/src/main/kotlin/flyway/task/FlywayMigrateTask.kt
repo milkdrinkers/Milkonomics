@@ -6,7 +6,6 @@ import org.flywaydb.core.api.output.MigrateResult
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import java.io.File.separator
@@ -14,7 +13,9 @@ import java.net.URLClassLoader
 
 /**
  * A task executing Flyway migrate.
+ * @author darksaid98
  */
+@CacheableTask
 abstract class FlywayMigrateTask : DefaultTask() {
     @get:Nested
     abstract val config: FlywayConfig
@@ -23,9 +24,13 @@ abstract class FlywayMigrateTask : DefaultTask() {
     @get:Classpath
     abstract val driverClasspath: ConfigurableFileCollection
 
-    @get:InputFile
+    @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val migrationStateFile: RegularFileProperty
+    abstract val locations: ConfigurableFileCollection
+
+    @get:InputFiles
+    @get:Classpath
+    abstract val locationsClasspath: ConfigurableFileCollection
 
     @get:Input
     @get:Optional
@@ -79,7 +84,6 @@ abstract class FlywayMigrateTask : DefaultTask() {
             .outOfOrder(config.outOfOrder.get())
             .mixed(config.mixed.get())
             .group(config.groupMigrations.get())
-            .cleanOnValidationError(config.cleanOnValidationError.get())
             .cleanDisabled(config.cleanDisabled.get())
             .table(config.table.get())
             .encoding(config.encoding.get())
