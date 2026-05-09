@@ -13,8 +13,8 @@ import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.withType
 import org.gradle.language.jvm.tasks.ProcessResources
-import java.io.File
 import java.io.File.separator
 
 /**
@@ -22,7 +22,7 @@ import java.io.File.separator
  * @author darksaid98
  */
 @Suppress("unused")
-abstract class FlywayPlugin : Plugin<Project> {
+class FlywayPlugin : Plugin<Project> {
     companion object {
         private const val PLUGIN_GROUP = "flyway"
         private const val EXTENSION_NAME = "flyway"
@@ -34,7 +34,6 @@ abstract class FlywayPlugin : Plugin<Project> {
         private const val FLYWAY_MIGRATE_TASK = "flywayMigrate"
         private const val JOOQ_CODEGEN_TASK = "jooqCodegen"
         private const val SOURCES_TASK = "sourcesJar"
-        private const val JAVADOC_TASK = "javadoc"
         private const val COMPILE_JAVA_TASK = "compileJava"
     }
 
@@ -76,31 +75,23 @@ abstract class FlywayPlugin : Plugin<Project> {
             configureProcessResources(project, extension, assimilateMigrationsTask)
         }
 
-        project.afterEvaluate {
-            val hasSources = project.tasks.names.contains(SOURCES_TASK)
-            val hasJavadoc = project.tasks.names.contains(JAVADOC_TASK)
-            val hasCompileJava = project.tasks.names.contains(COMPILE_JAVA_TASK)
-
+        if (hasJooqCodegen) {
             // Required for sources jar generation with jOOQ
-            if (hasSources && hasJooqCodegen) {
-                project.tasks.named<Jar>(SOURCES_TASK) {
+            project.tasks.withType<Jar>().configureEach {
+                if (name == SOURCES_TASK) {
                     dependsOn(JOOQ_CODEGEN_TASK)
                     duplicatesStrategy = DuplicatesStrategy.INCLUDE
                 }
             }
 
             // Required for javadoc jar generation with jOOQ
-            if (hasJavadoc && hasJooqCodegen) {
-                project.tasks.named<Javadoc>(JAVADOC_TASK) {
-                    exclude("**${separator}database${separator}schema${separator}**") // Exclude generated jOOQ sources from javadocs
-                }
+            project.tasks.withType<Javadoc>().configureEach {
+                exclude("**${separator}database${separator}schema${separator}**")
             }
 
             // Ensure jOOQ code generation runs before Java compilation
-            if (hasCompileJava && hasJooqCodegen) {
-                project.tasks.named<JavaCompile>(COMPILE_JAVA_TASK) {
-                    dependsOn(JOOQ_CODEGEN_TASK)
-                }
+            project.tasks.named<JavaCompile>(COMPILE_JAVA_TASK) {
+                dependsOn(JOOQ_CODEGEN_TASK)
             }
         }
     }
@@ -161,9 +152,7 @@ abstract class FlywayPlugin : Plugin<Project> {
 
             // Dependencies
             dependsOn(invalidateMigrationsTask)
-            if (assimilateMigrationsTask != null && extension.enableRdbmsSpecificMigrations.getOrElse(false)) {
-                dependsOn(assimilateMigrationsTask)
-            }
+            assimilateMigrationsTask?.let { dependsOn(it) }
 
             config.wireConventionsFrom(extension)
 
@@ -183,24 +172,20 @@ abstract class FlywayPlugin : Plugin<Project> {
         project.tasks.named<ProcessResources>(PROCESS_RESOURCES_TASK) {
             // Only depend on assimilate if RDBMS-specific migrations are enabled
             val enableRdbms = extension.enableRdbmsSpecificMigrations
-            if (enableRdbms.getOrElse(false)) {
-                dependsOn(assimilateMigrationsTask)
-            }
+            dependsOn(assimilateMigrationsTask)
 
             // Exclude original migration files from being processed directly
             exclude("$MIGRATION_PATH/**")
 
-            // Use Provider API to avoid capturing project instance
-            val buildDir = project.layout.buildDirectory
-            val sourceDirProvider = buildDir.dir(TEMP_MIGRATION_PATH)
+            val sourceDirProvider = project.layout.buildDirectory.dir(TEMP_MIGRATION_PATH)
 
             doLast {
-                if (!enableRdbms.getOrElse(false)) {
+                if (!enableRdbms.get()) {
                     return@doLast
                 }
 
                 val sourceDir = sourceDirProvider.get().asFile
-                val targetDir = File(destinationDir, MIGRATION_PATH)
+                val targetDir = destinationDir.resolve(MIGRATION_PATH)
 
                 if (sourceDir.exists()) {
                     sourceDir.copyRecursively(targetDir, overwrite = true)

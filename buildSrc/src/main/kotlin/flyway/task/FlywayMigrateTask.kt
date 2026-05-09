@@ -5,6 +5,7 @@ import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.output.MigrateResult
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
@@ -31,11 +32,11 @@ abstract class FlywayMigrateTask : DefaultTask() {
     abstract val buildDirectoryPath: Property<String>
 
     @get:OutputDirectory
-    abstract val databaseDirectory: RegularFileProperty
+    abstract val databaseDirectory: DirectoryProperty
 
     init {
         buildDirectoryPath.convention(project.layout.buildDirectory.map { it.asFile.absolutePath })
-        databaseDirectory.convention(project.layout.buildDirectory.file("generated/flyway/"))
+        databaseDirectory.convention(project.layout.buildDirectory.dir("generated/flyway/"))
     }
 
     @TaskAction
