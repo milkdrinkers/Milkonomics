@@ -1,8 +1,10 @@
 import com.vanniktech.maven.publish.JavaLibrary
 import com.vanniktech.maven.publish.JavadocJar
+import org.gradle.internal.extensions.stdlib.capitalized
 
 plugins {
     alias(libs.plugins.publisher)
+    signing
 }
 
 mavenPublishing {
@@ -62,7 +64,8 @@ mavenPublishing {
 
     // Sign all publications
     signAllPublications()
+}
 
-    // Skip signing for local tasks
-    tasks.withType<Sign>().configureEach { onlyIf { !gradle.taskGraph.allTasks.any { it is PublishToMavenLocal } } }
+signing {
+    isRequired = false // Skip signing if no credentials are provided, e.g. for local publishing
 }
