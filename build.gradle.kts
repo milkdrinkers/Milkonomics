@@ -5,6 +5,7 @@ plugins {
     projectextensions
     versioning
     idea
+    eclipse
 }
 
 java {
