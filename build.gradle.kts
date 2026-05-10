@@ -1,10 +1,7 @@
-import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import versioning.VersioningPlugin
 
 plugins {
     `java-library`
-
-    alias(libs.plugins.shadow) // Shades and relocates dependencies, see https://gradleup.com/shadow/
     projectextensions
     versioning
     idea
@@ -22,12 +19,13 @@ tasks {
 
 subprojects {
     apply<JavaLibraryPlugin>()
-    apply<ShadowPlugin>()
     apply<ProjectExtensionsPlugin>()
     apply<VersioningPlugin>()
 
     project.version = rootProject.version
     project.description = rootProject.description
+
+    base.archivesName.set("${rootProject.name}-${project.name}")
 
     java {
         toolchain.languageVersion.set(JavaLanguageVersion.of(21)) // Configure the java toolchain. This allows gradle to auto-provision JDK 21 on systems that only have JDK 8 installed for example.

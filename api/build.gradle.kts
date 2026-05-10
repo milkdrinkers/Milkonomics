@@ -5,17 +5,6 @@ plugins {
     alias(libs.plugins.publisher)
 }
 
-tasks {
-    build {
-        dependsOn(shadowJar)
-    }
-
-    shadowJar {
-        archiveBaseName.set(rootProject.name + "-" + project.name)
-        archiveClassifier.set("")
-    }
-}
-
 mavenPublishing {
     coordinates(
         groupId = "io.github.milkdrinkers",

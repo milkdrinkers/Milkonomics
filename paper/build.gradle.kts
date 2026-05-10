@@ -1,6 +1,7 @@
 import net.minecrell.pluginyml.paper.PaperPluginDescription
 
 plugins {
+    alias(libs.plugins.shadow) // Shades and relocates dependencies, see https://gradleup.com/shadow/
     alias(libs.plugins.run.paper) // Built in test server using runServer and runMojangMappedServer tasks
     alias(libs.plugins.plugin.yml.bukkit) // Automatic plugin.yml generation
     alias(libs.plugins.plugin.yml.paper) // Automatic plugin.yml generation    //alias(libs.plugins.paperweight) // Used to develop internal plugins using Mojang mappings, See https://github.com/PaperMC/paperweight
@@ -60,7 +61,6 @@ tasks {
     }
 
     shadowJar {
-        archiveBaseName.set(rootProject.name + "-" + project.name)
         archiveClassifier.set("")
 
         // Shadow classes
