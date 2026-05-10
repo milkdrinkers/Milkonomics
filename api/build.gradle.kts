@@ -10,7 +10,7 @@ plugins {
 mavenPublishing {
     coordinates(
         groupId = "io.github.milkdrinkers",
-        artifactId = "milkonomics",
+        artifactId = base.archivesName.get().lowercase(),
         version = version.toString().let { originalVersion ->
             if (!originalVersion.contains("-SNAPSHOT"))
                 originalVersion
@@ -20,7 +20,7 @@ mavenPublishing {
     )
 
     pom {
-        name.set(rootProject.name)
+        name.set(base.archivesName.get().split("-").map { it.capitalized() }.joinToString("-"))
         description.set(rootProject.description.orEmpty())
         url.set("https://github.com/milkdrinkers/Milkonomics")
         inceptionYear.set("2026")
