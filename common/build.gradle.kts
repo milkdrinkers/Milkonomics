@@ -8,37 +8,26 @@ plugins {
 dependencies {
     // Core dependencies
     api(projects.api)
-    implementation(libs.morepaperlib)
+    api(libs.morepaperlib)
 
     // API
-    implementation(libs.javasemver) // Required by VersionWatch
-    implementation(libs.versionwatch)
-    implementation(libs.wordweaver)
-    implementation(libs.crate.api)
-    implementation(libs.crate.yaml)
-    api(libs.yaml)
-    annotationProcessor(libs.configurate.`interface`.ap)
-    api(libs.configurate.`interface`)
-    implementation(libs.configurate.yaml)
-
-    implementation(libs.colorparser) {
+    api(libs.javasemver) // Required by VersionWatch
+    api(libs.versionwatch)
+    api(libs.wordweaver)
+    api(libs.bundles.configurate.core) {
+        isTransitive = false
+    }
+    api(libs.bundles.configurate.yaml) {
+        isTransitive = false
+    }
+    annotationProcessor(libs.configurate.interfaces.ap)
+    api(libs.colorparser) {
         exclude("net.kyori")
     }
-    implementation(libs.threadutil.bukkit)
-    implementation(libs.commandapi.shade)
-    implementation(libs.triumph.gui) {
-        exclude("net.kyori")
-    }
-
-    // Plugin dependencies
-    implementation(libs.bstats)
-    compileOnly(libs.packetevents)
-    compileOnly(libs.placeholderapi) {
-        exclude("me.clip.placeholderapi.libs", "kyori")
-    }
+    api(libs.threadutil.bukkit)
 
     // Database dependencies - Core
-    implementation(libs.hikaricp)
+    api(libs.hikaricp)
     compileOnly(libs.bundles.flyway)
     flywayDriver(libs.h2)
     compileOnly(libs.jakarta) // Compiler bug, see: https://github.com/jOOQ/jOOQ/issues/14865#issuecomment-2077182512
@@ -70,43 +59,6 @@ dependencies {
 
     // Testing - Messaging service clients
     testImplementation(libs.bundles.messagingclients)
-}
-
-tasks {
-    build {
-        dependsOn(shadowJar)
-    }
-
-    shadowJar {
-        archiveBaseName.set(rootProject.name + "-" + project.name)
-        archiveClassifier.set("")
-
-        // Shadow classes
-        fun reloc(originPkg: String, targetPkg: String, exclude: String = "") = relocate(originPkg, "${project.relocationPackage}.${targetPkg}") { exclude(exclude) }
-
-        reloc("space.arim.morepaperlib", "morepaperlib")
-        reloc("io.github.milkdrinkers.javasemver", "javasemver")
-        reloc("io.github.milkdrinkers.versionwatch", "versionwatch")
-        reloc("io.github.milkdrinkers.wordweaver", "wordweaver")
-        reloc("io.github.milkdrinkers.crate", "crate")
-        reloc("io.github.milkdrinkers.colorparser", "colorparser")
-        reloc("io.github.milkdrinkers.threadutil", "threadutil")
-        reloc("org.snakeyaml", "snakeyaml")
-        reloc("org.json", "json")
-        reloc("dev.jorel.commandapi", "commandapi")
-        reloc("dev.triumphteam.gui", "triumphgui")
-        reloc("com.zaxxer.hikari", "hikaricp")
-        reloc("org.bstats", "bstats")
-
-        // Configurate deps
-        reloc("io.leangen.geantyref", "geantyref")
-        reloc("org.yaml", "yaml")
-        reloc("org.spongepowered", "spongepowered")
-//        reloc("it.unimi.dsi.fastutil", "it.unimi.dsi.fastutil")
-//        reloc("net.kyori", "kyori", "net.kyori.adventure.text.logger.slf4j.ComponentLogger")
-
-        mergeServiceFiles()
-    }
 }
 
 flyway {

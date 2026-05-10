@@ -8,23 +8,10 @@ plugins {
 
 dependencies {
     // Core dependencies
-    implementation(projects.common) {
-//        isTransitive = false
-    }
-    implementation(libs.morepaperlib)
+    implementation(projects.common)
 
     // API
-    implementation(libs.javasemver) // Required by VersionWatch
-    implementation(libs.versionwatch)
-    implementation(libs.wordweaver)
-    implementation(libs.crate.api)
-    implementation(libs.crate.yaml)
-    implementation(libs.colorparser) {
-        exclude("net.kyori")
-    }
-    implementation(libs.threadutil.bukkit)
     implementation(libs.commandapi.shade)
-    //annotationProcessor(libs.commandapi.annotations) // Uncomment if you want to use command annotations
     implementation(libs.triumph.gui) {
         exclude("net.kyori")
     }
@@ -37,12 +24,8 @@ dependencies {
     }
 
     // Database dependencies - Core
-    implementation(libs.hikaricp)
     library(libs.bundles.flyway)
-//    flywayDriver(libs.h2)
-    compileOnly(libs.jakarta) // Compiler bug, see: https://github.com/jOOQ/jOOQ/issues/14865#issuecomment-2077182512
     library(libs.jooq)
-//    jooqCodegen(libs.h2)
 
     // Database dependencies - JDBC drivers
     library(libs.bundles.jdbcdrivers)
@@ -80,8 +63,6 @@ tasks {
         archiveBaseName.set(rootProject.name + "-" + project.name)
         archiveClassifier.set("")
 
-        dependsOn(":common:shadowJar")
-
         // Shadow classes
         fun reloc(originPkg: String, targetPkg: String) = relocate(originPkg, "${project.relocationPackage}.${targetPkg}")
 
@@ -102,6 +83,9 @@ tasks {
         reloc("io.leangen.geantyref", "geantyref")
         reloc("org.yaml", "yaml")
         reloc("org.spongepowered", "spongepowered")
+
+        reloc("com.google.errorprone", "google")
+        reloc("com.google.gson", "google")
 
         mergeServiceFiles()
     }

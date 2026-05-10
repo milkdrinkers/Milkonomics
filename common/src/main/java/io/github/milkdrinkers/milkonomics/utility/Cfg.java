@@ -1,6 +1,5 @@
 package io.github.milkdrinkers.milkonomics.utility;
 
-import io.github.milkdrinkers.crate.Config;
 import io.github.milkdrinkers.milkonomics.AbstractMilkonomics;
 import io.github.milkdrinkers.milkonomics.config.ConfigHandler;
 import io.github.milkdrinkers.milkonomics.config.PluginConfig;
@@ -11,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class Cfg {
     /**
-     * Convenience method for {@link ConfigHandler#getConfig} to getConnection {@link Config}
+     * Convenience method for {@link ConfigHandler#getConfig} to getConnection {@link PluginConfig}
      *
      * @return the config
      */
