@@ -145,7 +145,7 @@ paper { // Options: https://docs.eldoria.de/pluginyml/paper/
     authors = rootProject.authors
     contributors = rootProject.contributors
     apiVersion = libs.versions.paper.api.get().substringBefore("-R").substringBefore("-pre")
-    foliaSupported = false
+    foliaSupported = true
 
     // Dependencies
     hasOpenClassloader = true
