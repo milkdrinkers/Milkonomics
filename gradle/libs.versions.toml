@@ -1,7 +1,6 @@
 [versions]
 paper-api = "1.21.11-R0.1-SNAPSHOT"
 paper-run = "1.21.11"
-crate = "4.0.0-RC.5"
 commandapi = "11.2.0"
 flyway = "12.5.0"
 jooq = "3.21.2"
@@ -17,8 +16,6 @@ morepaperlib = "space.arim.morepaperlib:morepaperlib:0.4.4"
 javasemver = "io.github.milkdrinkers:javasemver:1.0.2"
 versionwatch = "io.github.milkdrinkers:versionwatch:1.1.0"
 wordweaver = "io.github.milkdrinkers:wordweaver:0.0.7"
-crate-api = { module = "io.github.milkdrinkers:crate-api", version.ref = "crate" }
-crate-yaml = { module = "io.github.milkdrinkers:crate-yaml", version.ref = "crate" }
 yaml = { module = "org.yaml:snakeyaml", version = "2.6" }
 configurate-geantyref = "io.leangen.geantyref:geantyref:2.0.1"
 configurate-interfaces-ap = { module = "org.spongepowered:configurate-extra-interface-ap", version.ref = "configurate" }
@@ -28,7 +25,6 @@ configurate-yaml = { module = "org.spongepowered:configurate-yaml", version.ref 
 colorparser = "io.github.milkdrinkers:colorparser-paper:4.1.0"
 threadutil-bukkit = "io.github.milkdrinkers:threadutil-bukkit:1.4.0"
 commandapi-shade = { module = "dev.jorel:commandapi-paper-shade", version.ref = "commandapi" }
-commandapi-annotations = { module = "dev.jorel:commandapi-paper-annotations", version.ref = "commandapi" }
 triumph-gui = "dev.triumphteam:triumph-gui-paper:3.1.13"
 
 # Plugin dependencies
